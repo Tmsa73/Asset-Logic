@@ -224,14 +224,9 @@ body {
   background-clip: text;
 }
 
-/* Hover elevate */
-.hover-elevate {
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-.hover-elevate:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-}
+/* Scrollbar hide */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* Active press */
 .press-scale:active {

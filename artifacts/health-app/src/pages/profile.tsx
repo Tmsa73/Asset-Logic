@@ -98,6 +98,15 @@ const HEALTH_CONDITIONS: { value: HealthCondition; label: string; icon: string }
   { value: "custom", label: "Other", icon: "✍️" },
 ];
 
+const PROFILE_BANNERS = [
+  { id: "starter",  name: "Starter",        emoji: "🌱", gradient: "from-slate-700/60 to-slate-900/60",                               unlocksAt: 0  },
+  { id: "rising",   name: "Rising Star",    emoji: "⭐", gradient: "from-primary/50 to-secondary/40",                                  unlocksAt: 3  },
+  { id: "warrior",  name: "Health Warrior", emoji: "⚔️", gradient: "from-orange-500/50 to-red-600/40",                                unlocksAt: 6  },
+  { id: "champion", name: "Champion",       emoji: "🏆", gradient: "from-yellow-400/50 to-amber-600/40",                              unlocksAt: 9  },
+  { id: "legend",   name: "Legend",         emoji: "👑", gradient: "from-purple-500/50 to-violet-700/40",                             unlocksAt: 12 },
+  { id: "immortal", name: "Immortal",       emoji: "💎", gradient: "from-primary/60 via-secondary/40 to-accent/40",                   unlocksAt: 15 },
+];
+
 const THEME_OPTIONS = [
   { value: "dark", label: "Dark", icon: Moon, preview: "bg-slate-900" },
   { value: "light", label: "Light", icon: Sun, preview: "bg-green-50" },
@@ -245,9 +254,26 @@ export default function Profile() {
 function MeTab({ profile, stats, progress, missions, balance, user, activeTitle, levelInfo, bmi, bmiLabel, bmiColor, earnedBadges, memberSince }: any) {
   const [isEditing, setIsEditing] = useState(false);
   const [localAvatar, setLocalAvatar] = useState<string | null>(() => localStorage.getItem("userAvatar"));
+  const [displayName, setDisplayName] = useState<string>(() => localStorage.getItem("bodylogic-display-name") || user?.name || profile?.name || "");
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState(displayName);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { t } = useLang();
+
+  const level = progress?.level ?? 1;
+  const unlockedTitlesCount = ALL_TITLES.filter(tl => level >= tl.minLevel).length;
+  const activeBanner = PROFILE_BANNERS.filter(b => b.unlocksAt <= unlockedTitlesCount).at(-1) ?? PROFILE_BANNERS[0]!;
+  const nextBanner = PROFILE_BANNERS.find(b => b.unlocksAt > unlockedTitlesCount);
+
+  const saveName = () => {
+    const trimmed = nameInput.trim();
+    if (!trimmed) return;
+    setDisplayName(trimmed);
+    localStorage.setItem("bodylogic-display-name", trimmed);
+    setEditingName(false);
+    toast({ title: "Name updated!" });
+  };
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -264,7 +290,23 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
   };
 
   return (
-    <div className="px-4 pt-4 space-y-4 pb-24">
+    <div className="space-y-4 pb-24">
+      {/* Profile Banner */}
+      <div className={cn("relative h-28 w-full bg-gradient-to-r overflow-hidden", activeBanner.gradient)}>
+        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px)" }} />
+        <div className="absolute bottom-3 left-4 flex items-center gap-2">
+          <span className="text-2xl">{activeBanner.emoji}</span>
+          <div>
+            <p className="text-white font-black text-sm drop-shadow-sm">{activeBanner.name}</p>
+            {nextBanner && (
+              <p className="text-white/60 text-[10px] font-semibold">{nextBanner.unlocksAt - unlockedTitlesCount} more titles for "{nextBanner.name}"</p>
+            )}
+          </div>
+        </div>
+        <div className="absolute bottom-3 right-4 text-[10px] text-white/50 font-bold">{unlockedTitlesCount} titles unlocked</div>
+      </div>
+
+      <div className="px-4 space-y-4">
       {/* Health Identity Card */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/25 via-secondary/10 to-primary/5 border border-primary/30 p-5">
         <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full -translate-y-10 translate-x-10 blur-3xl" />
@@ -278,7 +320,7 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
                 {(localAvatar || profile.avatarUrl) ? (
                   <img src={localAvatar ?? profile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
-                  (user?.name || profile.name).charAt(0).toUpperCase()
+                  displayName.charAt(0).toUpperCase()
                 )}
               </div>
               <div className="absolute inset-0 rounded-2xl bg-black/40 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity flex items-center justify-center">
@@ -290,7 +332,21 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
             </div>
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-black leading-tight">{user?.name || profile.name}</h2>
+            {editingName ? (
+              <div className="flex items-center gap-1.5 mb-1">
+                <input value={nameInput} onChange={e => setNameInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter") saveName(); if (e.key === "Escape") setEditingName(false); }}
+                  className="flex-1 bg-black/20 border border-white/20 rounded-lg px-2 py-1 text-sm font-black text-white outline-none" autoFocus />
+                <button onClick={saveName} className="w-7 h-7 rounded-lg bg-primary/30 flex items-center justify-center"><Check className="w-3.5 h-3.5 text-white" /></button>
+                <button onClick={() => setEditingName(false)} className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center"><X className="w-3.5 h-3.5 text-white" /></button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 mb-1">
+                <h2 className="text-lg font-black leading-tight">{displayName}</h2>
+                <button onClick={() => { setNameInput(displayName); setEditingName(true); }} className="w-6 h-6 rounded-md bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                  <Edit2 className="w-3 h-3 text-white/70" />
+                </button>
+              </div>
+            )}
             <div className="flex items-center gap-1.5 mt-0.5 mb-2">
               <Crown className="w-3.5 h-3.5 text-yellow-400" />
               <span className={cn("text-sm font-black", activeTitle.color, activeTitle.glow && "drop-shadow-[0_0_8px_currentColor]")}>{activeTitle.name}</span>
@@ -452,6 +508,7 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
           )}
         </CardContent>
       </Card>
+      </div>{/* end px-4 wrapper */}
     </div>
   );
 }
@@ -560,7 +617,7 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
       {/* Badges */}
       {rewardsTab === "achievements" && (
         <div className="space-y-4">
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide">
             {CATEGORY_TABS.map(c => (
               <button
                 key={c.key}
@@ -571,7 +628,7 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
               </button>
             ))}
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide">
             <button onClick={() => setTierFilter("all")} className={cn("px-3 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap", tierFilter === "all" ? "bg-muted text-foreground" : "text-muted-foreground")}>All Tiers</button>
             {(["bronze", "silver", "gold", "platinum", "legendary"] as BadgeTier[]).map(tier => {
               const cfg = TIER_CONFIG[tier];
@@ -896,7 +953,6 @@ function SettingsTab() {
           <div className="grid grid-cols-2 gap-2">
             {AI_PERSONALITIES.map(p => {
               const active = aiPersonality === p.value;
-              const descKey = `settings_${p.value}_desc` as any;
               return (
                 <button key={p.value} onClick={() => handleSavePersonality(p.value)}
                   className={cn("flex flex-col items-start gap-1.5 p-3 rounded-xl border-2 transition-all text-left", active ? p.color : "border-border/50 bg-muted/20")}>
@@ -905,7 +961,7 @@ function SettingsTab() {
                     <span className={cn("text-xs font-bold flex-1", !active && "text-foreground")}>{p.label}</span>
                     {active && <div className="w-1.5 h-1.5 rounded-full bg-current" />}
                   </div>
-                  <p className="text-[10px] text-muted-foreground leading-tight">{t(descKey)}</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight">{p.desc}</p>
                 </button>
               );
             })}
@@ -926,13 +982,12 @@ function SettingsTab() {
           <div className="grid grid-cols-2 gap-2">
             {DIET_OPTIONS.map(d => {
               const active = diet === d.value;
-              const labelKey = `diet_${d.value}` as any;
               return (
                 <button key={d.value} onClick={() => setDiet(d.value)}
                   className={cn("flex items-center gap-2.5 p-3 rounded-xl border-2 transition-all text-left relative", active ? "border-secondary bg-secondary/10" : "border-border/40 bg-muted/20")}>
                   {active && <Check className="absolute top-1.5 right-1.5 w-3 h-3 text-secondary" />}
                   <span className="text-lg shrink-0">{d.icon}</span>
-                  <span className={cn("text-xs font-bold truncate", active ? "text-secondary" : "text-foreground")}>{t(labelKey)}</span>
+                  <span className={cn("text-xs font-bold truncate", active ? "text-secondary" : "text-foreground")}>{d.label}</span>
                 </button>
               );
             })}
@@ -954,13 +1009,12 @@ function SettingsTab() {
           <div className="grid grid-cols-2 gap-2">
             {HEALTH_CONDITIONS.map(h => {
               const active = selectedConditions.has(h.value);
-              const labelKey = `health_${h.value}` as any;
               return (
                 <button key={h.value} onClick={() => toggleCondition(h.value)}
                   className={cn("flex items-center gap-2 p-2.5 rounded-xl border-2 transition-all text-left relative", active ? "border-orange-400/50 bg-orange-400/10" : "border-border/40 bg-muted/20")}>
                   {active && <Check className="absolute top-1.5 right-1.5 w-3 h-3 text-orange-400" />}
                   <span className="text-base">{h.icon}</span>
-                  <span className={cn("text-xs font-bold truncate", active ? "text-orange-400" : "text-muted-foreground")}>{t(labelKey)}</span>
+                  <span className={cn("text-xs font-bold truncate", active ? "text-orange-400" : "text-muted-foreground")}>{h.label}</span>
                 </button>
               );
             })}
