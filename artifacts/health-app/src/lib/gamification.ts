@@ -237,9 +237,21 @@ export function getUnlockedAchievements(stats: GamificationStats): Achievement[]
   return ALL_ACHIEVEMENTS.filter(a => a.condition(stats));
 }
 
-export function getActiveTitle(level: number): Title {
+export function getActiveTitle(level: number, customId?: string | null): Title {
+  if (customId) {
+    const found = ALL_TITLES.find(t => t.id === customId && level >= t.minLevel);
+    if (found) return found;
+  }
   const eligible = ALL_TITLES.filter(t => level >= t.minLevel);
   return eligible[eligible.length - 1] ?? ALL_TITLES[0]!;
+}
+
+export function getStoredTitleId(): string | null {
+  try { return localStorage.getItem("bodylogic-active-title-id"); } catch { return null; }
+}
+
+export function setStoredTitleId(id: string): void {
+  try { localStorage.setItem("bodylogic-active-title-id", id); } catch { /* noop */ }
 }
 
 export function calcGamificationStats(data: {
@@ -324,14 +336,14 @@ export const WEEKLY_MISSIONS: Mission[] = [
 ];
 
 export const SMART_MISSIONS: Mission[] = [
-  { id: "sm_reduce_sugar", title: "Sugar Reset", description: "Reduce sugar intake — log 5 low-sugar meals", icon: "nutrition", xp: 120, coins: 12, category: "nutrition", type: "smart", difficulty: "medium" },
   { id: "sm_protein_boost", title: "Protein Surge", description: "Increase protein — log 3 high-protein meals", icon: "fitness", xp: 100, coins: 10, category: "nutrition", type: "smart", difficulty: "easy" },
-  { id: "sm_sleep_improve", title: "Sleep Optimizer", description: "Improve sleep — log 8+ hours 3 nights in a row", icon: "sleep", xp: 150, coins: 15, category: "fitness", type: "smart", difficulty: "medium" },
-  { id: "sm_cardio_week", title: "Cardio Blitz", description: "Do 3 cardio sessions this week", icon: "heart", xp: 180, coins: 18, category: "fitness", type: "smart", difficulty: "medium" },
   { id: "sm_ai_insight", title: "Coach-Led Day", description: "Follow AI suggestion for your entire day", icon: "ai", xp: 90, coins: 9, category: "ai", type: "smart", difficulty: "easy" },
-  { id: "sm_no_skip", title: "No-Skip Week", description: "Don't skip a single logged category for 7 days", icon: "target", xp: 300, coins: 30, category: "lifestyle", type: "smart", difficulty: "hard" },
-  { id: "sm_hydration_fix", title: "Hydration Fix", description: "You're below water goal — drink 3L today", icon: "water", xp: 80, coins: 8, category: "nutrition", type: "smart", difficulty: "easy" },
-  { id: "sm_morning_moves", title: "Morning Moves", description: "Work out before 8am 3 days this week", icon: "sun", xp: 200, coins: 20, category: "fitness", type: "smart", difficulty: "hard" },
+  { id: "sm_hydration_fix", title: "Hydration Fix", description: "Drink 3L of water today", icon: "water", xp: 80, coins: 8, category: "nutrition", type: "smart", difficulty: "easy" },
+  { id: "sm_reduce_sugar", title: "Sugar Reset", description: "Reduce sugar — log 5 low-sugar meals", icon: "nutrition", xp: 120, coins: 12, category: "nutrition", type: "smart", difficulty: "medium" },
+  { id: "sm_sleep_improve", title: "Sleep Optimizer", description: "Log 8+ hours of sleep for 3 nights in a row", icon: "sleep", xp: 150, coins: 15, category: "fitness", type: "smart", difficulty: "medium" },
+  { id: "sm_cardio_week", title: "Cardio Blitz", description: "Do 3 cardio sessions this week", icon: "heart", xp: 180, coins: 18, category: "fitness", type: "smart", difficulty: "medium" },
+  { id: "sm_no_skip", title: "No-Skip Week", description: "Log every category for 7 days straight", icon: "target", xp: 300, coins: 30, category: "lifestyle", type: "smart", difficulty: "hard" },
+  { id: "sm_morning_moves", title: "Morning Moves", description: "Work out before 8am — 3 days this week", icon: "sun", xp: 200, coins: 20, category: "fitness", type: "smart", difficulty: "hard" },
 ];
 
 export const BOSS_CHALLENGES = [

@@ -1,0 +1,100 @@
+📱 App Improvement & Redesign Prompt
+
+Redesign and improve the application with the following requirements across UI, UX, gamification, AI behavior, and system logic:
+
+🎮 1. Gamification System Improvements
+Replace the Momentum icon with a more modern, dynamic, and meaningful icon (energy/progress-based, not generic).
+Replace the Coins icon with a proper realistic coins icon (not a star).
+Add a full XP system display in the profile section showing:
+Level + XP (e.g., “Level 5 — 100 XP”)
+🧠 2. Meal IQ Feature (Interactive Game)
+Transform “Meal IQ” into a fun card-based mini game:
+User taps Meal IQ icon → opens card game interface
+Each round shows question cards about meals/nutrition
+User selects answers by choosing cards
+Game logic:
+Randomized questions
+Adapted to user preferences (diet, goals, habits)
+Fun, engaging, and educational feedback after each choice
+📅 3. Activity Streak UI Redesign
+Improve streak UI to a clean logical calendar system
+Show dates in American format (MM/DD) like:
+4/16, 4/17, 4/18
+Make streak visually intuitive (heatmap or calendar grid)
+🤖 4. AI Behavior Analysis Simplification
+Simplify AI behavior reports based on user age:
+Younger users → simple, friendly, visual explanations
+Older users → slightly more detailed but still clear and short
+🔔 5. Notifications System Upgrade
+Add smart, logical notifications:
+Meal reminders
+Activity streak alerts
+XP/level up notifications
+Challenge reminders
+Notifications must be:
+Context-aware
+Non-spammy
+Personalized
+🏆 6. Levels, Rewards & Progress System
+
+Fully connect systems together:
+
+Levels system linked with:
+Rewards
+Challenges
+Titles
+Achievements
+Ensure all systems are interconnected and progress-based
+🧩 7. Missions System Redesign
+Rename “Smart AI Missions” → “Personal Mission”
+Replace emojis with proper icons
+Add progression-based mission structure
+Improve clarity and usability
+👹 8. Boss Challenges System
+Redesign difficulty order logically:
+Easy → Medium → Hard → Expert → Nightmare (replace Legendary)
+Ensure smooth progression and balance
+⚙️ 9. User Preferences Customization
+
+Add a settings section where users can manually define:
+
+AI Coach Personality
+Diet Preferences
+Health Conditions
+🎨 10. UI/UX Improvements
+Improve Light Mode:
+Change all white text → black
+Ensure proper contrast consistency
+Fix layout issue:
+Move AI Coach section to Home screen (better structure flow)
+Ensure consistent spacing and hierarchy across all sections
+🌍 11. Units & System Icons
+Redesign Metric and Imperial icons
+Make them visually clear and functional
+Add sound feedback when switching units
+🔊 12. Sound System Enhancements
+Add sound effects for:
+Gamification actions
+Mini games (Meal IQ cards)
+Level ups
+Achievements
+Notifications
+🍽️ 13. Home Meal Section Upgrade
+Add camera/photo meal input button
+Allow users to upload or capture meals easily
+🤖 14. AI Coach Behavior Logic
+AI should behave contextually:
+
+If user says “How are you?” → AI responds:
+
+“I’m here to help you with your health and goals. Ask me something about your plan!”
+
+Keep AI strictly focused on app-related coaching functions
+🧠 Final Goal
+
+Create a fully connected, gamified health AI system where:
+
+Every feature interacts logically
+Progression feels rewarding
+UI is clean, modern, and intuitive
+AI feels structured, not random

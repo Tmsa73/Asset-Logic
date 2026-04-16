@@ -24,6 +24,7 @@ import {
   ALL_ACHIEVEMENTS, ALL_TITLES, TIER_CONFIG, CATEGORY_CONFIG,
   DAILY_MISSIONS, WEEKLY_MISSIONS, SMART_MISSIONS, BOSS_CHALLENGES,
   calcGamificationStats, getUnlockedAchievements, getActiveTitle, calcLevel,
+  getStoredTitleId, setStoredTitleId,
   type AchievementCategory, type BadgeTier,
 } from "@/lib/gamification";
 import { UpdateProfileBodyGoal, UpdateProfileBodyActivityLevel } from "@workspace/api-client-react/src/generated/api.schemas";
@@ -131,7 +132,7 @@ export default function Profile() {
     return <ProfileSkeleton />;
   }
 
-  const activeTitle = getActiveTitle(progress.level);
+  const activeTitle = getActiveTitle(progress.level, getStoredTitleId());
   const levelInfo = calcLevel(progress.xp);
   const bmi = profile.height > 0 ? (profile.weight / ((profile.height / 100) ** 2)).toFixed(1) : "0";
   const bmiNum = Number(bmi);
@@ -456,15 +457,24 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
 }
 
 // ── REWARDS TAB ───────────────────────────────────────────────────
-function RewardsTab({ progress, missions, levelInfo, activeTitle, unlockedIds, unlockedCount }: {
+function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, unlockedIds, unlockedCount }: {
   progress: any; missions: any[]; levelInfo: any; activeTitle: any; unlockedIds: Set<string>; unlockedCount: number;
 }) {
   const [rewardsTab, setRewardsTab] = useState<RewardsTab>("achievements");
   const [catFilter, setCatFilter] = useState<AchievementCategory | "all">("all");
   const [tierFilter, setTierFilter] = useState<BadgeTier | "all">("all");
   const [missionTab, setMissionTab] = useState<MissionTab>("daily");
+  const [activeTitleId, setActiveTitleId] = useState<string | null>(() => getStoredTitleId());
+  const activeTitle = getActiveTitle(progress.level, activeTitleId);
+  const [acceptedChallenges, setAcceptedChallenges] = useState<Set<string>>(() => {
+    try {
+      const stored: {id: string}[] = JSON.parse(localStorage.getItem("bodylogic-accepted-challenges") ?? "[]");
+      return new Set(stored.map(c => c.id));
+    } catch { return new Set(); }
+  });
 
   const { t } = useLang();
+  const { toast } = useToast();
   const totalCount = ALL_ACHIEVEMENTS.length;
   const completionPct = Math.round((unlockedCount / totalCount) * 100);
   const circumference = 2 * Math.PI * 45;
@@ -598,7 +608,10 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle, unlockedIds, u
       {/* Titles */}
       {rewardsTab === "titles" && (
         <div className="space-y-3">
-          <p className="text-xs text-muted-foreground">Active: <span className={cn("font-bold", activeTitle.color)}>{activeTitle.name}</span></p>
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">Active: <span className={cn("font-bold", activeTitle.color)}>{activeTitle.name}</span></p>
+            <span className="text-[10px] text-muted-foreground">Tap title to equip</span>
+          </div>
           {ALL_TITLES.map(title => {
             const isUnlocked = progress.level >= title.minLevel;
             const isActive = title.id === activeTitle.id;
@@ -614,9 +627,28 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle, unlockedIds, u
                     {isActive && <span className="text-[9px] font-black bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">ACTIVE</span>}
                   </div>
                   <p className="text-xs text-muted-foreground">{title.description}</p>
+                  {!isUnlocked && <p className="text-[10px] text-muted-foreground/60 mt-0.5">Unlocks at Level {title.minLevel}</p>}
                 </div>
                 <div className="shrink-0">
-                  {isUnlocked ? <CheckCircle2 className="w-5 h-5 text-primary" /> : (
+                  {isUnlocked ? (
+                    isActive ? (
+                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                        <CheckCircle2 className="w-4 h-4 text-primary" />
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setActiveTitleId(title.id);
+                          setStoredTitleId(title.id);
+                          toast({ title: `${title.name} equipped!`, description: "Your title has been updated." });
+                          playGamificationSound("xp");
+                        }}
+                        className="px-3 py-1.5 rounded-xl bg-primary/10 text-primary text-[10px] font-black border border-primary/30 hover:bg-primary/20 transition-colors press-scale"
+                      >
+                        Equip
+                      </button>
+                    )
+                  ) : (
                     <div className="flex items-center gap-1"><Lock className="w-3 h-3 text-muted-foreground/40" /><div className="text-xs font-bold text-muted-foreground">Lv{title.minLevel}</div></div>
                   )}
                 </div>
@@ -734,10 +766,11 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle, unlockedIds, u
               <h3 className="text-base font-black text-destructive">Boss Challenges</h3>
               <span className="ml-auto text-[10px] font-black bg-destructive/15 text-destructive px-2 py-0.5 rounded-full border border-destructive/30">{BOSS_CHALLENGES.length} BOSSES</span>
             </div>
-            <p className="text-xs text-muted-foreground">Extreme multi-day challenges with legendary XP rewards.</p>
+            <p className="text-xs text-muted-foreground">Extreme multi-day challenges. Accept to track in notifications.</p>
           </div>
           {BOSS_CHALLENGES.map((boss, i) => {
             const diffCfg = DIFFICULTY_CONFIG[boss.difficulty as keyof typeof DIFFICULTY_CONFIG];
+            const isAccepted = acceptedChallenges.has(boss.id);
             return (
               <motion.div key={boss.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
                 className="relative overflow-hidden rounded-2xl p-4 border border-destructive/25 bg-gradient-to-br from-destructive/5 via-background to-orange-900/5">
@@ -755,8 +788,29 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle, unlockedIds, u
                     <span className="text-sm font-black text-yellow-400">+{boss.xp} XP</span>
                     <span className="text-sm text-muted-foreground">+{boss.coins}🪙</span>
                   </div>
-                  <button className="px-4 py-2 rounded-xl bg-destructive/15 text-destructive text-xs font-black border border-destructive/30 hover:bg-destructive/25 transition-colors press-scale">
-                    Accept Challenge
+                  <button
+                    onClick={() => {
+                      if (isAccepted) return;
+                      const next = new Set(acceptedChallenges);
+                      next.add(boss.id);
+                      setAcceptedChallenges(next);
+                      try {
+                        const stored: any[] = JSON.parse(localStorage.getItem("bodylogic-accepted-challenges") ?? "[]");
+                        stored.unshift({ id: boss.id, title: boss.title, icon: boss.icon, read: false });
+                        localStorage.setItem("bodylogic-accepted-challenges", JSON.stringify(stored));
+                      } catch {}
+                      playGamificationSound("achievement");
+                      toast({ title: `${boss.icon} Challenge Accepted!`, description: `"${boss.title}" — Check notifications for updates.` });
+                    }}
+                    disabled={isAccepted}
+                    className={cn(
+                      "px-4 py-2 rounded-xl text-xs font-black border transition-colors press-scale",
+                      isAccepted
+                        ? "bg-primary/15 text-primary border-primary/30 opacity-70 cursor-default"
+                        : "bg-destructive/15 text-destructive border-destructive/30 hover:bg-destructive/25"
+                    )}
+                  >
+                    {isAccepted ? "✓ Accepted" : "Accept Challenge"}
                   </button>
                 </div>
               </motion.div>

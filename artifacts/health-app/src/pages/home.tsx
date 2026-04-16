@@ -3,7 +3,7 @@ import { useGetDashboard, useGetAiInsights, useGetWaterIntake, useGetSteps, useG
 import { useQueryClient } from "@tanstack/react-query";
 import { Bell, Droplets, Footprints, Moon, Flame, Zap, TrendingUp, TrendingDown, Dumbbell, Utensils, Sparkles, Brain, X, Trophy, Crown, ChevronRight, Coins } from "lucide-react";
 import { Link } from "wouter";
-import { getActiveTitle, calcLevel, calcMomentumScore } from "@/lib/gamification";
+import { getActiveTitle, calcLevel, calcMomentumScore, getStoredTitleId } from "@/lib/gamification";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -26,7 +26,14 @@ export default function Home() {
   const { toast } = useToast();
   const { t } = useLang();
 
-  const unreadCount = notifications?.filter(n => !n.read).length ?? 0;
+  const [acceptedChallenges] = useState<{id: string; title: string; icon: string; read: boolean}[]>(() => {
+    try { return JSON.parse(localStorage.getItem("bodylogic-accepted-challenges") ?? "[]"); } catch { return []; }
+  });
+  const [localChallengeRead, setLocalChallengeRead] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem("bodylogic-challenge-read") ?? "[]")); } catch { return new Set(); }
+  });
+
+  const unreadCount = (notifications?.filter(n => !n.read).length ?? 0) + acceptedChallenges.filter(c => !localChallengeRead.has(c.id)).length;
 
   const addWater = (ml: number) => {
     logWater.mutate({ data: { amountMl: ml } }, {
@@ -94,7 +101,7 @@ export default function Home() {
   const balanceScore = balance?.overallScore ?? dashboard.lifeBalanceScore;
   const circumference = 2 * Math.PI * 45;
   const strokeDashoffset = circumference - (balanceScore / 100) * circumference;
-  const activeTitle = progress ? getActiveTitle(progress.level) : null;
+  const activeTitle = progress ? getActiveTitle(progress.level, getStoredTitleId()) : null;
 
   return (
     <div className="min-h-full bg-background">
@@ -111,25 +118,51 @@ export default function Home() {
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                {!notifications?.length ? (
+                {(!notifications?.length && !acceptedChallenges.length) ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />
                     <p className="text-sm">{t("home_all_caught")}</p>
                   </div>
-                ) : notifications.map(n => {
-                  const notifColors: Record<string, string> = { water: "border-l-blue-400", meal: "border-l-primary", workout: "border-l-orange-400", achievement: "border-l-yellow-400", sleep: "border-l-accent", system: "border-l-secondary" };
-                  return (
-                    <div key={n.id} onClick={() => { if (!n.read) { markRead.mutate({ id: n.id }); qc.invalidateQueries({ queryKey: getGetNotificationsQueryKey() }); } }} className={cn("p-3 rounded-xl bg-muted/50 border-l-2 cursor-pointer hover:bg-muted transition-colors", notifColors[n.type] ?? "border-l-border", n.read && "opacity-50")}>
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1">
-                          <p className="text-sm font-semibold">{n.title}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">{n.message}</p>
+                ) : (
+                  <>
+                    {acceptedChallenges.map(c => {
+                      const isRead = localChallengeRead.has(c.id);
+                      return (
+                        <div key={c.id} onClick={() => {
+                          const next = new Set(localChallengeRead);
+                          next.add(c.id);
+                          setLocalChallengeRead(next);
+                          try { localStorage.setItem("bodylogic-challenge-read", JSON.stringify([...next])); } catch {}
+                        }} className={cn("p-3 rounded-xl bg-muted/50 border-l-2 border-l-destructive cursor-pointer hover:bg-muted transition-colors", isRead && "opacity-50")}>
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-base">{c.icon}</span>
+                                <p className="text-sm font-semibold">Challenge Accepted!</p>
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-0.5">"{c.title}" — You're on it! Stay consistent.</p>
+                            </div>
+                            {!isRead && <div className="w-2 h-2 rounded-full bg-destructive mt-1 shrink-0" />}
+                          </div>
                         </div>
-                        {!n.read && <div className="w-2 h-2 rounded-full bg-primary mt-1 shrink-0" />}
-                      </div>
-                    </div>
-                  );
-                })}
+                      );
+                    })}
+                    {notifications?.map(n => {
+                      const notifColors: Record<string, string> = { water: "border-l-blue-400", meal: "border-l-primary", workout: "border-l-orange-400", achievement: "border-l-yellow-400", sleep: "border-l-accent", system: "border-l-secondary" };
+                      return (
+                        <div key={n.id} onClick={() => { if (!n.read) { markRead.mutate({ id: n.id }); qc.invalidateQueries({ queryKey: getGetNotificationsQueryKey() }); } }} className={cn("p-3 rounded-xl bg-muted/50 border-l-2 cursor-pointer hover:bg-muted transition-colors", notifColors[n.type] ?? "border-l-border", n.read && "opacity-50")}>
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1">
+                              <p className="text-sm font-semibold">{n.title}</p>
+                              <p className="text-xs text-muted-foreground mt-0.5">{n.message}</p>
+                            </div>
+                            {!n.read && <div className="w-2 h-2 rounded-full bg-primary mt-1 shrink-0" />}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
               </div>
             </motion.div>
           </>
@@ -231,66 +264,112 @@ export default function Home() {
         </div>
 
         {/* Life Balance + Momentum Row */}
-        <div className="grid grid-cols-2 gap-3">
-          {/* Life Balance Score */}
-          <div className="bg-card rounded-2xl p-4 border border-border/50 hover-elevate">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("home_life_balance")}</span>
-              {(() => {
-                const raw = balance?.grade?.replace("_", " ") ?? (balanceScore >= 80 ? "Excellent" : balanceScore >= 65 ? "Good" : balanceScore >= 45 ? "Fair" : "Needs Work");
-                const gradeMap: Record<string, { label: string; style: string }> = {
-                  "Excellent": { label: "Excellent", style: "bg-primary/15 text-primary border-primary/30" },
-                  "Good":      { label: "Good",      style: "bg-secondary/15 text-secondary border-secondary/30" },
-                  "Fair":      { label: "Fair",       style: "bg-orange-400/15 text-orange-400 border-orange-400/30" },
-                  "Needs Work":{ label: "Low",        style: "bg-destructive/15 text-destructive border-destructive/30" },
-                };
-                const grade = gradeMap[raw] ?? gradeMap["Fair"];
-                return (
-                  <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap", grade!.style)}>
-                    {grade!.label}
-                  </span>
-                );
-              })()}
-            </div>
-            <div className="flex items-center justify-center py-1">
-              <svg width="100" height="100" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="45" fill="none" stroke="hsl(var(--muted))" strokeWidth="8" />
-                <circle cx="50" cy="50" r="45" fill="none" stroke="hsl(var(--primary))" strokeWidth="8" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} transform="rotate(-90 50 50)" className="transition-all duration-1000" />
-                <text x="50" y="54" textAnchor="middle" className="text-foreground" style={{ fill: "hsl(var(--foreground))", fontSize: "22px", fontWeight: "900" }}>{balanceScore}</text>
-              </svg>
-            </div>
-            <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
-              {balance?.trend === "improving" ? <TrendingUp className="w-3 h-3 text-primary" /> : balance?.trend === "declining" ? <TrendingDown className="w-3 h-3 text-destructive" /> : <Minus className="w-3 h-3" />}
-              <span>{balance?.trend ?? "stable"}</span>
-            </div>
-          </div>
+        {(() => {
+          const streak = progress?.stats?.currentStreak ?? 0;
+          const pillars = [
+            { label: "Food", score: calPct, color: "bg-primary", icon: Utensils },
+            { label: "Fitness", score: stepsPct, color: "bg-secondary", icon: Dumbbell },
+            { label: "Sleep", score: Math.min(100, Math.round((dashboard.lastSleepHours / 8) * 100)), color: "bg-accent", icon: Moon },
+            { label: "Habit", score: Math.min(100, Math.round((streak / 7) * 100)), color: "bg-yellow-400", icon: Flame },
+          ];
+          const getPillarTag = (s: number) =>
+            s >= 75 ? { label: "Great", cls: "text-primary" } :
+            s >= 50 ? { label: "Good", cls: "text-yellow-400" } :
+            s >= 25 ? { label: "Fair", cls: "text-orange-400" } :
+            { label: "Low", cls: "text-destructive" };
 
-          {/* Momentum Score */}
-          <div className="bg-card rounded-2xl p-4 border border-border/50 hover-elevate">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("home_momentum")}</span>
-              <Zap className="w-3.5 h-3.5 text-primary" />
-            </div>
-            <div className="flex flex-col items-center justify-center gap-1.5">
-              <div className="text-3xl font-black leading-none">{momentumData.emoji}</div>
-              <div className="w-full">
-                <div className="flex justify-between text-[10px] mb-1">
-                  <span className={cn("font-black", momentumData.color)}>{momentumData.score}</span>
-                  <span className="text-muted-foreground">/ 100</span>
+          const rawGrade = balance?.grade?.replace("_", " ") ?? (balanceScore >= 80 ? "Excellent" : balanceScore >= 65 ? "Good" : balanceScore >= 45 ? "Fair" : "Needs Work");
+          const gradeStyle: Record<string, string> = {
+            "Excellent": "bg-primary/15 text-primary border-primary/30",
+            "Good": "bg-secondary/15 text-secondary border-secondary/30",
+            "Fair": "bg-orange-400/15 text-orange-400 border-orange-400/30",
+            "Needs Work": "bg-destructive/15 text-destructive border-destructive/30",
+          };
+
+          const streakPts = streak >= 7 ? 30 : streak >= 3 ? 20 : streak >= 1 ? 10 : 0;
+          const wkPts = Math.ceil((progress?.stats?.totalWorkouts ?? 0) / 4);
+          const workoutPts = wkPts >= 5 ? 25 : wkPts >= 3 ? 15 : wkPts >= 1 ? 8 : 0;
+          const mealsToday = Math.min(3, Math.floor(dashboard.todayCalories / 500));
+          const mealPts = mealsToday >= 3 ? 20 : mealsToday >= 2 ? 12 : mealsToday >= 1 ? 5 : 0;
+          const waterPts = waterPct >= 100 ? 15 : 0;
+          const sleepPts = dashboard.lastSleepHours >= 7 ? 10 : dashboard.lastSleepHours >= 6 ? 5 : 0;
+          const factors = [
+            { label: "Streak", pts: streakPts, max: 30, icon: Flame, color: "bg-orange-400" },
+            { label: "Workouts", pts: workoutPts, max: 25, icon: Dumbbell, color: "bg-secondary" },
+            { label: "Meals", pts: mealPts, max: 20, icon: Utensils, color: "bg-primary" },
+            { label: "Water", pts: waterPts, max: 15, icon: Droplets, color: "bg-blue-400" },
+            { label: "Sleep", pts: sleepPts, max: 10, icon: Moon, color: "bg-accent" },
+          ];
+          return (
+            <div className="grid grid-cols-2 gap-3">
+              {/* Life Balance */}
+              <div className="bg-card rounded-2xl p-4 border border-border/50 hover-elevate">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("home_life_balance")}</span>
+                  <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap", gradeStyle[rawGrade] ?? gradeStyle["Fair"])}>
+                    {rawGrade === "Needs Work" ? "Low" : rawGrade}
+                  </span>
                 </div>
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full rounded-full bg-gradient-to-r from-primary to-secondary"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${momentumData.score}%` }}
-                    transition={{ duration: 1, ease: "easeOut" }}
-                  />
+                <div className="flex items-center justify-center py-1">
+                  <svg width="80" height="80" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="hsl(var(--muted))" strokeWidth="8" />
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="hsl(var(--primary))" strokeWidth="8" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} transform="rotate(-90 50 50)" className="transition-all duration-1000" />
+                    <text x="50" y="54" textAnchor="middle" style={{ fill: "hsl(var(--foreground))", fontSize: "22px", fontWeight: "900" }}>{balanceScore}</text>
+                  </svg>
+                </div>
+                <div className="space-y-1.5 mt-1">
+                  {pillars.map(p => {
+                    const tag = getPillarTag(p.score);
+                    const PIcon = p.icon;
+                    return (
+                      <div key={p.label} className="flex items-center gap-1.5">
+                        <PIcon className="w-3 h-3 text-muted-foreground shrink-0" />
+                        <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div className={cn("h-full rounded-full transition-all", p.color)} style={{ width: `${p.score}%` }} />
+                        </div>
+                        <span className={cn("text-[9px] font-black w-7 text-right", tag.cls)}>{tag.label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="flex items-center gap-1 mt-2 text-[10px] text-muted-foreground">
+                  {balance?.trend === "improving" ? <TrendingUp className="w-3 h-3 text-primary" /> : balance?.trend === "declining" ? <TrendingDown className="w-3 h-3 text-destructive" /> : <Minus className="w-3 h-3" />}
+                  <span className={balance?.trend === "improving" ? "text-primary font-bold" : balance?.trend === "declining" ? "text-destructive font-bold" : ""}>{balance?.trend ?? "stable"}</span>
                 </div>
               </div>
-              <p className={cn("text-[10px] font-black text-center", momentumData.color)}>{momentumData.label}</p>
+
+              {/* Momentum */}
+              <div className="bg-card rounded-2xl p-4 border border-border/50 hover-elevate">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("home_momentum")}</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-base">{momentumData.emoji}</span>
+                    <span className={cn("text-xs font-black", momentumData.color)}>{momentumData.score}</span>
+                  </div>
+                </div>
+                <div className="h-1.5 bg-muted rounded-full overflow-hidden mb-2">
+                  <motion.div className="h-full rounded-full bg-gradient-to-r from-primary to-secondary" initial={{ width: 0 }} animate={{ width: `${momentumData.score}%` }} transition={{ duration: 1, ease: "easeOut" }} />
+                </div>
+                <p className={cn("text-[10px] font-black mb-2", momentumData.color)}>{momentumData.label}</p>
+                <div className="space-y-1.5">
+                  {factors.map(f => {
+                    const pct = Math.round((f.pts / f.max) * 100);
+                    const FIcon = f.icon;
+                    return (
+                      <div key={f.label} className="flex items-center gap-1.5">
+                        <FIcon className="w-3 h-3 text-muted-foreground shrink-0" />
+                        <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div className={cn("h-full rounded-full transition-all", f.color)} style={{ width: `${pct}%` }} />
+                        </div>
+                        <span className="text-[9px] text-muted-foreground w-5 text-right">{f.pts}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          );
+        })()}
 
         {/* XP + Coins Banner */}
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-yellow-500/15 via-orange-500/10 to-yellow-500/15 border border-yellow-500/20 p-4">
@@ -488,11 +567,22 @@ export default function Home() {
         {/* AI Behavior Analysis */}
         {insights?.behaviorAnalysis && (
           <div className="bg-gradient-to-br from-secondary/10 to-accent/5 rounded-2xl p-4 border border-secondary/20">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-3">
               <Zap className="w-4 h-4 text-secondary" />
               <span className="text-xs font-bold text-secondary uppercase tracking-wider">{t("home_ai_analysis")}</span>
             </div>
-            <p className="text-sm text-foreground/80 leading-relaxed">{insights.behaviorAnalysis}</p>
+            <div className="space-y-2">
+              {insights.behaviorAnalysis
+                .split(/(?<=[.!?])\s+/)
+                .filter((s: string) => s.trim().length > 5)
+                .slice(0, 3)
+                .map((sentence: string, i: number) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-secondary mt-1.5 shrink-0" />
+                    <p className="text-xs font-semibold text-foreground/80 leading-snug">{sentence.trim()}</p>
+                  </div>
+                ))}
+            </div>
           </div>
         )}
 
