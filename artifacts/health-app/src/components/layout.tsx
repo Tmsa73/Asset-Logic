@@ -27,55 +27,37 @@ function BottomNav() {
       ? location === "/profile" || location === "/achievements" || location === "/settings"
       : location === href;
 
-  const renderTab = (tab: { href: string; icon: typeof Home; label: string }) => {
-    const Icon = tab.icon;
-    const active = isActive(tab.href);
-    return (
-      <Link
-        key={tab.href}
-        href={tab.href}
-        className="flex-1 flex flex-col items-center justify-center py-2 relative group press-scale"
-      >
-        <div
-          className={cn(
-            "relative flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200",
-            active ? "bg-primary/15" : "bg-transparent group-hover:bg-muted/50"
-          )}
-        >
-          <Icon
-            className={cn(
-              "w-5 h-5 transition-colors",
-              active ? "text-primary" : "text-muted-foreground"
-            )}
-            strokeWidth={active ? 2.5 : 1.8}
-          />
-          {active && (
-            <motion.div
-              layoutId="tab-indicator"
-              className="absolute inset-0 rounded-xl bg-primary/20 glow-primary"
-              transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
-            />
-          )}
-        </div>
-        <span
-          className={cn(
-            "text-[10px] font-medium mt-0.5 transition-colors",
-            active ? "text-primary" : "text-muted-foreground"
-          )}
-        >
-          {tab.label}
-        </span>
-      </Link>
-    );
-  };
+  const tabs = [
+    { href: "/fitness", icon: Dumbbell, label: t("nav_fitness") },
+    { href: "/ai-coach", icon: Sparkles, label: "AI" },
+    { href: "/", icon: Home, label: t("nav_home") },
+    { href: "/nutrition", icon: Utensils, label: t("nav_nutrition") },
+    { href: "/profile", icon: User, label: t("nav_profile") },
+  ];
 
   return (
-    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] h-[70px] glass border-t border-border/50 flex items-center px-2 z-50">
-      {renderTab({ href: "/fitness", icon: Dumbbell, label: t("nav_fitness") })}
-      {renderTab({ href: "/ai-coach", icon: Sparkles, label: "AI" })}
-      {renderTab({ href: "/", icon: Home, label: t("nav_home") })}
-      {renderTab({ href: "/nutrition", icon: Utensils, label: t("nav_nutrition") })}
-      {renderTab({ href: "/profile", icon: User, label: t("nav_profile") })}
+    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-card/95 backdrop-blur-xl border-t border-border/40 z-50" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
+      <div className="flex items-stretch h-[62px] px-1">
+        {tabs.map(tab => {
+          const Icon = tab.icon;
+          const active = isActive(tab.href);
+          return (
+            <Link key={tab.href} href={tab.href} className="flex-1 flex flex-col items-center justify-center gap-0.5 relative press-scale">
+              {active && (
+                <motion.div layoutId="tab-pill" className="absolute top-0 left-1/2 -translate-x-1/2 h-[3px] w-8 rounded-b-full bg-primary" transition={{ type: "spring", bounce: 0.3, duration: 0.35 }} />
+              )}
+              <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200",
+                active ? "bg-primary/12" : ""
+              )}>
+                <Icon className={cn("transition-all duration-200", active ? "w-5 h-5 text-primary" : "w-5 h-5 text-muted-foreground/70")} strokeWidth={active ? 2.5 : 1.8} />
+              </div>
+              <span className={cn("text-[10px] font-semibold leading-none transition-colors", active ? "text-primary" : "text-muted-foreground/60")}>
+                {tab.label}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
     </nav>
   );
 }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useGetDashboard, useGetAiInsights, useGetWaterIntake, useGetSteps, useGetProgress, useGetLifeBalance, useGetNotifications, useMarkNotificationRead, useLogWater, getGetWaterIntakeQueryKey, getGetDashboardQueryKey, getGetNotificationsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Bell, Droplets, Footprints, Moon, Flame, Zap, TrendingUp, TrendingDown, Dumbbell, Utensils, Sparkles, Brain, X, Trophy, Crown, ChevronRight, Coins, Sword, CheckCheck, Star, BedDouble, Activity } from "lucide-react";
+import { Bell, Droplets, Footprints, Moon, Flame, Zap, Dumbbell, Utensils, Sparkles, Brain, X, Trophy, Crown, ChevronRight, Coins, Sword, CheckCheck, Star, BedDouble, Activity } from "lucide-react";
 import { Link } from "wouter";
 import { getActiveTitle, calcLevel, calcMomentumScore, getStoredTitleId } from "@/lib/gamification";
 import { motion, AnimatePresence } from "framer-motion";
@@ -333,17 +333,15 @@ export default function Home() {
             { label: "Habit", score: Math.min(100, Math.round((streak / 7) * 100)), color: "bg-yellow-400", icon: Flame },
           ];
           const getPillarTag = (s: number) =>
-            s >= 75 ? { label: "Great", cls: "text-primary" } :
-            s >= 50 ? { label: "Good", cls: "text-yellow-400" } :
-            s >= 25 ? { label: "Fair", cls: "text-orange-400" } :
-            { label: "Low", cls: "text-destructive" };
+            s >= 70 ? { label: "Pro", cls: "text-primary" } :
+            s >= 40 ? { label: "Good", cls: "text-yellow-400" } :
+            { label: "Low", cls: "text-muted-foreground" };
 
-          const rawGrade = balance?.grade?.replace("_", " ") ?? (balanceScore >= 80 ? "Excellent" : balanceScore >= 65 ? "Good" : balanceScore >= 45 ? "Fair" : "Needs Work");
+          const gradeLevel = balanceScore >= 75 ? "Pro" : balanceScore >= 40 ? "Good" : "Low";
           const gradeStyle: Record<string, string> = {
-            "Excellent": "bg-primary/15 text-primary border-primary/30",
-            "Good": "bg-secondary/15 text-secondary border-secondary/30",
-            "Fair": "bg-orange-400/15 text-orange-400 border-orange-400/30",
-            "Needs Work": "bg-destructive/15 text-destructive border-destructive/30",
+            "Pro": "bg-primary/15 text-primary border-primary/30",
+            "Good": "bg-yellow-400/15 text-yellow-400 border-yellow-400/30",
+            "Low": "bg-muted/50 text-muted-foreground border-border/30",
           };
 
           const streakPts = streak >= 7 ? 30 : streak >= 3 ? 20 : streak >= 1 ? 10 : 0;
@@ -364,64 +362,78 @@ export default function Home() {
             <div className="grid grid-cols-2 gap-3">
               {/* Life Balance */}
               <div className="bg-card rounded-2xl p-4 border border-border/50 hover-elevate">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("home_life_balance")}</span>
-                  <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap", gradeStyle[rawGrade] ?? gradeStyle["Fair"])}>
-                    {rawGrade === "Needs Work" ? "Low" : rawGrade}
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-black text-foreground uppercase tracking-wider">{t("home_life_balance")}</span>
+                  <span className={cn("text-[10px] font-black px-2 py-0.5 rounded-full border", gradeStyle[gradeLevel])}>
+                    {gradeLevel}
                   </span>
                 </div>
                 <div className="flex items-center justify-center py-1">
-                  <svg width="80" height="80" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="hsl(var(--muted))" strokeWidth="8" />
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="hsl(var(--primary))" strokeWidth="8" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} transform="rotate(-90 50 50)" className="transition-all duration-1000" />
-                    <text x="50" y="54" textAnchor="middle" style={{ fill: "hsl(var(--foreground))", fontSize: "22px", fontWeight: "900" }}>{balanceScore}</text>
+                  <svg width="76" height="76" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="hsl(var(--muted))" strokeWidth="9" />
+                    <circle cx="50" cy="50" r="45" fill="none"
+                      stroke={gradeLevel === "Pro" ? "hsl(var(--primary))" : gradeLevel === "Good" ? "hsl(var(--yellow-400, 250 204 21))" : "hsl(var(--muted-foreground))"}
+                      strokeWidth="9" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} transform="rotate(-90 50 50)" className="transition-all duration-1000" />
+                    <text x="50" y="47" textAnchor="middle" style={{ fill: "hsl(var(--foreground))", fontSize: "20px", fontWeight: "900" }}>{balanceScore}</text>
+                    <text x="50" y="62" textAnchor="middle" style={{ fill: "hsl(var(--muted-foreground))", fontSize: "9px", fontWeight: "700" }}>/ 100</text>
                   </svg>
                 </div>
-                <div className="space-y-1.5 mt-1">
+                <div className="space-y-2 mt-2">
                   {pillars.map(p => {
                     const tag = getPillarTag(p.score);
                     const PIcon = p.icon;
                     return (
-                      <div key={p.label} className="flex items-center gap-1.5">
+                      <div key={p.label} className="flex items-center gap-2">
                         <PIcon className="w-3 h-3 text-muted-foreground shrink-0" />
+                        <span className="text-[10px] text-muted-foreground w-8 shrink-0">{p.label}</span>
                         <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                           <div className={cn("h-full rounded-full transition-all", p.color)} style={{ width: `${p.score}%` }} />
                         </div>
-                        <span className={cn("text-[9px] font-black w-7 text-right", tag.cls)}>{tag.label}</span>
+                        <span className={cn("text-[9px] font-black w-6 text-right shrink-0", tag.cls)}>{tag.label}</span>
                       </div>
                     );
                   })}
-                </div>
-                <div className="flex items-center gap-1 mt-2 text-[10px] text-muted-foreground">
-                  {balance?.trend === "improving" ? <TrendingUp className="w-3 h-3 text-primary" /> : balance?.trend === "declining" ? <TrendingDown className="w-3 h-3 text-destructive" /> : <Minus className="w-3 h-3" />}
-                  <span className={balance?.trend === "improving" ? "text-primary font-bold" : balance?.trend === "declining" ? "text-destructive font-bold" : ""}>{balance?.trend ?? "stable"}</span>
                 </div>
               </div>
 
               {/* Momentum */}
               <div className="bg-card rounded-2xl p-4 border border-border/50 hover-elevate">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("home_momentum")}</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-base">{momentumData.emoji}</span>
-                    <span className={cn("text-xs font-black", momentumData.color)}>{momentumData.score}</span>
-                  </div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-black text-foreground uppercase tracking-wider">{t("home_momentum")}</span>
+                  <span className={cn("text-[10px] font-black px-2 py-0.5 rounded-full border",
+                    momentumData.label === "Pro" ? "bg-primary/15 text-primary border-primary/30" :
+                    momentumData.label === "Good" ? "bg-yellow-400/15 text-yellow-400 border-yellow-400/30" :
+                    "bg-muted/50 text-muted-foreground border-border/30"
+                  )}>
+                    {momentumData.label}
+                  </span>
                 </div>
-                <div className="h-1.5 bg-muted rounded-full overflow-hidden mb-2">
-                  <motion.div className="h-full rounded-full bg-gradient-to-r from-primary to-secondary" initial={{ width: 0 }} animate={{ width: `${momentumData.score}%` }} transition={{ duration: 1, ease: "easeOut" }} />
+                <div className="flex items-center justify-center py-1">
+                  <svg width="76" height="76" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="hsl(var(--muted))" strokeWidth="9" />
+                    <circle cx="50" cy="50" r="45" fill="none"
+                      stroke={momentumData.label === "Pro" ? "hsl(var(--primary))" : momentumData.label === "Good" ? "#eab308" : "hsl(var(--muted-foreground))"}
+                      strokeWidth="9" strokeLinecap="round"
+                      strokeDasharray={`${(momentumData.score / 100) * 2 * Math.PI * 45} ${2 * Math.PI * 45}`}
+                      strokeDashoffset={2 * Math.PI * 45 * 0.25}
+                      transform="rotate(-90 50 50)" className="transition-all duration-1000" />
+                    <text x="50" y="47" textAnchor="middle" style={{ fill: "hsl(var(--foreground))", fontSize: "20px", fontWeight: "900" }}>{momentumData.score}</text>
+                    <text x="50" y="62" textAnchor="middle" style={{ fill: "hsl(var(--muted-foreground))", fontSize: "9px", fontWeight: "700" }}>/ 100</text>
+                  </svg>
                 </div>
-                <p className={cn("text-[10px] font-black mb-2", momentumData.color)}>{momentumData.label}</p>
-                <div className="space-y-1.5">
+                <div className="space-y-2 mt-2">
                   {factors.map(f => {
                     const pct = Math.round((f.pts / f.max) * 100);
+                    const ftag = pct >= 70 ? { label: "Pro", cls: "text-primary" } : pct >= 40 ? { label: "Good", cls: "text-yellow-400" } : { label: "Low", cls: "text-muted-foreground" };
                     const FIcon = f.icon;
                     return (
-                      <div key={f.label} className="flex items-center gap-1.5">
+                      <div key={f.label} className="flex items-center gap-2">
                         <FIcon className="w-3 h-3 text-muted-foreground shrink-0" />
+                        <span className="text-[10px] text-muted-foreground w-10 shrink-0">{f.label}</span>
                         <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                           <div className={cn("h-full rounded-full transition-all", f.color)} style={{ width: `${pct}%` }} />
                         </div>
-                        <span className="text-[9px] text-muted-foreground w-5 text-right">{f.pts}</span>
+                        <span className={cn("text-[9px] font-black w-6 text-right shrink-0", ftag.cls)}>{ftag.label}</span>
                       </div>
                     );
                   })}

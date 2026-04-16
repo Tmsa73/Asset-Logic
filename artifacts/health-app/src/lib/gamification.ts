@@ -307,11 +307,9 @@ export function calcMomentumScore(stats: {
   if (stats.sleepHoursLast >= 7) score += 10;
   else if (stats.sleepHoursLast >= 6) score += 5;
   const finalScore = Math.min(100, score);
-  if (finalScore >= 85) return { score: finalScore, label: "Peak Performance", color: "text-primary", emoji: "🔥" };
-  if (finalScore >= 65) return { score: finalScore, label: "On Fire", color: "text-yellow-400", emoji: "⚡" };
-  if (finalScore >= 45) return { score: finalScore, label: "Gaining Momentum", color: "text-orange-400", emoji: "📈" };
-  if (finalScore >= 25) return { score: finalScore, label: "Getting Started", color: "text-secondary", emoji: "🌱" };
-  return { score: finalScore, label: "Needs Boost", color: "text-muted-foreground", emoji: "💤" };
+  if (finalScore >= 75) return { score: finalScore, label: "Pro", color: "text-primary", emoji: "🔥" };
+  if (finalScore >= 40) return { score: finalScore, label: "Good", color: "text-yellow-400", emoji: "⚡" };
+  return { score: finalScore, label: "Low", color: "text-muted-foreground", emoji: "💤" };
 }
 
 export const DAILY_MISSIONS: Mission[] = [

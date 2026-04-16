@@ -1,4 +1,4 @@
-type SoundKind = "xp" | "level" | "achievement" | "toggle";
+type SoundKind = "xp" | "level" | "achievement" | "toggle" | "coins";
 
 const STORAGE_KEY = "bodylogic-sound-effects";
 
@@ -21,6 +21,7 @@ export function playGamificationSound(kind: SoundKind) {
       level: [440, 660, 880],
       achievement: [660, 880, 1040],
       toggle: [420, 620],
+      coins: [880, 1040, 1320],
     };
     sequence[kind].forEach((freq, index) => {
       const osc = ctx.createOscillator();

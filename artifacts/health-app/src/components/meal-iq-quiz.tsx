@@ -1,9 +1,17 @@
 import { useMemo, useState } from "react";
-import { Brain, CheckCircle2, RotateCcw, Sparkles, XCircle } from "lucide-react";
+import { Brain, CheckCircle2, RotateCcw, Sparkles, XCircle, Coins } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { playGamificationSound } from "@/lib/sounds";
+
+const COINS_KEY = "bodylogic-coins";
+function addCoins(amount: number) {
+  try {
+    const current = parseInt(localStorage.getItem(COINS_KEY) ?? "0", 10);
+    localStorage.setItem(COINS_KEY, String(current + amount));
+  } catch {}
+}
 
 type Question = {
   question: string;
@@ -30,6 +38,8 @@ export function MealIqQuiz({ children, score }: { children: React.ReactNode; sco
   const [questions, setQuestions] = useState<Question[]>(() => pickQuestions());
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
+  const [coinsEarned, setCoinsEarned] = useState(0);
+  const [coinsAwarded, setCoinsAwarded] = useState(false);
   const current = questions[index]!;
   const answered = answers[index] !== undefined;
   const selected = answers[index];
@@ -46,6 +56,8 @@ export function MealIqQuiz({ children, score }: { children: React.ReactNode; sco
     setQuestions(pickQuestions());
     setIndex(0);
     setAnswers([]);
+    setCoinsEarned(0);
+    setCoinsAwarded(false);
   };
 
   const choose = (answer: number) => {
@@ -54,6 +66,14 @@ export function MealIqQuiz({ children, score }: { children: React.ReactNode; sco
     next[index] = answer;
     setAnswers(next);
     playGamificationSound(answer === current.correct ? "xp" : "toggle");
+    const newCorrect = next.reduce((sum, a, i) => sum + (a === questions[i]?.correct ? 1 : 0), 0);
+    if (next.length === questions.length && !coinsAwarded) {
+      const earned = newCorrect >= questions.length ? 15 : newCorrect >= questions.length - 1 ? 10 : newCorrect >= 2 ? 5 : 2;
+      addCoins(earned);
+      setCoinsEarned(earned);
+      setCoinsAwarded(true);
+      playGamificationSound("coins");
+    }
   };
 
   return (
@@ -118,13 +138,29 @@ export function MealIqQuiz({ children, score }: { children: React.ReactNode; sco
               )}
             </>
           ) : (
-            <div className="text-center py-4 space-y-4">
+            <div className="text-center py-2 space-y-4">
               <div className="w-20 h-20 rounded-3xl bg-primary/15 flex items-center justify-center mx-auto">
                 <Sparkles className="w-9 h-9 text-primary" />
               </div>
               <div>
                 <p className="text-2xl font-black">{correctCount}/{questions.length}</p>
-                <p className="text-sm text-muted-foreground">Meal IQ challenge complete</p>
+                <p className="text-sm text-muted-foreground">Meal IQ challenge complete!</p>
+              </div>
+              {coinsEarned > 0 && (
+                <div className="flex items-center justify-center gap-2 bg-yellow-400/10 border border-yellow-400/30 rounded-2xl py-3 px-4">
+                  <Coins className="w-5 h-5 text-yellow-400" />
+                  <p className="text-lg font-black text-yellow-400">+{coinsEarned} Coins Earned!</p>
+                </div>
+              )}
+              <div className={cn("rounded-xl p-2.5 text-xs font-semibold text-center",
+                correctCount === questions.length ? "bg-primary/10 text-primary" :
+                correctCount >= questions.length - 1 ? "bg-yellow-400/10 text-yellow-400" :
+                "bg-muted/40 text-muted-foreground"
+              )}>
+                {correctCount === questions.length ? "Perfect score! You're a nutrition pro." :
+                 correctCount >= questions.length - 1 ? "Great job! One step from perfect." :
+                 correctCount >= 2 ? "Good effort! Keep building your nutrition knowledge." :
+                 "Keep practicing — every quiz makes you smarter!"}
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <Button variant="outline" className="rounded-xl" onClick={reset}><RotateCcw className="w-4 h-4 mr-1" /> Replay</Button>
