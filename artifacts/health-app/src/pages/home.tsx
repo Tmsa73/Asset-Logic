@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useGetDashboard, useGetAiInsights, useGetWaterIntake, useGetSteps, useGetProgress, useGetLifeBalance, useGetNotifications, useMarkNotificationRead, useLogWater, getGetWaterIntakeQueryKey, getGetDashboardQueryKey, getGetNotificationsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Bell, Droplets, Footprints, Moon, Flame, Zap, TrendingUp, TrendingDown, Dumbbell, Utensils, Sparkles, Brain, X, Trophy, Crown, ChevronRight, Coins } from "lucide-react";
+import { Bell, Droplets, Footprints, Moon, Flame, Zap, TrendingUp, TrendingDown, Dumbbell, Utensils, Sparkles, Brain, X, Trophy, Crown, ChevronRight, Coins, Sword, CheckCheck, Star, BedDouble, Activity } from "lucide-react";
 import { Link } from "wouter";
 import { getActiveTitle, calcLevel, calcMomentumScore, getStoredTitleId } from "@/lib/gamification";
 import { motion, AnimatePresence } from "framer-motion";
@@ -110,60 +110,120 @@ export default function Home() {
         {notifOpen && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm" onClick={() => setNotifOpen(false)} />
-            <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="fixed right-0 top-0 bottom-0 w-[85%] max-w-[360px] bg-card border-l border-border z-50 flex flex-col">
-              <div className="flex items-center justify-between p-4 border-b border-border">
-                <h2 className="font-bold text-lg">{t("home_notifications")}</h2>
-                <button onClick={() => setNotifOpen(false)} className="p-2 rounded-full hover:bg-muted transition-colors">
-                  <X className="w-5 h-5" />
+            <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="fixed right-0 top-0 bottom-0 w-[88%] max-w-[380px] bg-card border-l border-border z-50 flex flex-col">
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-border/50 bg-card">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Bell className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="font-black text-base leading-none">{t("home_notifications")}</h2>
+                    {unreadCount > 0 && <p className="text-[10px] text-primary font-bold mt-0.5">{unreadCount} unread</p>}
+                  </div>
+                </div>
+                <button onClick={() => setNotifOpen(false)} className="w-8 h-8 rounded-full bg-muted/60 flex items-center justify-center hover:bg-muted transition-colors">
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+
+              <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
                 {(!notifications?.length && !acceptedChallenges.length) ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                    <p className="text-sm">{t("home_all_caught")}</p>
+                  <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+                    <div className="w-16 h-16 rounded-full bg-muted/40 flex items-center justify-center mb-4">
+                      <Bell className="w-7 h-7 opacity-30" />
+                    </div>
+                    <p className="text-sm font-bold">All caught up!</p>
+                    <p className="text-xs opacity-60 mt-1">No new notifications</p>
                   </div>
                 ) : (
                   <>
+                    {/* Challenge notifications */}
                     {acceptedChallenges.map(c => {
                       const isRead = localChallengeRead.has(c.id);
                       return (
-                        <div key={c.id} onClick={() => {
-                          const next = new Set(localChallengeRead);
-                          next.add(c.id);
-                          setLocalChallengeRead(next);
-                          try { localStorage.setItem("bodylogic-challenge-read", JSON.stringify([...next])); } catch {}
-                        }} className={cn("p-3 rounded-xl bg-muted/50 border-l-2 border-l-destructive cursor-pointer hover:bg-muted transition-colors", isRead && "opacity-50")}>
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-base">{c.icon}</span>
-                                <p className="text-sm font-semibold">Challenge Accepted!</p>
-                              </div>
-                              <p className="text-xs text-muted-foreground mt-0.5">"{c.title}" — You're on it! Stay consistent.</p>
-                            </div>
-                            {!isRead && <div className="w-2 h-2 rounded-full bg-destructive mt-1 shrink-0" />}
+                        <motion.div key={c.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                          onClick={() => {
+                            const next = new Set(localChallengeRead);
+                            next.add(c.id);
+                            setLocalChallengeRead(next);
+                            try { localStorage.setItem("bodylogic-challenge-read", JSON.stringify([...next])); } catch {}
+                          }}
+                          className={cn("flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all active:scale-[0.98]",
+                            isRead ? "bg-muted/20 border-border/30 opacity-60" : "bg-destructive/10 border-destructive/25 hover:bg-destructive/15"
+                          )}>
+                          <div className="w-10 h-10 rounded-xl bg-destructive/15 flex items-center justify-center shrink-0 text-lg">
+                            {c.icon}
                           </div>
-                        </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="text-sm font-black">Challenge Accepted!</p>
+                              {!isRead && <div className="w-2 h-2 rounded-full bg-destructive shrink-0" />}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-0.5 leading-snug">"{c.title}" is active — stay consistent!</p>
+                            <span className="inline-flex mt-1.5 items-center gap-1 bg-destructive/10 text-destructive text-[9px] font-black px-1.5 py-0.5 rounded-full border border-destructive/20">
+                              <Sword className="w-2.5 h-2.5" /> BOSS CHALLENGE
+                            </span>
+                          </div>
+                        </motion.div>
                       );
                     })}
-                    {notifications?.map(n => {
-                      const notifColors: Record<string, string> = { water: "border-l-blue-400", meal: "border-l-primary", workout: "border-l-orange-400", achievement: "border-l-yellow-400", sleep: "border-l-accent", system: "border-l-secondary" };
+
+                    {/* API notifications */}
+                    {notifications?.map((n, i) => {
+                      type NotifType = "water" | "meal" | "workout" | "achievement" | "sleep" | "system";
+                      const typeConfig: Record<NotifType, { icon: typeof Bell; bg: string; iconColor: string; border: string; badge: string; badgeCls: string }> = {
+                        water:       { icon: Droplets,  bg: "bg-blue-500/12",   iconColor: "text-blue-400",    border: "border-blue-400/25",   badge: "HYDRATION",   badgeCls: "bg-blue-400/10 text-blue-400 border-blue-400/20" },
+                        meal:        { icon: Utensils,  bg: "bg-primary/10",    iconColor: "text-primary",     border: "border-primary/25",    badge: "NUTRITION",   badgeCls: "bg-primary/10 text-primary border-primary/20" },
+                        workout:     { icon: Dumbbell,  bg: "bg-orange-400/12", iconColor: "text-orange-400",  border: "border-orange-400/25", badge: "FITNESS",     badgeCls: "bg-orange-400/10 text-orange-400 border-orange-400/20" },
+                        achievement: { icon: Trophy,    bg: "bg-yellow-400/12", iconColor: "text-yellow-400",  border: "border-yellow-400/25", badge: "ACHIEVEMENT", badgeCls: "bg-yellow-400/10 text-yellow-400 border-yellow-400/20" },
+                        sleep:       { icon: BedDouble, bg: "bg-accent/12",     iconColor: "text-accent",      border: "border-accent/25",     badge: "SLEEP",       badgeCls: "bg-accent/10 text-accent border-accent/20" },
+                        system:      { icon: Activity,  bg: "bg-secondary/12",  iconColor: "text-secondary",   border: "border-secondary/25",  badge: "SYSTEM",      badgeCls: "bg-secondary/10 text-secondary border-secondary/20" },
+                      };
+                      const cfg = typeConfig[n.type as NotifType] ?? typeConfig.system;
+                      const Icon = cfg.icon;
                       return (
-                        <div key={n.id} onClick={() => { if (!n.read) { markRead.mutate({ id: n.id }); qc.invalidateQueries({ queryKey: getGetNotificationsQueryKey() }); } }} className={cn("p-3 rounded-xl bg-muted/50 border-l-2 cursor-pointer hover:bg-muted transition-colors", notifColors[n.type] ?? "border-l-border", n.read && "opacity-50")}>
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1">
-                              <p className="text-sm font-semibold">{n.title}</p>
-                              <p className="text-xs text-muted-foreground mt-0.5">{n.message}</p>
-                            </div>
-                            {!n.read && <div className="w-2 h-2 rounded-full bg-primary mt-1 shrink-0" />}
+                        <motion.div key={n.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+                          onClick={() => { if (!n.read) { markRead.mutate({ id: n.id }); qc.invalidateQueries({ queryKey: getGetNotificationsQueryKey() }); } }}
+                          className={cn("flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all active:scale-[0.98]",
+                            n.read ? "bg-muted/20 border-border/30 opacity-60" : cn("border hover:opacity-90", cfg.bg, cfg.border)
+                          )}>
+                          <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", n.read ? "bg-muted/40" : cfg.bg)}>
+                            <Icon className={cn("w-5 h-5", n.read ? "text-muted-foreground" : cfg.iconColor)} />
                           </div>
-                        </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className={cn("text-sm font-black leading-tight", n.read && "text-muted-foreground")}>{n.title}</p>
+                              {!n.read && <div className={cn("w-2 h-2 rounded-full shrink-0", cfg.iconColor.replace("text-", "bg-"))} />}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-0.5 leading-snug line-clamp-2">{n.message}</p>
+                            <span className={cn("inline-flex mt-1.5 items-center text-[9px] font-black px-1.5 py-0.5 rounded-full border", cfg.badgeCls)}>
+                              {cfg.badge}
+                            </span>
+                          </div>
+                        </motion.div>
                       );
                     })}
                   </>
                 )}
               </div>
+
+              {/* Footer */}
+              {(notifications?.some(n => !n.read) || acceptedChallenges.some(c => !localChallengeRead.has(c.id))) && (
+                <div className="p-4 border-t border-border/50">
+                  <button onClick={() => {
+                    notifications?.filter(n => !n.read).forEach(n => { markRead.mutate({ id: n.id }); });
+                    qc.invalidateQueries({ queryKey: getGetNotificationsQueryKey() });
+                    const allIds = acceptedChallenges.map(c => c.id);
+                    const next = new Set(allIds);
+                    setLocalChallengeRead(next);
+                    try { localStorage.setItem("bodylogic-challenge-read", JSON.stringify(allIds)); } catch {}
+                  }} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-muted/50 hover:bg-muted text-xs font-bold text-muted-foreground transition-colors">
+                    <CheckCheck className="w-3.5 h-3.5" />
+                    Mark all as read
+                  </button>
+                </div>
+              )}
             </motion.div>
           </>
         )}
