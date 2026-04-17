@@ -103,7 +103,7 @@ export default function AiCoach() {
   const habits = insights?.tips?.slice(0, 2) ?? [];
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-70px)] bg-background overflow-hidden">
+    <div className="flex flex-col bg-background overflow-hidden" style={{ height: "calc(100dvh - 62px)", marginBottom: "-90px" }}>
       {/* Header */}
       <header className="px-5 py-3 border-b border-border/40 glass sticky top-0 z-10 shrink-0">
         <div className="flex items-center justify-between">
@@ -305,7 +305,7 @@ export default function AiCoach() {
       </div>
 
       {/* Input area */}
-      <div className="px-4 pt-2 pb-6 bg-background border-t border-border/40 shrink-0">
+      <div className="px-4 pt-2 pb-4 bg-background border-t border-border/40 shrink-0">
         <div className="flex gap-2">
           <div className="flex-1 relative">
             <input
@@ -334,7 +334,7 @@ export default function AiCoach() {
 
 function AiCoachSkeleton() {
   return (
-    <div className="flex flex-col h-[calc(100dvh-70px)] bg-background">
+    <div className="flex flex-col bg-background overflow-hidden" style={{ height: "calc(100dvh - 62px)", marginBottom: "-90px" }}>
       <header className="px-5 py-3.5 border-b flex items-center gap-3">
         <Skeleton className="w-10 h-10 rounded-xl shimmer" />
         <div className="space-y-1.5">
