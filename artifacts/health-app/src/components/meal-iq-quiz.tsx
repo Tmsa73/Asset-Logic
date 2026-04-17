@@ -1,16 +1,41 @@
-import { useMemo, useState } from "react";
-import { Brain, CheckCircle2, RotateCcw, Sparkles, XCircle, Coins } from "lucide-react";
+import { useMemo, useState, useEffect } from "react";
+import { Brain, CheckCircle2, RotateCcw, Sparkles, XCircle, Coins, Clock, Lock } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { playGamificationSound } from "@/lib/sounds";
 
 const COINS_KEY = "bodylogic-coins";
+const QUIZ_COOLDOWN_KEY = "bodylogic-quiz-cooldown";
+const COOLDOWN_MS = 60 * 60 * 1000; // 1 hour
+
 function addCoins(amount: number) {
   try {
     const current = parseInt(localStorage.getItem(COINS_KEY) ?? "0", 10);
     localStorage.setItem(COINS_KEY, String(current + amount));
   } catch {}
+}
+
+function getLastPlayed(): number {
+  try { return parseInt(localStorage.getItem(QUIZ_COOLDOWN_KEY) ?? "0", 10); } catch { return 0; }
+}
+
+function setLastPlayed() {
+  try { localStorage.setItem(QUIZ_COOLDOWN_KEY, String(Date.now())); } catch {}
+}
+
+function getCooldownRemaining(): number {
+  const last = getLastPlayed();
+  if (!last) return 0;
+  const remaining = COOLDOWN_MS - (Date.now() - last);
+  return remaining > 0 ? remaining : 0;
+}
+
+function formatRemaining(ms: number): string {
+  const totalSec = Math.ceil(ms / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return m > 0 ? `${m}m ${s}s` : `${s}s`;
 }
 
 type Question = {
@@ -69,11 +94,25 @@ export function MealIqQuiz({ children, score }: { children: React.ReactNode; sco
   const [answers, setAnswers] = useState<number[]>([]);
   const [coinsEarned, setCoinsEarned] = useState(0);
   const [coinsAwarded, setCoinsAwarded] = useState(false);
+  const [cooldownRemaining, setCooldownRemaining] = useState(getCooldownRemaining);
+
   const current = questions[index]!;
   const answered = answers[index] !== undefined;
   const selected = answers[index];
   const correctCount = answers.reduce((sum, answer, i) => sum + (answer === questions[i]?.correct ? 1 : 0), 0);
   const complete = answers.length === questions.length;
+  const onCooldown = cooldownRemaining > 0;
+
+  useEffect(() => {
+    if (!open) return;
+    const interval = setInterval(() => {
+      const rem = getCooldownRemaining();
+      setCooldownRemaining(rem);
+      if (rem === 0) clearInterval(interval);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [open]);
+
   const recommendation = useMemo(() => {
     if (!score) return "Log more meals to unlock more personalized nutrition questions.";
     if (score >= 22) return "Your Meal IQ is strong. Focus on consistency and variety.";
@@ -87,6 +126,7 @@ export function MealIqQuiz({ children, score }: { children: React.ReactNode; sco
     setAnswers([]);
     setCoinsEarned(0);
     setCoinsAwarded(false);
+    setCooldownRemaining(getCooldownRemaining());
   };
 
   const choose = (answer: number) => {
@@ -95,24 +135,34 @@ export function MealIqQuiz({ children, score }: { children: React.ReactNode; sco
     next[index] = answer;
     setAnswers(next);
     playGamificationSound(answer === current.correct ? "xp" : "toggle");
+
     const newCorrect = next.reduce((sum, a, i) => sum + (a === questions[i]?.correct ? 1 : 0), 0);
     if (next.length === questions.length && !coinsAwarded) {
-      const earned = newCorrect >= questions.length ? 15 : newCorrect >= questions.length - 1 ? 10 : newCorrect >= 3 ? 5 : 2;
-      addCoins(earned);
-      setCoinsEarned(earned);
+      if (!onCooldown) {
+        const earned = newCorrect >= questions.length ? 15 : newCorrect >= questions.length - 1 ? 10 : newCorrect >= 3 ? 5 : 2;
+        addCoins(earned);
+        setCoinsEarned(earned);
+        setLastPlayed();
+        setCooldownRemaining(COOLDOWN_MS);
+        playGamificationSound("coins");
+      }
       setCoinsAwarded(true);
-      playGamificationSound("coins");
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (v) reset(); }}>
+    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (v) { reset(); setCooldownRemaining(getCooldownRemaining()); } }}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-[95vw] rounded-3xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Brain className="w-5 h-5 text-primary" />
             Meal IQ Challenge
+            {onCooldown && !complete && (
+              <span className="ml-auto flex items-center gap-1 text-[10px] font-black text-amber-500 bg-amber-500/10 border border-amber-500/25 px-2 py-1 rounded-full">
+                <Clock className="w-3 h-3" /> Play for fun
+              </span>
+            )}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4 pt-1">
@@ -175,12 +225,28 @@ export function MealIqQuiz({ children, score }: { children: React.ReactNode; sco
                 <p className="text-2xl font-black">{correctCount}/{questions.length}</p>
                 <p className="text-sm text-muted-foreground">Meal IQ challenge complete!</p>
               </div>
-              {coinsEarned > 0 && (
+
+              {coinsEarned > 0 ? (
                 <div className="flex items-center justify-center gap-2 bg-yellow-400/10 border border-yellow-400/30 rounded-2xl py-3 px-4">
                   <Coins className="w-5 h-5 text-yellow-400" />
                   <p className="text-lg font-black text-yellow-400">+{coinsEarned} Coins Earned!</p>
                 </div>
+              ) : (
+                <div className="flex flex-col items-center gap-2 bg-muted/40 border border-border/40 rounded-2xl py-3 px-4">
+                  <div className="flex items-center gap-2">
+                    <Lock className="w-4 h-4 text-muted-foreground" />
+                    <p className="text-sm font-black text-muted-foreground">Coins on cooldown</p>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/25 px-3 py-1.5 rounded-full">
+                    <Clock className="w-3.5 h-3.5 text-amber-500" />
+                    <p className="text-sm font-black text-amber-500">
+                      Next reward in {formatRemaining(cooldownRemaining)}
+                    </p>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">Coins reset every hour — keep playing for fun!</p>
+                </div>
               )}
+
               <div className={cn("rounded-xl p-2.5 text-xs font-semibold text-center",
                 correctCount === questions.length ? "bg-primary/10 text-primary" :
                 correctCount >= questions.length - 1 ? "bg-yellow-400/10 text-yellow-400" :
