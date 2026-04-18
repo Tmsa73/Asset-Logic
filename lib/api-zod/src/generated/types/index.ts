@@ -12,6 +12,8 @@ export * from "./aiInsightsTipsItemCategory";
 export * from "./aiInsightsTipsItemPriority";
 export * from "./aiMessage";
 export * from "./aiMessageRole";
+export * from "./bodyMeasurement";
+export * from "./createBodyMeasurementBody";
 export * from "./dailyMealIQ";
 export * from "./dailyMealIQGrade";
 export * from "./dashboardSummary";

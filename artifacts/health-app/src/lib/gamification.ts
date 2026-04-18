@@ -177,28 +177,28 @@ export const ALL_ACHIEVEMENTS: Achievement[] = [
 
 export const ALL_TITLES: Title[] = [
   // Nutrition
-  { id: "healthy_starter", name: "Healthy Starter", description: "Started your nutrition journey", category: "nutrition", minLevel: 1, color: "text-primary" },
-  { id: "clean_eater", name: "Clean Eater", description: "Consistently eating clean", category: "nutrition", minLevel: 3, color: "text-green-400" },
-  { id: "macro_master", name: "Macro Master", description: "Mastered macro tracking", category: "nutrition", minLevel: 7, color: "text-emerald-400" },
-  { id: "nutrition_genius", name: "Nutrition Genius", description: "Expert-level nutrition knowledge", category: "nutrition", minLevel: 12, color: "text-teal-400" },
-  { id: "meal_strategist", name: "Meal Strategist", description: "Plans meals like a pro", category: "nutrition", minLevel: 15, color: "text-cyan-400" },
+  { id: "healthy_starter", name: "Healthy Starter", nameAr: "مبتدئ صحي", description: "Started your nutrition journey", descAr: "بدأت رحلة التغذية", category: "nutrition", minLevel: 1, color: "text-primary" },
+  { id: "clean_eater", name: "Clean Eater", nameAr: "آكل نظيف", description: "Consistently eating clean", descAr: "تلتزم بالأكل النظيف", category: "nutrition", minLevel: 3, color: "text-green-400" },
+  { id: "macro_master", name: "Macro Master", nameAr: "خبير المغذيات", description: "Mastered macro tracking", descAr: "أتقنت تتبع المغذيات الكبرى", category: "nutrition", minLevel: 7, color: "text-emerald-400" },
+  { id: "nutrition_genius", name: "Nutrition Genius", nameAr: "عبقري التغذية", description: "Expert-level nutrition knowledge", descAr: "معرفة غذائية بمستوى خبير", category: "nutrition", minLevel: 12, color: "text-teal-400" },
+  { id: "meal_strategist", name: "Meal Strategist", nameAr: "استراتيجي الوجبات", description: "Plans meals like a pro", descAr: "تخطط وجباتك باحتراف", category: "nutrition", minLevel: 15, color: "text-cyan-400" },
   // Fitness
-  { id: "beginner_athlete", name: "Beginner Athlete", description: "Started the fitness journey", category: "fitness", minLevel: 1, color: "text-secondary" },
-  { id: "active_warrior", name: "Active Warrior", description: "Consistent exercise habit", category: "fitness", minLevel: 5, color: "text-blue-400" },
-  { id: "cardio_king", name: "Cardio King", description: "Cardio excellence achieved", category: "fitness", minLevel: 8, color: "text-indigo-400" },
-  { id: "strength_beast_title", name: "Strength Beast", description: "Dominates strength training", category: "fitness", minLevel: 12, color: "text-violet-400" },
-  { id: "fitness_legend", name: "Fitness Legend", description: "Top tier fitness dedication", category: "fitness", minLevel: 18, color: "text-purple-400", glow: true },
+  { id: "beginner_athlete", name: "Beginner Athlete", nameAr: "رياضي مبتدئ", description: "Started the fitness journey", descAr: "بدأت رحلة اللياقة", category: "fitness", minLevel: 1, color: "text-secondary" },
+  { id: "active_warrior", name: "Active Warrior", nameAr: "محارب نشيط", description: "Consistent exercise habit", descAr: "عادة تمرين منتظمة", category: "fitness", minLevel: 5, color: "text-blue-400" },
+  { id: "cardio_king", name: "Cardio King", nameAr: "ملك الكارديو", description: "Cardio excellence achieved", descAr: "حققت تميزًا في الكارديو", category: "fitness", minLevel: 8, color: "text-indigo-400" },
+  { id: "strength_beast_title", name: "Strength Beast", nameAr: "وحش القوة", description: "Dominates strength training", descAr: "تسيطر على تمارين القوة", category: "fitness", minLevel: 12, color: "text-violet-400" },
+  { id: "fitness_legend", name: "Fitness Legend", nameAr: "أسطورة اللياقة", description: "Top tier fitness dedication", descAr: "التزام لياقة من أعلى مستوى", category: "fitness", minLevel: 18, color: "text-purple-400", glow: true },
   // AI
-  { id: "ai_explorer", name: "AI Explorer", description: "Loves using AI coaching", category: "ai", minLevel: 2, color: "text-yellow-400" },
-  { id: "smart_user", name: "Smart User", description: "Makes data-driven decisions", category: "ai", minLevel: 6, color: "text-amber-400" },
-  { id: "insight_master_title", name: "Insight Master", description: "Master of AI insights", category: "ai", minLevel: 10, color: "text-orange-400" },
+  { id: "ai_explorer", name: "AI Explorer", nameAr: "مستكشف الذكاء", description: "Loves using AI coaching", descAr: "تستخدم المدرب الذكي باستمرار", category: "ai", minLevel: 2, color: "text-yellow-400" },
+  { id: "smart_user", name: "Smart User", nameAr: "مستخدم ذكي", description: "Makes data-driven decisions", descAr: "تتخذ قرارات مبنية على البيانات", category: "ai", minLevel: 6, color: "text-amber-400" },
+  { id: "insight_master_title", name: "Insight Master", nameAr: "سيد الرؤى", description: "Master of AI insights", descAr: "خبير في رؤى الذكاء الاصطناعي", category: "ai", minLevel: 10, color: "text-orange-400" },
   // Elite
-  { id: "bodylogic_pro_title", name: "BodyLogic Pro", description: "Professional user status", category: "elite", minLevel: 10, color: "text-rose-400" },
-  { id: "discipline_master_title", name: "Discipline Master", description: "Exceptional self-discipline", category: "elite", minLevel: 15, color: "text-red-400", glow: true },
-  { id: "consistency_god", name: "Consistency God", description: "Unmatched daily consistency", category: "elite", minLevel: 18, color: "text-pink-400", glow: true },
-  { id: "elite_performer", name: "Elite Performer", description: "Performs at the highest level", category: "elite", minLevel: 20, color: "text-fuchsia-400", glow: true },
-  { id: "legendary_human_title", name: "Legendary Human", description: "A true health legend", category: "elite", minLevel: 25, color: "text-primary", glow: true },
-  { id: "unstoppable_title", name: "The Unstoppable", description: "Nothing can stop you", category: "elite", minLevel: 30, color: "text-yellow-300", glow: true },
+  { id: "bodylogic_pro_title", name: "BodyLogic Pro", nameAr: "محترف BodyLogic", description: "Professional user status", descAr: "مكانة مستخدم محترف", category: "elite", minLevel: 10, color: "text-rose-400" },
+  { id: "discipline_master_title", name: "Discipline Master", nameAr: "سيد الانضباط", description: "Exceptional self-discipline", descAr: "انضباط ذاتي استثنائي", category: "elite", minLevel: 15, color: "text-red-400", glow: true },
+  { id: "consistency_god", name: "Consistency God", nameAr: "أسطورة الاستمرارية", description: "Unmatched daily consistency", descAr: "استمرارية يومية لا تُضاهى", category: "elite", minLevel: 18, color: "text-pink-400", glow: true },
+  { id: "elite_performer", name: "Elite Performer", nameAr: "أداء نخبة", description: "Performs at the highest level", descAr: "تؤدي بأعلى مستوى", category: "elite", minLevel: 20, color: "text-fuchsia-400", glow: true },
+  { id: "legendary_human_title", name: "Legendary Human", nameAr: "إنسان أسطوري", description: "A true health legend", descAr: "أسطورة صحية حقيقية", category: "elite", minLevel: 25, color: "text-primary", glow: true },
+  { id: "unstoppable_title", name: "The Unstoppable", nameAr: "الذي لا يُوقَف", description: "Nothing can stop you", descAr: "لا شيء يوقفك", category: "elite", minLevel: 30, color: "text-yellow-300", glow: true },
 ];
 
 export const TIER_CONFIG: Record<BadgeTier, { label: string; color: string; bg: string; border: string; textColor: string }> = {
@@ -319,44 +319,44 @@ export function calcMomentumScore(stats: {
 }
 
 export const DAILY_MISSIONS: Mission[] = [
-  { id: "dm_water", title: "Stay Hydrated", description: "Drink 2L+ of water today", icon: "💧", xp: 30, coins: 3, category: "nutrition", type: "daily" },
-  { id: "dm_steps", title: "Step Goal", description: "Walk 8,000+ steps", icon: "👟", xp: 40, coins: 4, category: "fitness", type: "daily" },
-  { id: "dm_meals", title: "3 Meals", description: "Log 3 meals today", icon: "🍽️", xp: 45, coins: 5, category: "nutrition", type: "daily" },
-  { id: "dm_workout", title: "Daily Workout", description: "Complete 1 workout", icon: "🏋️", xp: 60, coins: 6, category: "fitness", type: "daily" },
-  { id: "dm_sleep", title: "Sleep Well", description: "Log 7+ hours of sleep", icon: "😴", xp: 35, coins: 3, category: "fitness", type: "daily" },
-  { id: "dm_ai", title: "AI Check-in", description: "Chat with your AI coach", icon: "🤖", xp: 20, coins: 2, category: "ai", type: "daily" },
-  { id: "dm_healthy_meal", title: "Eat Smart", description: "Log a meal with Meal IQ 18+", icon: "🥗", xp: 50, coins: 5, category: "nutrition", type: "daily" },
-  { id: "dm_morning_log", title: "Morning Routine", description: "Log activity before 9am", icon: "🌅", xp: 25, coins: 2, category: "lifestyle", type: "daily" },
+  { id: "dm_water", title: "Stay Hydrated", titleAr: "حافظ على الترطيب", description: "Drink 2L+ of water today", descAr: "اشرب أكثر من ٢ لتر ماء اليوم", icon: "💧", xp: 30, coins: 3, category: "nutrition", type: "daily" },
+  { id: "dm_steps", title: "Step Goal", titleAr: "هدف الخطوات", description: "Walk 8,000+ steps", descAr: "امشِ أكثر من ٨٬٠٠٠ خطوة", icon: "👟", xp: 40, coins: 4, category: "fitness", type: "daily" },
+  { id: "dm_meals", title: "3 Meals", titleAr: "٣ وجبات", description: "Log 3 meals today", descAr: "سجّل ٣ وجبات اليوم", icon: "🍽️", xp: 45, coins: 5, category: "nutrition", type: "daily" },
+  { id: "dm_workout", title: "Daily Workout", titleAr: "تمرين يومي", description: "Complete 1 workout", descAr: "أكمل تمرينًا واحدًا", icon: "🏋️", xp: 60, coins: 6, category: "fitness", type: "daily" },
+  { id: "dm_sleep", title: "Sleep Well", titleAr: "نم جيدًا", description: "Log 7+ hours of sleep", descAr: "سجّل أكثر من ٧ ساعات نوم", icon: "😴", xp: 35, coins: 3, category: "fitness", type: "daily" },
+  { id: "dm_ai", title: "AI Check-in", titleAr: "تسجيل مع الذكاء", description: "Chat with your AI coach", descAr: "تحدث مع مدربك الذكي", icon: "🤖", xp: 20, coins: 2, category: "ai", type: "daily" },
+  { id: "dm_healthy_meal", title: "Eat Smart", titleAr: "كُل بذكاء", description: "Log a meal with Meal IQ 18+", descAr: "سجّل وجبة بذكاء ١٨+", icon: "🥗", xp: 50, coins: 5, category: "nutrition", type: "daily" },
+  { id: "dm_morning_log", title: "Morning Routine", titleAr: "روتين الصباح", description: "Log activity before 9am", descAr: "سجّل نشاطًا قبل ٩ صباحًا", icon: "🌅", xp: 25, coins: 2, category: "lifestyle", type: "daily" },
 ];
 
 export const WEEKLY_MISSIONS: Mission[] = [
-  { id: "wm_workouts", title: "5 Workouts", description: "Complete 5 workouts this week", icon: "💪", xp: 200, coins: 20, category: "fitness", type: "weekly" },
-  { id: "wm_steps", title: "70K Steps", description: "Walk 70K steps this week", icon: "🏃", xp: 250, coins: 25, category: "fitness", type: "weekly" },
-  { id: "wm_meals", title: "21 Meals", description: "Log 3 meals/day all week", icon: "📋", xp: 300, coins: 30, category: "nutrition", type: "weekly" },
-  { id: "wm_meal_iq", title: "High IQ Week", description: "5 meals with Meal IQ 18+", icon: "⭐", xp: 350, coins: 35, category: "nutrition", type: "weekly" },
-  { id: "wm_ai_check", title: "Weekly AI Sessions", description: "Chat with AI coach 5 times", icon: "🤖", xp: 150, coins: 15, category: "ai", type: "weekly" },
-  { id: "wm_sleep_7", title: "Sleep Champion", description: "Log 7+ hours every night this week", icon: "🌙", xp: 280, coins: 28, category: "fitness", type: "weekly" },
-  { id: "wm_water_7", title: "Hydration Week", description: "Hit water goal every day this week", icon: "💧", xp: 200, coins: 20, category: "nutrition", type: "weekly" },
+  { id: "wm_workouts", title: "5 Workouts", titleAr: "٥ تمارين", description: "Complete 5 workouts this week", descAr: "أكمل ٥ تمارين هذا الأسبوع", icon: "💪", xp: 200, coins: 20, category: "fitness", type: "weekly" },
+  { id: "wm_steps", title: "70K Steps", titleAr: "٧٠ ألف خطوة", description: "Walk 70K steps this week", descAr: "امشِ ٧٠ ألف خطوة هذا الأسبوع", icon: "🏃", xp: 250, coins: 25, category: "fitness", type: "weekly" },
+  { id: "wm_meals", title: "21 Meals", titleAr: "٢١ وجبة", description: "Log 3 meals/day all week", descAr: "سجّل ٣ وجبات يوميًا طوال الأسبوع", icon: "📋", xp: 300, coins: 30, category: "nutrition", type: "weekly" },
+  { id: "wm_meal_iq", title: "High IQ Week", titleAr: "أسبوع ذكاء عالٍ", description: "5 meals with Meal IQ 18+", descAr: "٥ وجبات بذكاء وجبة ١٨+", icon: "⭐", xp: 350, coins: 35, category: "nutrition", type: "weekly" },
+  { id: "wm_ai_check", title: "Weekly AI Sessions", titleAr: "جلسات الذكاء الأسبوعية", description: "Chat with AI coach 5 times", descAr: "تحدث مع المدرب الذكي ٥ مرات", icon: "🤖", xp: 150, coins: 15, category: "ai", type: "weekly" },
+  { id: "wm_sleep_7", title: "Sleep Champion", titleAr: "بطل النوم", description: "Log 7+ hours every night this week", descAr: "سجّل أكثر من ٧ ساعات كل ليلة هذا الأسبوع", icon: "🌙", xp: 280, coins: 28, category: "fitness", type: "weekly" },
+  { id: "wm_water_7", title: "Hydration Week", titleAr: "أسبوع الترطيب", description: "Hit water goal every day this week", descAr: "حقق هدف الماء كل يوم هذا الأسبوع", icon: "💧", xp: 200, coins: 20, category: "nutrition", type: "weekly" },
 ];
 
 export const SMART_MISSIONS: Mission[] = [
-  { id: "sm_protein_boost", title: "Protein Surge", description: "Increase protein — log 3 high-protein meals", icon: "fitness", xp: 100, coins: 10, category: "nutrition", type: "smart", difficulty: "easy" },
-  { id: "sm_ai_insight", title: "Coach-Led Day", description: "Follow AI suggestion for your entire day", icon: "ai", xp: 90, coins: 9, category: "ai", type: "smart", difficulty: "easy" },
-  { id: "sm_hydration_fix", title: "Hydration Fix", description: "Drink 3L of water today", icon: "water", xp: 80, coins: 8, category: "nutrition", type: "smart", difficulty: "easy" },
-  { id: "sm_reduce_sugar", title: "Sugar Reset", description: "Reduce sugar — log 5 low-sugar meals", icon: "nutrition", xp: 120, coins: 12, category: "nutrition", type: "smart", difficulty: "medium" },
-  { id: "sm_sleep_improve", title: "Sleep Optimizer", description: "Log 8+ hours of sleep for 3 nights in a row", icon: "sleep", xp: 150, coins: 15, category: "fitness", type: "smart", difficulty: "medium" },
-  { id: "sm_cardio_week", title: "Cardio Blitz", description: "Do 3 cardio sessions this week", icon: "heart", xp: 180, coins: 18, category: "fitness", type: "smart", difficulty: "medium" },
-  { id: "sm_no_skip", title: "No-Skip Week", description: "Log every category for 7 days straight", icon: "target", xp: 300, coins: 30, category: "lifestyle", type: "smart", difficulty: "hard" },
-  { id: "sm_morning_moves", title: "Morning Moves", description: "Work out before 8am — 3 days this week", icon: "sun", xp: 200, coins: 20, category: "fitness", type: "smart", difficulty: "hard" },
+  { id: "sm_protein_boost", title: "Protein Surge", titleAr: "دفعة بروتين", description: "Increase protein — log 3 high-protein meals", descAr: "ارفع البروتين — سجّل ٣ وجبات عالية البروتين", icon: "fitness", xp: 100, coins: 10, category: "nutrition", type: "smart", difficulty: "easy" },
+  { id: "sm_ai_insight", title: "Coach-Led Day", titleAr: "يوم بقيادة المدرب", description: "Follow AI suggestion for your entire day", descAr: "اتبع اقتراح الذكاء طوال يومك", icon: "ai", xp: 90, coins: 9, category: "ai", type: "smart", difficulty: "easy" },
+  { id: "sm_hydration_fix", title: "Hydration Fix", titleAr: "تصحيح الترطيب", description: "Drink 3L of water today", descAr: "اشرب ٣ لتر ماء اليوم", icon: "water", xp: 80, coins: 8, category: "nutrition", type: "smart", difficulty: "easy" },
+  { id: "sm_reduce_sugar", title: "Sugar Reset", titleAr: "إعادة ضبط السكر", description: "Reduce sugar — log 5 low-sugar meals", descAr: "قلّل السكر — سجّل ٥ وجبات قليلة السكر", icon: "nutrition", xp: 120, coins: 12, category: "nutrition", type: "smart", difficulty: "medium" },
+  { id: "sm_sleep_improve", title: "Sleep Optimizer", titleAr: "محسّن النوم", description: "Log 8+ hours of sleep for 3 nights in a row", descAr: "سجّل أكثر من ٨ ساعات نوم ٣ ليالٍ متتالية", icon: "sleep", xp: 150, coins: 15, category: "fitness", type: "smart", difficulty: "medium" },
+  { id: "sm_cardio_week", title: "Cardio Blitz", titleAr: "اندفاعة كارديو", description: "Do 3 cardio sessions this week", descAr: "أنجز ٣ جلسات كارديو هذا الأسبوع", icon: "heart", xp: 180, coins: 18, category: "fitness", type: "smart", difficulty: "medium" },
+  { id: "sm_no_skip", title: "No-Skip Week", titleAr: "أسبوع بلا تفويت", description: "Log every category for 7 days straight", descAr: "سجّل كل الفئات ٧ أيام متتالية", icon: "target", xp: 300, coins: 30, category: "lifestyle", type: "smart", difficulty: "hard" },
+  { id: "sm_morning_moves", title: "Morning Moves", titleAr: "حركة الصباح", description: "Work out before 8am — 3 days this week", descAr: "تمرّن قبل ٨ صباحًا — ٣ أيام هذا الأسبوع", icon: "sun", xp: 200, coins: 20, category: "fitness", type: "smart", difficulty: "hard" },
 ];
 
 export const BOSS_CHALLENGES = [
-  { id: "bc_workout_5days", title: "5-Day Grind", description: "Complete a workout every day for 5 consecutive days.", icon: "⚡", xp: 600, coins: 60, difficulty: "medium", days: 5 },
-  { id: "bc_ai_30", title: "AI Month", description: "Chat with your AI coach every day for 30 days.", icon: "🤖", xp: 600, coins: 60, difficulty: "medium", days: 30 },
-  { id: "bc_nojunk", title: "Clean 7", description: "No junk food for 7 days straight. Meal IQ must stay above 16 every day.", icon: "🥦", xp: 500, coins: 50, difficulty: "hard", days: 7 },
-  { id: "bc_10k_7days", title: "10K Daily", description: "Walk 10,000+ steps every day for 7 consecutive days.", icon: "🔥", xp: 700, coins: 70, difficulty: "hard", days: 7 },
-  { id: "bc_steps_100k", title: "Step Monster", description: "Accumulate 100,000 steps in a single week.", icon: "🦾", xp: 900, coins: 90, difficulty: "hard", days: 7 },
-  { id: "bc_perfect_iq", title: "Perfect IQ", description: "Achieve Meal IQ of 22+ every day for 3 consecutive days.", icon: "💎", xp: 800, coins: 80, difficulty: "legendary", days: 3 },
-  { id: "bc_protein_month", title: "Protein King", description: "Maintain high-protein diet (Meal IQ 20+) for 14 days.", icon: "💪", xp: 1000, coins: 100, difficulty: "legendary", days: 14 },
-  { id: "bc_nocheats_30", title: "30-Day Warrior", description: "Log all health pillars (meal, water, sleep, workout) every day for 30 days.", icon: "🏆", xp: 2000, coins: 200, difficulty: "legendary", days: 30 },
+  { id: "bc_workout_5days", title: "5-Day Grind", titleAr: "٥ أيام جدية", description: "Complete a workout every day for 5 consecutive days.", descAr: "أكمل تمرينًا كل يوم لمدة ٥ أيام متتالية.", icon: "⚡", xp: 600, coins: 60, difficulty: "medium", days: 5 },
+  { id: "bc_ai_30", title: "AI Month", titleAr: "شهر الذكاء", description: "Chat with your AI coach every day for 30 days.", descAr: "تحدث مع مدربك الذكي كل يوم لمدة ٣٠ يومًا.", icon: "🤖", xp: 600, coins: 60, difficulty: "medium", days: 30 },
+  { id: "bc_nojunk", title: "Clean 7", titleAr: "٧ أيام نظيفة", description: "No junk food for 7 days straight. Meal IQ must stay above 16 every day.", descAr: "بلا أكل غير صحي ٧ أيام متتالية، وذكاء الوجبة فوق ١٦ يوميًا.", icon: "🥦", xp: 500, coins: 50, difficulty: "hard", days: 7 },
+  { id: "bc_10k_7days", title: "10K Daily", titleAr: "١٠ آلاف يوميًا", description: "Walk 10,000+ steps every day for 7 consecutive days.", descAr: "امشِ أكثر من ١٠٬٠٠٠ خطوة يوميًا لمدة ٧ أيام متتالية.", icon: "🔥", xp: 700, coins: 70, difficulty: "hard", days: 7 },
+  { id: "bc_steps_100k", title: "Step Monster", titleAr: "وحش الخطوات", description: "Accumulate 100,000 steps in a single week.", descAr: "اجمع ١٠٠٬٠٠٠ خطوة في أسبوع واحد.", icon: "🦾", xp: 900, coins: 90, difficulty: "hard", days: 7 },
+  { id: "bc_perfect_iq", title: "Perfect IQ", titleAr: "ذكاء مثالي", description: "Achieve Meal IQ of 22+ every day for 3 consecutive days.", descAr: "حقق ذكاء وجبة ٢٢+ كل يوم لمدة ٣ أيام متتالية.", icon: "💎", xp: 800, coins: 80, difficulty: "legendary", days: 3 },
+  { id: "bc_protein_month", title: "Protein King", titleAr: "ملك البروتين", description: "Maintain high-protein diet (Meal IQ 20+) for 14 days.", descAr: "حافظ على غذاء عالي البروتين (ذكاء وجبة ٢٠+) لمدة ١٤ يومًا.", icon: "💪", xp: 1000, coins: 100, difficulty: "legendary", days: 14 },
+  { id: "bc_nocheats_30", title: "30-Day Warrior", titleAr: "محارب ٣٠ يوم", description: "Log all health pillars (meal, water, sleep, workout) every day for 30 days.", descAr: "سجّل كل أركان الصحة يوميًا لمدة ٣٠ يومًا.", icon: "🏆", xp: 2000, coins: 200, difficulty: "legendary", days: 30 },
 ];

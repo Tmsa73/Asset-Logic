@@ -8,3 +8,4 @@ export * from "./steps";
 export * from "./notifications";
 export * from "./progress";
 export * from "./users";
+export * from "./body_measurements";

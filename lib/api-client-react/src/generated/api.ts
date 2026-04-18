@@ -19,6 +19,8 @@ import type {
 import type {
   AiInsights,
   AiMessage,
+  BodyMeasurement,
+  CreateBodyMeasurementBody,
   DailyMealIQ,
   DashboardSummary,
   FitnessSummary,
@@ -368,6 +370,168 @@ export function useGetProfileStats<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Get body measurements
+ */
+export const getGetBodyMeasurementsUrl = () => {
+  return `/api/measurements`;
+};
+
+export const getBodyMeasurements = async (
+  options?: RequestInit,
+): Promise<BodyMeasurement[]> => {
+  return customFetch<BodyMeasurement[]>(getGetBodyMeasurementsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetBodyMeasurementsQueryKey = () => {
+  return [`/api/measurements`] as const;
+};
+
+export const getGetBodyMeasurementsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getBodyMeasurements>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getBodyMeasurements>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetBodyMeasurementsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getBodyMeasurements>>
+  > = ({ signal }) => getBodyMeasurements({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getBodyMeasurements>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetBodyMeasurementsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getBodyMeasurements>>
+>;
+export type GetBodyMeasurementsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get body measurements
+ */
+
+export function useGetBodyMeasurements<
+  TData = Awaited<ReturnType<typeof getBodyMeasurements>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getBodyMeasurements>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetBodyMeasurementsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create body measurement
+ */
+export const getCreateBodyMeasurementUrl = () => {
+  return `/api/measurements`;
+};
+
+export const createBodyMeasurement = async (
+  createBodyMeasurementBody: CreateBodyMeasurementBody,
+  options?: RequestInit,
+): Promise<BodyMeasurement> => {
+  return customFetch<BodyMeasurement>(getCreateBodyMeasurementUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createBodyMeasurementBody),
+  });
+};
+
+export const getCreateBodyMeasurementMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createBodyMeasurement>>,
+    TError,
+    { data: BodyType<CreateBodyMeasurementBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createBodyMeasurement>>,
+  TError,
+  { data: BodyType<CreateBodyMeasurementBody> },
+  TContext
+> => {
+  const mutationKey = ["createBodyMeasurement"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createBodyMeasurement>>,
+    { data: BodyType<CreateBodyMeasurementBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createBodyMeasurement(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateBodyMeasurementMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createBodyMeasurement>>
+>;
+export type CreateBodyMeasurementMutationBody =
+  BodyType<CreateBodyMeasurementBody>;
+export type CreateBodyMeasurementMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create body measurement
+ */
+export const useCreateBodyMeasurement = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createBodyMeasurement>>,
+    TError,
+    { data: BodyType<CreateBodyMeasurementBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createBodyMeasurement>>,
+  TError,
+  { data: BodyType<CreateBodyMeasurementBody> },
+  TContext
+> => {
+  return useMutation(getCreateBodyMeasurementMutationOptions(options));
+};
 
 /**
  * @summary Get logged meals

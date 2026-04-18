@@ -26,23 +26,29 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
   1. **Home** – Momentum Score + Life Balance side-by-side, 4 stat cards, XP/coins banner, water quick-add, clickable Meal IQ quiz card, AI tip (rotates every 10 min), improved streak calendar, recent activity, active title display
   2. **Nutrition** – Meal logger, calorie/macro progress rings, clickable Meal IQ quiz card (35 randomized questions), streak badge, add meal button (camera/photo scan with client-side image compression + AI food recognition matched against food database + food search autocomplete with 150+ foods), today's meals list; photo AI uses Replit OpenAI integration and database-grounded recognition
   3. **Fitness** – Weekly activity chart, workout logger, calories burned, sleep recovery card
-  4. **AI Coach** – Conversational AI with personality badge (Motivator/Friendly/Strict/Silent), collapsible habit warning panel, 8 topic chips
+  4. **AI Coach** – Conversational AI with personality badge (Motivator/Friendly/Strict/Silent), Arabic-aware responses, collapsible habit warning panel, 8 topic chips
   5. **History** – Filterable timeline of all logged events (meals, workouts, sleep)
-  6. **Profile** – Health Identity Card (level, title, xp bar, stats), Life Balance chart, daily missions, earned badges, body metrics editor
+  6. **Profile** – Health Identity Card (level, localized title, xp bar, stats), Life Balance chart, daily missions, earned badges, body metrics editor, and body measurements tracker with add dialog, recent history, and trend chart
 
 ### API Server (`artifacts/api-server`)
 - **URL**: `/api` (port 8080)
 - **Type**: Express 5 API server
-- **Routes**: profile, nutrition (meals), fitness (workouts), sleep, ai (messages + insights), history, dashboard, progress/missions
+- **Routes**: profile, nutrition (meals), fitness (workouts), sleep, ai (messages + insights + morning brief), measurements, history, dashboard, progress/missions
+
+## Localization
+
+- English and Arabic are supported in the React app, including RTL rendering from the language context.
+- API requests send the active language via `Accept-Language` so AI coach responses and insights can be localized.
+- Gamification titles, achievements, daily/weekly/smart missions, and boss challenges include Arabic fields and use Arabic labels when the app language is Arabic.
 
 ## Gamification System (`lib/gamification.ts`)
 
 All gamification logic lives in the frontend lib:
 - **80+ achievements** across 6 categories: nutrition, fitness, ai, milestones, elite, lifestyle
 - **5 badge tiers**: bronze, silver, gold, platinum, legendary
-- **19 unlockable titles** with glow effects and category colors
+- **19 unlockable titles** with glow effects, category colors, and Arabic names/descriptions
 - **30-level progression** with thresholds from 0 to 525K XP
-- **Daily/Weekly/Personal/Boss missions**: 8 + 7 + 8 + 8 entries
+- **Daily/Weekly/Personal/Boss missions**: 8 + 7 + 8 + 8 entries with Arabic labels/descriptions
 - **`calcMomentumScore()`**: composite health score (0–100) based on streak, workouts, meals, water, sleep
 
 ## Gamification Pages
@@ -69,6 +75,7 @@ All gamification logic lives in the frontend lib:
 - `meals` – Food log entries with macros
 - `workouts` – Workout log with type, duration, intensity, calories
 - `sleep` – Sleep logs with bedtime, wake time, duration, quality
+- `body_measurements` – Body measurement log with weight, waist, chest, hips, arm, body fat, notes, and logged timestamp
 - `ai_messages` – AI coach conversation history
 - `xp_logs` – XP earn events by source
 
@@ -83,11 +90,9 @@ All gamification logic lives in the frontend lib:
 ## Replit Runtime Configuration
 
 - Active workflows:
-  - `artifacts/api-server: API Server` serves `/api` on local port 8080.
-  - `artifacts/health-app: web` serves `/` on local port 3000.
-- Legacy duplicate workflows were removed during migration so the registered Replit artifact services own their expected ports.
-- `artifacts/health-app/.replit-artifact/artifact.toml` is registered with `localPort = 3000` and `BASE_PATH = "/"`.
-- Verified migration with HTTP 200 responses from `/` and `/api/healthz`, and browser console showed Vite reconnecting without runtime errors.
+  - `API Server` serves `/api` on local port 8080.
+  - `Start application` serves `/` on local port 3000.
+- Verified the latest implementation with HTTP 200 responses from `/` and `/api/healthz`, both workflows running, and browser console reconnecting without runtime errors.
 
 ## Important Notes
 

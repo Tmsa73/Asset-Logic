@@ -109,6 +109,37 @@ export const GetProfileStatsResponse = zod.object({
 });
 
 /**
+ * @summary Get body measurements
+ */
+export const GetBodyMeasurementsResponseItem = zod.object({
+  id: zod.number(),
+  weight: zod.number().nullish(),
+  waist: zod.number().nullish(),
+  chest: zod.number().nullish(),
+  hips: zod.number().nullish(),
+  arm: zod.number().nullish(),
+  bodyFat: zod.number().nullish(),
+  notes: zod.string().nullish(),
+  loggedAt: zod.coerce.date(),
+});
+export const GetBodyMeasurementsResponse = zod.array(
+  GetBodyMeasurementsResponseItem,
+);
+
+/**
+ * @summary Create body measurement
+ */
+export const CreateBodyMeasurementBody = zod.object({
+  weight: zod.number().nullish(),
+  waist: zod.number().nullish(),
+  chest: zod.number().nullish(),
+  hips: zod.number().nullish(),
+  arm: zod.number().nullish(),
+  bodyFat: zod.number().nullish(),
+  notes: zod.string().nullish(),
+});
+
+/**
  * @summary Get logged meals
  */
 export const GetMealsQueryParams = zod.object({

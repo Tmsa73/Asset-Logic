@@ -11,6 +11,11 @@ import {
 
 const router: IRouter = Router();
 
+function isArabicRequest(req: { headers: Record<string, string | string[] | undefined> }): boolean {
+  const value = Array.isArray(req.headers["accept-language"]) ? req.headers["accept-language"][0] : req.headers["accept-language"];
+  return typeof value === "string" && value.toLowerCase().startsWith("ar");
+}
+
 const healthTips = [
   { id: 1, category: "nutrition" as const, title: "Stay Hydrated", description: "Drink at least 8 glasses of water today to support metabolism and energy levels.", priority: "high" as const },
   { id: 2, category: "fitness" as const, title: "Move Every Hour", description: "Take short breaks to walk or stretch — sitting for long periods reduces calorie burn by up to 20%.", priority: "medium" as const },
@@ -78,14 +83,23 @@ async function buildUserContext(userId?: number) {
   };
 }
 
-function generatePersonalizedResponse(message: string, ctx: Awaited<ReturnType<typeof buildUserContext>>): string {
+function generatePersonalizedResponse(message: string, ctx: Awaited<ReturnType<typeof buildUserContext>>, lang: "en" | "ar" = "en"): string {
   const msg = message.toLowerCase();
   const name = ctx.userName;
   const simpleMode = ctx.age < 18 || ctx.age >= 55;
   const redirect = `${name}, I can help with nutrition, workouts, sleep, hydration, weight progress, and BodyLogic tracking. Ask me about one of those and I’ll keep it focused on your health goals.`;
-
+  const redirectAr = `${name}، أستطيع مساعدتك في التغذية، التمارين، النوم، الترطيب، تقدم الوزن، وتتبع BodyLogic. اسألني عن أحد هذه المواضيع وسأبقي الإجابة مركزة على هدفك الصحي.`;
   const caloriesRemaining = ctx.calorieGoal - ctx.todayCalories;
   const waterGlasses = Math.round(ctx.waterTodayMl / 250);
+
+  if (lang === "ar") {
+    if (msg.includes("اكل") || msg.includes("أكل") || msg.includes("وجبة") || msg.includes("سعر") || msg.includes("calorie") || msg.includes("food")) return `${name}، سجّلت اليوم ${ctx.todayCalories} سعرة وبقي لديك ${Math.max(0, caloriesRemaining)} سعرة من هدفك ${ctx.calorieGoal}. ركّز على بروتين جيد، ألياف، وماء كافٍ.`;
+    if (msg.includes("تمرين") || msg.includes("رياض") || msg.includes("gym") || msg.includes("workout")) return `${name}، سجّلت ${ctx.weeklyWorkouts} تمارين هذا الأسبوع. لزيادة التقدم نحو هدف ${ctx.goal}، أضف جلسة سهلة أو مشي 20 دقيقة اليوم.`;
+    if (msg.includes("نوم") || msg.includes("تعب") || msg.includes("sleep")) return `${name}، متوسط نومك الأخير ${ctx.avgSleepHours || "غير مسجل"} ساعة. حاول تثبيت وقت النوم وتقليل الشاشة قبل النوم بساعة.`;
+    if (msg.includes("ماء") || msg.includes("شرب") || msg.includes("water")) return `${name}، شربت تقريبًا ${waterGlasses} أكواب ماء اليوم. ابدأ بكوبين الآن وحافظ على الترطيب مع كل وجبة.`;
+    if (msg.includes("وزن") || msg.includes("تقدم") || msg.includes("progress")) return `${name}، التقدم يأتي من تكرار العادات الصغيرة: تسجيل الوجبات، الحركة، الماء، والنوم. لديك ${ctx.weeklyWorkouts} تمارين هذا الأسبوع و${ctx.mealsCount} وجبات اليوم.`;
+    return redirectAr;
+  }
 
   if (msg.includes("nutrition") || msg.includes("food") || msg.includes("meal") || msg.includes("eat") || msg.includes("calorie")) {
     if (simpleMode) return `${name}, for food today: log each meal, add protein, drink water, and choose fruit or vegetables when you can. You have ${Math.max(0, caloriesRemaining)} calories left.`;
@@ -169,7 +183,7 @@ router.post("/ai/messages", async (req, res): Promise<void> => {
 
   const authUser = await getUserFromRequest(req);
   const ctx = await buildUserContext(authUser?.id);
-  const responseContent = generatePersonalizedResponse(parsed.data.content, ctx);
+  const responseContent = generatePersonalizedResponse(parsed.data.content, ctx, isArabicRequest(req) ? "ar" : "en");
 
   const [assistantMessage] = await db.insert(aiMessagesTable).values({
     role: "assistant",
@@ -182,14 +196,24 @@ router.post("/ai/messages", async (req, res): Promise<void> => {
 router.get("/ai/insights", async (req, res): Promise<void> => {
   const authUser = await getUserFromRequest(req);
   const ctx = await buildUserContext(authUser?.id);
-  const behaviorAnalysis = ctx.age < 18 || ctx.age >= 55
-    ? "Your recent pattern is simple: mornings are stronger than evenings. Try one small evening log and one easy weekend walk to keep momentum."
-    : "You tend to log meals consistently in the mornings but skip evening logs. Your workout frequency peaks mid-week and drops on weekends. Consider scheduling a Saturday activity to maintain momentum.";
+  const ar = isArabicRequest(req);
+  const behaviorAnalysis = ar
+    ? (ctx.age < 18 || ctx.age >= 55
+      ? "نمطك الأخير بسيط: الصباح أقوى من المساء. جرّب تسجيلًا صغيرًا في المساء ومشيًا سهلًا في نهاية الأسبوع للحفاظ على الزخم."
+      : "تميل إلى تسجيل الوجبات صباحًا وتفويت تسجيل المساء. التمارين أقوى منتصف الأسبوع وتقل في نهايته؛ خطط لنشاط يوم السبت للحفاظ على الزخم.")
+    : (ctx.age < 18 || ctx.age >= 55
+      ? "Your recent pattern is simple: mornings are stronger than evenings. Try one small evening log and one easy weekend walk to keep momentum."
+      : "You tend to log meals consistently in the mornings but skip evening logs. Your workout frequency peaks mid-week and drops on weekends. Consider scheduling a Saturday activity to maintain momentum.");
   const insights = {
-    tips: healthTips.slice(0, 4),
-    mealSuggestion: "Try a quinoa bowl with grilled chicken, roasted vegetables, and avocado for a balanced, nutrient-dense lunch packed with complete proteins.",
-    workoutSuggestion: "A 30-minute HIIT session would be ideal today — it maximizes calorie burn while fitting into a busy schedule. Combine with a 10-minute cooldown stretch.",
-    motivationalQuote: "The only bad workout is the one that didn't happen. Every step forward counts, no matter how small.",
+    tips: ar ? [
+      { id: 1, category: "nutrition" as const, title: "حافظ على الترطيب", description: "اشرب الماء بانتظام اليوم لدعم الطاقة والهضم.", priority: "high" as const },
+      { id: 2, category: "fitness" as const, title: "تحرك كل ساعة", description: "خذ فواصل قصيرة للمشي أو التمدد لتقليل الخمول.", priority: "medium" as const },
+      { id: 3, category: "sleep" as const, title: "ثبّت موعد النوم", description: "النوم في وقت ثابت يحسن جودة النوم والتعافي.", priority: "high" as const },
+      { id: 4, category: "nutrition" as const, title: "بروتين مع كل وجبة", description: "إضافة البروتين تساعدك على الشبع والحفاظ على العضلات.", priority: "medium" as const },
+    ] : healthTips.slice(0, 4),
+    mealSuggestion: ar ? "جرّب وعاء كينوا مع دجاج مشوي، خضار مشوية وأفوكادو لوجبة متوازنة وغنية بالبروتين." : "Try a quinoa bowl with grilled chicken, roasted vegetables, and avocado for a balanced, nutrient-dense lunch packed with complete proteins.",
+    workoutSuggestion: ar ? "جلسة HIIT لمدة 30 دقيقة مناسبة اليوم؛ تحرق سعرات بكفاءة وتناسب اليوم المزدحم، ثم أضف 10 دقائق تهدئة." : "A 30-minute HIIT session would be ideal today — it maximizes calorie burn while fitting into a busy schedule. Combine with a 10-minute cooldown stretch.",
+    motivationalQuote: ar ? "كل خطوة صغيرة للأمام تُحسب. الاستمرارية أهم من المثالية." : "The only bad workout is the one that didn't happen. Every step forward counts, no matter how small.",
     behaviorAnalysis,
   };
 

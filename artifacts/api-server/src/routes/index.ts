@@ -14,6 +14,7 @@ import progressRouter from "./progress";
 import notificationsRouter from "./notifications";
 import mealIqRouter from "./meal-iq";
 import lifeBalanceRouter from "./life-balance";
+import measurementsRouter from "./measurements";
 
 const router: IRouter = Router();
 
@@ -32,5 +33,6 @@ router.use(progressRouter);
 router.use(notificationsRouter);
 router.use(mealIqRouter);
 router.use(lifeBalanceRouter);
+router.use(measurementsRouter);
 
 export default router;

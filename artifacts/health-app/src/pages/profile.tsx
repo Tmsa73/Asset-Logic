@@ -2,7 +2,8 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import {
   useGetProfile, useGetProfileStats, useUpdateProfile, useGetProgress,
   useGetMissions, useGetLifeBalance, getGetProfileQueryKey,
-  useGetHistory, useGetSleepLogs, GetHistoryType,
+  useGetHistory, useGetSleepLogs, GetHistoryType, useGetBodyMeasurements,
+  useCreateBodyMeasurement, getGetBodyMeasurementsQueryKey,
 } from "@workspace/api-client-react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from "recharts";
 import { useQueryClient } from "@tanstack/react-query";
@@ -12,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/components/theme-provider";
 import {
@@ -20,7 +22,7 @@ import {
   Target, Lock, TrendingUp, TrendingDown, Minus,
   Bot, Palette, Bell, Shield, Info, Globe, Volume2, Download,
   Trash2, Brain, Heart, AlertTriangle, ChevronRight, ChevronDown, ChevronUp, Sword, Lightbulb,
-  Sun, Monitor, Camera, Coins, Ruler, Weight, Droplets, Clock,
+  Sun, Monitor, Camera, Coins, Ruler, Weight, Droplets, Clock, Percent, Plus, Save,
 } from "lucide-react";
 import {
   ALL_ACHIEVEMENTS, ALL_TITLES, TIER_CONFIG, CATEGORY_CONFIG,
@@ -275,7 +277,7 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
   const [nameInput, setNameInput] = useState(displayName);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-  const { t } = useLang();
+  const { t, lang } = useLang();
 
   const level = progress?.level ?? 1;
   const unlockedTitlesCount = ALL_TITLES.filter(tl => level >= tl.minLevel).length;
@@ -350,7 +352,7 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
             )}
             <div className="flex items-center gap-1.5 mt-0.5 mb-2">
               <Crown className="w-3.5 h-3.5 text-yellow-400" />
-              <span className={cn("text-sm font-black", activeTitle.color, activeTitle.glow && "drop-shadow-[0_0_8px_currentColor]")}>{activeTitle.name}</span>
+              <span className={cn("text-sm font-black", activeTitle.color, activeTitle.glow && "drop-shadow-[0_0_8px_currentColor]")}>{lang === "ar" ? (activeTitle.nameAr ?? activeTitle.name) : activeTitle.name}</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               <span className="text-[10px] font-bold bg-primary/15 text-primary px-2 py-0.5 rounded-full border border-primary/20">
@@ -366,7 +368,7 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
 
         <div className="mt-4 relative">
           <div className="flex justify-between text-[10px] mb-1.5">
-            <span className="text-yellow-400 font-black">{progress.xp.toLocaleString()} XP</span>
+            <span className="text-yellow-400 font-black">{progress.xp.toLocaleString()} {t("unit_xp")}</span>
             <span className="text-white/60">{levelInfo.xpToNext.toLocaleString()} to Level {progress.level + 1}</span>
           </div>
           <div className="h-2 bg-black/20 rounded-full overflow-hidden">
@@ -463,7 +465,7 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <p className={cn("text-sm font-bold truncate", mission.completed && "line-through text-muted-foreground")}>{mission.title}</p>
-                  <span className="text-[10px] font-bold text-yellow-500 shrink-0 ml-2">+{mission.xpReward} XP</span>
+                  <span className="text-[10px] font-bold text-yellow-500 shrink-0 ml-2">+{mission.xpReward} {t("unit_xp")}</span>
                 </div>
                 <div className="h-1 bg-muted rounded-full mt-1.5 overflow-hidden">
                   <div className={cn("h-full rounded-full transition-all duration-700", mission.completed ? "bg-primary" : "bg-secondary")} style={{ width: `${Math.min(100, (mission.progress / mission.target) * 100)}%` }} />
@@ -517,8 +519,131 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
           )}
         </CardContent>
       </Card>
+
+      <BodyMeasurementsCard />
       </div>{/* end px-4 wrapper */}
     </div>
+  );
+}
+
+function BodyMeasurementsCard() {
+  const { t } = useLang();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const { data: measurements = [] } = useGetBodyMeasurements();
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({ weight: "", waist: "", chest: "", hips: "", arm: "", bodyFat: "", notes: "" });
+  const latest = measurements[0];
+  const trend = measurements.slice(0, 8).reverse().map((m, i) => ({ index: i + 1, weight: m.weight ?? undefined, waist: m.waist ?? undefined }));
+  const mutation = useCreateBodyMeasurement({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetBodyMeasurementsQueryKey() });
+        setForm({ weight: "", waist: "", chest: "", hips: "", arm: "", bodyFat: "", notes: "" });
+        setOpen(false);
+        toast({ title: t("measurements_saved") });
+      },
+      onError: () => toast({ title: t("measurements_save_failed"), variant: "destructive" }),
+    },
+  });
+  const setField = (key: keyof typeof form, value: string) => setForm(prev => ({ ...prev, [key]: value }));
+  const num = (value: string) => value.trim() === "" ? null : Number(value);
+  const save = () => {
+    mutation.mutate({ data: {
+      weight: num(form.weight),
+      waist: num(form.waist),
+      chest: num(form.chest),
+      hips: num(form.hips),
+      arm: num(form.arm),
+      bodyFat: num(form.bodyFat),
+      notes: form.notes.trim() || null,
+    } });
+  };
+
+  return (
+    <Card className="border border-primary/20 shadow-none bg-card overflow-hidden">
+      <div className="px-4 py-3 flex items-center justify-between border-b border-border/50 bg-gradient-to-r from-primary/10 to-secondary/5">
+        <div>
+          <h3 className="text-sm font-black flex items-center gap-2"><Ruler className="w-4 h-4 text-primary" />{t("measurements_title")}</h3>
+          <p className="text-[11px] text-muted-foreground">{t("measurements_subtitle")}</p>
+        </div>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm" className="h-8 rounded-xl text-xs font-bold"><Plus className="w-3.5 h-3.5 mr-1" />{t("measurements_add")}</Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-[92vw] rounded-3xl">
+            <DialogHeader><DialogTitle>{t("measurements_add")}</DialogTitle></DialogHeader>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                ["weight", t("profile_weight"), t("unit_kg"), Weight],
+                ["waist", t("measurements_waist"), "cm", Ruler],
+                ["chest", t("measurements_chest"), "cm", Ruler],
+                ["hips", t("measurements_hips"), "cm", Ruler],
+                ["arm", t("measurements_arm"), "cm", Ruler],
+                ["bodyFat", t("measurements_body_fat"), "%", Percent],
+              ].map(([key, label, unit, Icon]: any) => (
+                <div key={key} className="space-y-1.5">
+                  <Label className="text-xs flex items-center gap-1.5"><Icon className="w-3 h-3 text-primary" />{label}</Label>
+                  <div className="relative">
+                    <Input type="number" inputMode="decimal" value={form[key as keyof typeof form]} onChange={e => setField(key, e.target.value)} className="h-9 pr-10" placeholder={t("measurements_optional")} />
+                    <span className="absolute right-3 top-2.5 text-[10px] text-muted-foreground font-bold">{unit}</span>
+                  </div>
+                </div>
+              ))}
+              <div className="col-span-2 space-y-1.5">
+                <Label className="text-xs">{t("measurements_note")}</Label>
+                <Input value={form.notes} onChange={e => setField("notes", e.target.value)} className="h-9" placeholder={t("measurements_optional")} />
+              </div>
+            </div>
+            <Button onClick={save} disabled={mutation.isPending} className="w-full rounded-xl font-bold"><Save className="w-4 h-4 mr-2" />{t("profile_save_changes")}</Button>
+          </DialogContent>
+        </Dialog>
+      </div>
+      <CardContent className="p-4 space-y-4">
+        {latest ? (
+          <>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                [t("profile_weight"), latest.weight, t("unit_kg"), Weight],
+                [t("measurements_waist"), latest.waist, "cm", Ruler],
+                [t("measurements_body_fat"), latest.bodyFat, "%", Percent],
+              ].map(([label, value, unit, Icon]: any) => (
+                <div key={label} className="rounded-2xl bg-muted/40 border border-border/40 p-3 text-center">
+                  <Icon className="w-4 h-4 mx-auto mb-1 text-primary" />
+                  <p className="text-base font-black">{value ?? "--"}</p>
+                  <p className="text-[9px] text-muted-foreground font-bold uppercase">{label} {value != null ? unit : ""}</p>
+                </div>
+              ))}
+            </div>
+            {trend.length > 1 && (
+              <div className="h-28 rounded-2xl bg-muted/30 border border-border/40 p-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={trend}>
+                    <Area type="monotone" dataKey="weight" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.18)" strokeWidth={2} />
+                    <Area type="monotone" dataKey="waist" stroke="hsl(var(--secondary))" fill="hsl(var(--secondary) / 0.12)" strokeWidth={2} />
+                    <Tooltip />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+            <div className="space-y-2">
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{t("measurements_history")}</p>
+              {measurements.slice(0, 4).map(m => (
+                <div key={m.id} className="flex items-center justify-between rounded-xl bg-muted/30 px-3 py-2">
+                  <span className="text-xs font-bold">{new Date(m.loggedAt).toLocaleDateString()}</span>
+                  <span className="text-xs text-muted-foreground">{m.weight ? `${m.weight} ${t("unit_kg")}` : "--"} · {m.waist ? `${m.waist} cm` : "--"}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="py-8 text-center text-sm text-muted-foreground">
+            <Ruler className="w-8 h-8 mx-auto mb-2 text-muted-foreground/60" />
+            {t("measurements_none")}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -539,7 +664,7 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
     } catch { return new Set(); }
   });
 
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { toast } = useToast();
   const totalCount = ALL_ACHIEVEMENTS.length;
   const completionPct = Math.round((unlockedCount / totalCount) * 100);
@@ -566,12 +691,12 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
             </div>
           </div>
           <div className="flex-1 min-w-0">
-            <p className={cn("text-base font-black", activeTitle.color)}>{activeTitle.name}</p>
+            <p className={cn("text-base font-black", activeTitle.color)}>{lang === "ar" ? (activeTitle.nameAr ?? activeTitle.name) : activeTitle.name}</p>
             <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden mt-2">
               <motion.div className="h-full bg-gradient-to-r from-primary to-secondary rounded-full" initial={{ width: 0 }} animate={{ width: `${levelInfo.progressPct}%` }} transition={{ duration: 1.2 }} />
             </div>
             <div className="flex justify-between mt-1">
-              <span className="text-[10px] font-bold text-primary">{progress.xp.toLocaleString()} XP</span>
+              <span className="text-[10px] font-bold text-primary">{progress.xp.toLocaleString()} {t("unit_xp")}</span>
               <span className="text-[10px] text-muted-foreground">{levelInfo.xpToNext.toLocaleString()} {t("home_to_level")} {progress.level + 1}</span>
             </div>
           </div>
@@ -651,6 +776,8 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
           <p className="text-xs text-muted-foreground font-bold">{filteredAchievements.filter(a => unlockedIds.has(a.id)).length} / {filteredAchievements.length} {t("rewards_unlocked_of")}</p>
           <div className="grid grid-cols-2 gap-3">
             {filteredAchievements.map((achievement, i) => {
+              const achievementName = lang === "ar" ? (achievement.nameAr ?? achievement.name) : achievement.name;
+              const achievementDescription = lang === "ar" ? (achievement.descAr ?? achievement.description) : achievement.description;
               const isUnlocked = unlockedIds.has(achievement.id);
               const cfg = TIER_CONFIG[achievement.tier];
               return (
@@ -658,11 +785,11 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
                   className={cn("relative rounded-2xl p-4 border transition-all", isUnlocked ? `${cfg.bg} ${cfg.border}` : "bg-muted/20 border-border/20 opacity-55")}>
                   {isUnlocked ? <CheckCircle2 className={cn("absolute top-2 right-2 w-3.5 h-3.5", cfg.textColor)} /> : <Lock className="absolute top-2 right-2 w-3 h-3 text-muted-foreground/40" />}
                   <div className="text-3xl mb-2 leading-none">{achievement.icon}</div>
-                  <p className={cn("text-xs font-black leading-tight mb-1", isUnlocked ? "text-foreground" : "text-muted-foreground")}>{achievement.name}</p>
-                  <p className="text-[10px] text-muted-foreground/80 leading-tight mb-2">{achievement.description}</p>
+                  <p className={cn("text-xs font-black leading-tight mb-1", isUnlocked ? "text-foreground" : "text-muted-foreground")}>{achievementName}</p>
+                  <p className="text-[10px] text-muted-foreground/80 leading-tight mb-2">{achievementDescription}</p>
                   <div className="flex items-center justify-between">
                     <span className={cn("text-[9px] font-black uppercase tracking-wider", cfg.textColor)}>{cfg.label}</span>
-                    <span className="text-[9px] font-bold text-yellow-400">+{achievement.xpReward} XP</span>
+                    <span className="text-[9px] font-bold text-yellow-400">+{achievement.xpReward} {t("unit_xp")}</span>
                   </div>
                 </motion.div>
               );
@@ -675,10 +802,12 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
       {rewardsTab === "titles" && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">Active: <span className={cn("font-bold", activeTitle.color)}>{activeTitle.name}</span></p>
-            <span className="text-[10px] text-muted-foreground">Tap title to equip</span>
+            <p className="text-xs text-muted-foreground">{t("rewards_active_label")}: <span className={cn("font-bold", activeTitle.color)}>{lang === "ar" ? (activeTitle.nameAr ?? activeTitle.name) : activeTitle.name}</span></p>
+            <span className="text-[10px] text-muted-foreground">{t("rewards_tap_equip")}</span>
           </div>
           {ALL_TITLES.map(title => {
+            const titleName = lang === "ar" ? (title.nameAr ?? title.name) : title.name;
+            const titleDescription = lang === "ar" ? (title.descAr ?? title.description) : title.description;
             const isUnlocked = progress.level >= title.minLevel;
             const isActive = title.id === activeTitle.id;
             return (
@@ -689,11 +818,11 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className={cn("text-sm font-black", isUnlocked ? title.color : "text-muted-foreground", title.glow && isUnlocked && "drop-shadow-[0_0_8px_currentColor]")}>{title.name}</p>
+                    <p className={cn("text-sm font-black", isUnlocked ? title.color : "text-muted-foreground", title.glow && isUnlocked && "drop-shadow-[0_0_8px_currentColor]")}>{titleName}</p>
                     {isActive && <span className="text-[9px] font-black bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">ACTIVE</span>}
                   </div>
-                  <p className="text-xs text-muted-foreground">{title.description}</p>
-                  {!isUnlocked && <p className="text-[10px] text-muted-foreground/60 mt-0.5">Unlocks at Level {title.minLevel}</p>}
+                  <p className="text-xs text-muted-foreground">{titleDescription}</p>
+                  {!isUnlocked && <p className="text-[10px] text-muted-foreground/60 mt-0.5">{t("rewards_unlocks_at")} {title.minLevel}</p>}
                 </div>
                 <div className="shrink-0">
                   {isUnlocked ? (
@@ -706,7 +835,7 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
                         onClick={() => {
                           setActiveTitleId(title.id);
                           setStoredTitleId(title.id);
-                          toast({ title: `${title.name} ${t("profile_equipped")}`, description: t("profile_title_updated") });
+                          toast({ title: `${titleName} ${t("profile_equipped")}`, description: t("profile_title_updated") });
                           playGamificationSound("xp");
                         }}
                         className="px-3 py-1.5 rounded-xl bg-primary/10 text-primary text-[10px] font-black border border-primary/30 hover:bg-primary/20 transition-colors press-scale"
@@ -748,10 +877,10 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
                     <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0", completed ? "bg-primary/20" : "bg-muted/50")}>{m.icon}</div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <p className={cn("text-sm font-bold", completed && "line-through text-muted-foreground")}>{m.title}</p>
-                        {completed ? <CheckCircle2 className="w-4 h-4 text-primary shrink-0" /> : <span className="text-xs font-bold text-yellow-400 shrink-0">+{m.xp} XP</span>}
+                        <p className={cn("text-sm font-bold", completed && "line-through text-muted-foreground")}>{lang === "ar" ? (m.titleAr ?? m.title) : m.title}</p>
+                        {completed ? <CheckCircle2 className="w-4 h-4 text-primary shrink-0" /> : <span className="text-xs font-bold text-yellow-400 shrink-0">+{m.xp} {t("unit_xp")}</span>}
                       </div>
-                      <p className="text-xs text-muted-foreground mb-1.5">{m.description}</p>
+                      <p className="text-xs text-muted-foreground mb-1.5">{lang === "ar" ? (m.descAr ?? m.description) : m.description}</p>
                       <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                         <div className={cn("h-full rounded-full", completed ? "bg-primary" : "bg-secondary")} style={{ width: `${pct}%` }} />
                       </div>
@@ -769,13 +898,13 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
                   <div className="w-10 h-10 rounded-xl bg-secondary/20 flex items-center justify-center text-xl shrink-0">{m.icon}</div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-bold">{m.title}</p>
+                      <p className="text-sm font-bold">{lang === "ar" ? (m.titleAr ?? m.title) : m.title}</p>
                       <div className="text-right shrink-0">
-                        <span className="text-xs font-bold text-yellow-400">+{m.xp} XP</span>
-                        <span className="text-[10px] text-muted-foreground ml-1">+{m.coins}🪙</span>
+                        <span className="text-xs font-bold text-yellow-400">+{m.xp} {t("unit_xp")}</span>
+                        <span className="text-[10px] text-muted-foreground ml-1 inline-flex items-center gap-0.5">+{m.coins}<Coins className="w-3 h-3 text-yellow-400" /></span>
                       </div>
                     </div>
-                    <p className="text-xs text-muted-foreground">{m.description}</p>
+                    <p className="text-xs text-muted-foreground">{lang === "ar" ? (m.descAr ?? m.description) : m.description}</p>
                     <div className="h-1 bg-muted rounded-full mt-1.5 overflow-hidden">
                       <div className="h-full bg-secondary rounded-full" style={{ width: "30%" }} />
                     </div>
@@ -790,9 +919,9 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
               <div className="p-3.5 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
                 <div className="flex items-center gap-2 mb-1">
                   <Lightbulb className="w-4 h-4 text-primary" />
-                  <p className="text-sm font-black text-primary">Personal Missions</p>
+                  <p className="text-sm font-black text-primary">{t("rewards_personal_title")}</p>
                 </div>
-                <p className="text-xs text-muted-foreground">AI-generated personalized challenges based on your behavior patterns.</p>
+                <p className="text-xs text-muted-foreground">{t("mission_personal_desc")}</p>
               </div>
               {SMART_MISSIONS.map(m => {
                 const diff = m.difficulty ?? "easy";
@@ -805,12 +934,12 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <p className="text-sm font-black">{m.title}</p>
+                          <p className="text-sm font-black">{lang === "ar" ? (m.titleAr ?? m.title) : m.title}</p>
                           <span className={cn("text-[9px] font-black px-1.5 py-0.5 rounded-full border", diffCfg.color)}>{t(diffCfg.labelKey as any)}</span>
                         </div>
-                        <p className="text-xs text-muted-foreground mb-2">{m.description}</p>
+                        <p className="text-xs text-muted-foreground mb-2">{lang === "ar" ? (m.descAr ?? m.description) : m.description}</p>
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-yellow-400">+{m.xp} XP</span>
+                          <span className="text-xs font-bold text-yellow-400">+{m.xp} {t("unit_xp")}</span>
                           <span className="text-xs text-muted-foreground flex items-center gap-1">+{m.coins}<Coins className="w-3 h-3 text-yellow-400" /></span>
                         </div>
                       </div>
@@ -847,12 +976,12 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
                     <span className="text-[10px] text-muted-foreground">{boss.days} {t("rewards_days")}</span>
                   </div>
                 </div>
-                <h4 className="text-base font-black mb-1">{boss.title}</h4>
-                <p className="text-sm text-muted-foreground mb-3 leading-relaxed">{boss.description}</p>
+                <h4 className="text-base font-black mb-1">{lang === "ar" ? (boss.titleAr ?? boss.title) : boss.title}</h4>
+                <p className="text-sm text-muted-foreground mb-3 leading-relaxed">{lang === "ar" ? (boss.descAr ?? boss.description) : boss.description}</p>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-black text-yellow-400">+{boss.xp} XP</span>
-                    <span className="text-sm text-muted-foreground">+{boss.coins}🪙</span>
+                    <span className="text-sm font-black text-yellow-400">+{boss.xp} {t("unit_xp")}</span>
+                    <span className="text-sm text-muted-foreground inline-flex items-center gap-1">+{boss.coins}<Coins className="w-3.5 h-3.5 text-yellow-400" /></span>
                   </div>
                   <button
                     onClick={() => {
@@ -862,11 +991,11 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
                       setAcceptedChallenges(next);
                       try {
                         const stored: any[] = JSON.parse(localStorage.getItem("bodylogic-accepted-challenges") ?? "[]");
-                        stored.unshift({ id: boss.id, title: boss.title, icon: boss.icon, read: false });
+                        stored.unshift({ id: boss.id, title: lang === "ar" ? (boss.titleAr ?? boss.title) : boss.title, icon: boss.icon, read: false });
                         localStorage.setItem("bodylogic-accepted-challenges", JSON.stringify(stored));
                       } catch {}
                       playGamificationSound("achievement");
-                      toast({ title: `${boss.icon} ${t("home_challenge_accepted")}`, description: `"${boss.title}" — ${t("challenge_boss_accepted_desc")}` });
+                      toast({ title: `${boss.icon} ${t("home_challenge_accepted")}`, description: `"${lang === "ar" ? (boss.titleAr ?? boss.title) : boss.title}" — ${t("challenge_boss_accepted_desc")}` });
                     }}
                     disabled={isAccepted}
                     className={cn(
@@ -1349,9 +1478,9 @@ function SettingsTab() {
       {/* Data & Privacy */}
       <SettingsSection icon={<Shield className="w-4 h-4 text-destructive" />} title={t("settings_privacy")}>
         <div className="divide-y divide-border/50">
-          <ActionRow label={t("settings_export")} desc={t("settings_export_desc")} icon={<Download className="w-4 h-4 text-muted-foreground" />} onClick={() => toast({ title: `📤 ${t("settings_export_started")}` })} />
-          <ActionRow label={t("settings_cache")} desc={t("settings_cache_desc")} icon={<Trash2 className="w-4 h-4 text-muted-foreground" />} onClick={() => toast({ title: `🗑️ ${t("settings_cache_cleared")}` })} />
-          <ActionRow label={t("settings_delete")} desc={t("settings_delete_desc")} icon={<Trash2 className="w-4 h-4 text-destructive" />} onClick={() => toast({ title: `⚠️ ${t("settings_delete_confirm")}`, variant: "destructive" })} danger />
+          <ActionRow label={t("settings_export")} desc={t("settings_export_desc")} icon={<Download className="w-4 h-4 text-muted-foreground" />} onClick={() => toast({ title: t("settings_export_started") })} />
+          <ActionRow label={t("settings_cache")} desc={t("settings_cache_desc")} icon={<Trash2 className="w-4 h-4 text-muted-foreground" />} onClick={() => toast({ title: t("settings_cache_cleared") })} />
+          <ActionRow label={t("settings_delete")} desc={t("settings_delete_desc")} icon={<Trash2 className="w-4 h-4 text-destructive" />} onClick={() => toast({ title: t("settings_delete_confirm"), variant: "destructive" })} danger />
         </div>
       </SettingsSection>
 
@@ -1468,47 +1597,47 @@ function EditProfileForm({ profile, onCancel }: { profile: any; onCancel: () => 
   return (
     <form onSubmit={onSubmit} className="p-4 space-y-4">
       <div className="grid grid-cols-3 gap-3">
-        <div className="space-y-1.5"><Label className="text-xs">Age (years)</Label><Input type="number" min={5} max={120} value={age} onChange={e => setAge(e.target.value)} className="h-9" placeholder="e.g. 25" /></div>
-        <div className="space-y-1.5"><Label className="text-xs">Height (cm)</Label><Input type="number" min={50} max={280} value={height} onChange={e => setHeight(e.target.value)} className="h-9" placeholder="e.g. 175" /></div>
-        <div className="space-y-1.5"><Label className="text-xs">Weight (kg)</Label><Input type="number" value={weight} onChange={e => setWeight(e.target.value)} className="h-9" /></div>
+        <div className="space-y-1.5"><Label className="text-xs">{t("profile_age")} ({t("unit_years")})</Label><Input type="number" min={5} max={120} value={age} onChange={e => setAge(e.target.value)} className="h-9" placeholder="e.g. 25" /></div>
+        <div className="space-y-1.5"><Label className="text-xs">{t("profile_height")} (cm)</Label><Input type="number" min={50} max={280} value={height} onChange={e => setHeight(e.target.value)} className="h-9" placeholder="e.g. 175" /></div>
+        <div className="space-y-1.5"><Label className="text-xs">{t("profile_weight")} ({t("unit_kg")})</Label><Input type="number" value={weight} onChange={e => setWeight(e.target.value)} className="h-9" /></div>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
-          <Label className="text-xs">Gender</Label>
+          <Label className="text-xs">{t("profile_gender")}</Label>
           <Select value={gender} onValueChange={setGender}>
             <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="unspecified">Prefer not to say</SelectItem>
-              <SelectItem value="male">Male</SelectItem>
-              <SelectItem value="female">Female</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
+              <SelectItem value="unspecified">{t("profile_prefer_not")}</SelectItem>
+              <SelectItem value="male">{t("profile_male")}</SelectItem>
+              <SelectItem value="female">{t("profile_female")}</SelectItem>
+              <SelectItem value="other">{t("profile_other")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
-        <div className="space-y-1.5"><Label className="text-xs">Calorie Goal</Label><Input type="number" value={calories} onChange={e => setCalories(e.target.value)} className="h-9" /></div>
+        <div className="space-y-1.5"><Label className="text-xs">{t("profile_calorie_goal_label")}</Label><Input type="number" value={calories} onChange={e => setCalories(e.target.value)} className="h-9" /></div>
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs">Main Goal</Label>
+        <Label className="text-xs">{t("profile_main_goal")}</Label>
         <Select value={goal} onValueChange={(v: UpdateProfileBodyGoal) => setGoal(v)}>
           <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="lose_weight">Lose Weight</SelectItem>
-            <SelectItem value="maintain">Maintain Weight</SelectItem>
-            <SelectItem value="build_muscle">Build Muscle</SelectItem>
-            <SelectItem value="improve_fitness">Improve Fitness</SelectItem>
+            <SelectItem value="lose_weight">{t("profile_goal_lose_weight")}</SelectItem>
+            <SelectItem value="maintain">{t("profile_goal_maintain")}</SelectItem>
+            <SelectItem value="build_muscle">{t("profile_goal_build_muscle")}</SelectItem>
+            <SelectItem value="improve_fitness">{t("profile_goal_improve_fitness")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs">Activity Level</Label>
+        <Label className="text-xs">{t("profile_activity_level")}</Label>
         <Select value={activity} onValueChange={(v: UpdateProfileBodyActivityLevel) => setActivity(v)}>
           <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="sedentary">Sedentary</SelectItem>
-            <SelectItem value="light">Light Activity</SelectItem>
-            <SelectItem value="moderate">Moderate Activity</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="very_active">Very Active</SelectItem>
+            <SelectItem value="sedentary">{t("activity_sedentary")}</SelectItem>
+            <SelectItem value="light">{t("activity_light")}</SelectItem>
+            <SelectItem value="moderate">{t("activity_moderate")}</SelectItem>
+            <SelectItem value="active">{t("activity_active")}</SelectItem>
+            <SelectItem value="very_active">{t("activity_very_active")}</SelectItem>
           </SelectContent>
         </Select>
       </div>

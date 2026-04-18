@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Dumbbell, Plus, Timer, Flame, Moon, Zap, Activity, Trash2, Footprints, CheckCircle2 } from "lucide-react";
+import { Dumbbell, Plus, Timer, Flame, Moon, Zap, Activity, Trash2, Footprints, CheckCircle2, AlertTriangle, Ban, Info, Clock } from "lucide-react";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 import { cn } from "@/lib/utils";
 import { checkSleepHours, checkWorkoutCalories, checkWorkoutDuration } from "@/lib/logic-validator";
@@ -254,7 +254,7 @@ export default function Fitness() {
                               </span>
                               <div className="flex flex-col gap-1">
                                 <span className="inline-flex items-center gap-1 bg-destructive/20 border border-destructive/40 text-destructive text-[10px] font-black px-2 py-1 rounded-lg">
-                                  ⚠ {t("fitness_not_logical")}
+                                  <AlertTriangle className="w-3 h-3" /> {t("fitness_not_logical")}
                                 </span>
                                 <span className="text-indigo-200 text-[10px]">—</span>
                               </div>
@@ -270,7 +270,7 @@ export default function Fitness() {
                               <span className="text-sm font-medium text-indigo-200">{t("fitness_hours")}</span>
                               {sleepCheck.status === "warning" && (
                                 <span className="inline-flex items-center gap-1 bg-amber-500/20 border border-amber-500/30 text-amber-400 text-[10px] font-black px-1.5 py-0.5 rounded-md">
-                                  ⚠ {t("fitness_unusual")}
+                                  <AlertTriangle className="w-3 h-3" /> {t("fitness_unusual")}
                                 </span>
                               )}
                             </>
@@ -283,7 +283,7 @@ export default function Fitness() {
                               ? "bg-destructive/15 border-destructive/30 text-destructive"
                               : "bg-amber-500/15 border-amber-500/30 text-amber-400"
                           )}>
-                            {sleepCheck.status === "invalid" ? "⚠" : "ℹ"} {sleepCheck.reason}
+                            {sleepCheck.status === "invalid" ? <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" /> : <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />} <span>{sleepCheck.reason}</span>
                             {sleepCheck.status === "invalid" && (
                               <span className="text-indigo-300/70 ms-1">{t("fitness_fix_hint")}</span>
                             )}
@@ -477,7 +477,7 @@ function LogWorkoutDialog() {
                     {suggestions.some(s => s.isHistory) ? t("fitness_recent_db") : t("fitness_workout_library")}
                   </span>
                   {suggestions.some(s => s.isHistory) && (
-                    <span className="text-[9px] font-black text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-full">🕐 {t("fitness_your_history")}</span>
+                    <span className="inline-flex items-center gap-1 text-[9px] font-black text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-full"><Clock className="w-3 h-3" /> {t("fitness_your_history")}</span>
                   )}
                 </div>
                 <div className="max-h-48 overflow-y-auto">
@@ -547,7 +547,7 @@ function LogWorkoutDialog() {
               />
               {form.duration && durFormCheck.status !== "ok" && (
                 <p className={cn("text-[10px] font-bold mt-1", durFormCheck.status === "invalid" ? "text-destructive" : "text-amber-500")}>
-                  {durFormCheck.status === "invalid" ? "⛔" : "⚠"} {durFormCheck.reason}
+                  {durFormCheck.status === "invalid" ? <Ban className="inline w-3 h-3 me-1" /> : <AlertTriangle className="inline w-3 h-3 me-1" />} {durFormCheck.reason}
                 </p>
               )}
             </div>
@@ -564,7 +564,7 @@ function LogWorkoutDialog() {
               />
               {form.calories && calFormCheck.status !== "ok" && (
                 <p className={cn("text-[10px] font-bold mt-1", calFormCheck.status === "invalid" ? "text-destructive" : "text-amber-500")}>
-                  {calFormCheck.status === "invalid" ? "⛔" : "⚠"} {calFormCheck.reason}
+                  {calFormCheck.status === "invalid" ? <Ban className="inline w-3 h-3 me-1" /> : <AlertTriangle className="inline w-3 h-3 me-1" />} {calFormCheck.reason}
                 </p>
               )}
             </div>
@@ -663,7 +663,7 @@ function LogSleepDialog() {
             <Moon className="w-4 h-4 shrink-0" />
             <span>
               {previewCheck.status === "invalid"
-                ? `⚠ ${previewCheck.reason}`
+                ? <><AlertTriangle className="inline w-3 h-3 me-1" />{previewCheck.reason}</>
                 : <>
                     {preview.hours}{t("unit_hr")} {t("fitness_sleep_label")}
                     {preview.isOvernight && <span className="text-muted-foreground font-normal text-xs ms-1">({t("fitness_overnight")})</span>}

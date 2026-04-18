@@ -43,7 +43,7 @@ const DIFFICULTY_CONFIG = {
 };
 
 export default function Achievements() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [tab, setTab] = useState<Tab>("achievements");
   const [catFilter, setCatFilter] = useState<AchievementCategory | "all">("all");
   const [tierFilter, setTierFilter] = useState<BadgeTier | "all">("all");
@@ -90,8 +90,8 @@ export default function Achievements() {
       <div className="p-5 space-y-5">
         {/* Header */}
         <header className="pt-2">
-          <h1 className="text-2xl font-black tracking-tight gradient-text">Rewards</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Your gamification journey • {completionPct}% complete</p>
+          <h1 className="text-2xl font-black tracking-tight gradient-text">{t("profile_tab_rewards")}</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">{t("rewards_progress")} • {completionPct}%</p>
         </header>
 
         {/* Hero Card */}
@@ -108,8 +108,8 @@ export default function Achievements() {
               </div>
             </div>
             <div className="flex-1 min-w-0">
-              <p className={cn("text-base font-black", activeTitle.color)}>{activeTitle.name}</p>
-              <p className="text-xs text-muted-foreground mb-2 truncate">{activeTitle.description}</p>
+              <p className={cn("text-base font-black", activeTitle.color)}>{lang === "ar" ? (activeTitle.nameAr ?? activeTitle.name) : activeTitle.name}</p>
+              <p className="text-xs text-muted-foreground mb-2 truncate">{lang === "ar" ? (activeTitle.descAr ?? activeTitle.description) : activeTitle.description}</p>
               <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden">
                 <motion.div
                   className="h-full bg-gradient-to-r from-primary to-secondary rounded-full"
@@ -119,7 +119,7 @@ export default function Achievements() {
                 />
               </div>
               <div className="flex justify-between mt-1">
-                <span className="text-[10px] font-bold text-primary">{progress.xp.toLocaleString()} XP</span>
+                <span className="text-[10px] font-bold text-primary">{progress.xp.toLocaleString()} {t("unit_xp")}</span>
                 <span className="text-[10px] text-muted-foreground">{levelInfo.xpToNext.toLocaleString()} to L{progress.level + 1}</span>
               </div>
             </div>
@@ -127,7 +127,7 @@ export default function Achievements() {
 
           <div className="grid grid-cols-4 gap-2 mt-4">
             {[
-              { label: "Unlocked", value: unlockedCount, icon: CheckCircle2, color: "text-primary" },
+              { label: t("rewards_unlocked"), value: unlockedCount, icon: CheckCircle2, color: "text-primary" },
               { label: "Total", value: totalCount, icon: Trophy, color: "text-secondary" },
               { label: "Coins", value: progress.coins, icon: Coins, color: "text-yellow-400" },
               { label: "Complete", value: `${completionPct}%`, icon: TrendingUp, color: "text-orange-400" },
@@ -258,11 +258,11 @@ export default function Achievements() {
                       </div>
                     )}
                     <div className="text-3xl mb-2 leading-none">{achievement.icon}</div>
-                    <p className={cn("text-xs font-black leading-tight mb-1", isUnlocked ? "text-foreground" : "text-muted-foreground")}>{achievement.name}</p>
-                    <p className="text-[10px] text-muted-foreground/80 leading-tight mb-2">{achievement.description}</p>
+                    <p className={cn("text-xs font-black leading-tight mb-1", isUnlocked ? "text-foreground" : "text-muted-foreground")}>{lang === "ar" ? (achievement.nameAr ?? achievement.name) : achievement.name}</p>
+                    <p className="text-[10px] text-muted-foreground/80 leading-tight mb-2">{lang === "ar" ? (achievement.descAr ?? achievement.description) : achievement.description}</p>
                     <div className="flex items-center justify-between">
                       <span className={cn("text-[9px] font-black uppercase tracking-wider", cfg.textColor)}>{cfg.label}</span>
-                      <span className="text-[9px] font-bold text-yellow-400">+{achievement.xpReward} XP</span>
+                      <span className="text-[9px] font-bold text-yellow-400">+{achievement.xpReward} {t("unit_xp")}</span>
                     </div>
                   </motion.div>
                 );
@@ -274,8 +274,10 @@ export default function Achievements() {
         {/* ── TITLES TAB ── */}
         {tab === "titles" && (
           <div className="space-y-3">
-            <p className="text-xs text-muted-foreground">Titles unlock based on your level. Active: <span className={cn("font-bold", activeTitle.color)}>{activeTitle.name}</span></p>
+            <p className="text-xs text-muted-foreground">{t("rewards_tap_equip")}. {t("rewards_active_label")}: <span className={cn("font-bold", activeTitle.color)}>{lang === "ar" ? (activeTitle.nameAr ?? activeTitle.name) : activeTitle.name}</span></p>
             {ALL_TITLES.map(title => {
+              const titleName = lang === "ar" ? (title.nameAr ?? title.name) : title.name;
+              const titleDescription = lang === "ar" ? (title.descAr ?? title.description) : title.description;
               const isUnlocked = progress.level >= title.minLevel;
               const isActive = title.id === activeTitle.id;
               return (
@@ -298,10 +300,10 @@ export default function Achievements() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className={cn("text-sm font-black", isUnlocked ? title.color : "text-muted-foreground", title.glow && isUnlocked && "drop-shadow-[0_0_8px_currentColor]")}>{title.name}</p>
-                      {isActive && <span className="text-[9px] font-black bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">ACTIVE</span>}
+                      <p className={cn("text-sm font-black", isUnlocked ? title.color : "text-muted-foreground", title.glow && isUnlocked && "drop-shadow-[0_0_8px_currentColor]")}>{titleName}</p>
+                      {isActive && <span className="text-[9px] font-black bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">{t("rewards_active_label")}</span>}
                     </div>
-                    <p className="text-xs text-muted-foreground">{title.description}</p>
+                    <p className="text-xs text-muted-foreground">{titleDescription}</p>
                   </div>
                   <div className="shrink-0 text-right">
                     {isUnlocked ? (
@@ -325,20 +327,20 @@ export default function Achievements() {
             {/* Mission Sub-tabs */}
             <div className="flex gap-1.5 bg-muted/40 p-1 rounded-xl">
               {([
-                { key: "daily", label: "Daily", icon: Zap },
-                { key: "weekly", label: "Weekly", icon: Shield },
-                { key: "smart", label: "Personal", icon: Brain },
-              ] as { key: MissionTab; label: string; icon: typeof Zap }[]).map(t => (
+                { key: "daily", label: t("mission_daily"), icon: Zap },
+                { key: "weekly", label: t("mission_weekly"), icon: Shield },
+                { key: "smart", label: t("mission_personal"), icon: Brain },
+              ] as { key: MissionTab; label: string; icon: typeof Zap }[]).map(tab => (
                 <button
-                  key={t.key}
-                  onClick={() => setMissionTab(t.key)}
+                  key={tab.key}
+                  onClick={() => setMissionTab(tab.key)}
                   className={cn(
                     "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-bold transition-all",
-                    missionTab === t.key ? "bg-background shadow text-primary" : "text-muted-foreground"
+                    missionTab === tab.key ? "bg-background shadow text-primary" : "text-muted-foreground"
                   )}
                 >
-                  <t.icon className="w-3.5 h-3.5" />
-                  {t.label}
+                  <tab.icon className="w-3.5 h-3.5" />
+                  {tab.label}
                 </button>
               ))}
             </div>
@@ -347,7 +349,7 @@ export default function Achievements() {
               <div className="space-y-2">
                 <div className="flex items-center gap-2 mb-1">
                   <Zap className="w-4 h-4 text-primary" />
-                  <h3 className="text-sm font-black">Daily Missions</h3>
+                  <h3 className="text-sm font-black">{t("mission_daily")}</h3>
                   <span className="text-xs text-muted-foreground ml-auto">Resets midnight</span>
                 </div>
                 {DAILY_MISSIONS.map(m => {
@@ -366,14 +368,14 @@ export default function Achievements() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <p className={cn("text-sm font-bold", completed && "line-through text-muted-foreground")}>{m.title}</p>
+                          <p className={cn("text-sm font-bold", completed && "line-through text-muted-foreground")}>{lang === "ar" ? (m.titleAr ?? m.title) : m.title}</p>
                           {completed ? (
                             <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
                           ) : (
-                            <span className="text-xs font-bold text-yellow-400 shrink-0">+{m.xp} XP</span>
+                            <span className="text-xs font-bold text-yellow-400 shrink-0">+{m.xp} {t("unit_xp")}</span>
                           )}
                         </div>
-                        <p className="text-xs text-muted-foreground mb-1.5">{m.description}</p>
+                        <p className="text-xs text-muted-foreground mb-1.5">{lang === "ar" ? (m.descAr ?? m.description) : m.description}</p>
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                           <div className={cn("h-full rounded-full transition-all duration-700", completed ? "bg-primary" : "bg-secondary")} style={{ width: `${pct}%` }} />
                         </div>
@@ -388,7 +390,7 @@ export default function Achievements() {
               <div className="space-y-2">
                 <div className="flex items-center gap-2 mb-1">
                   <Shield className="w-4 h-4 text-secondary" />
-                  <h3 className="text-sm font-black">Weekly Missions</h3>
+                  <h3 className="text-sm font-black">{t("mission_weekly")}</h3>
                   <span className="text-xs text-muted-foreground ml-auto">Resets Monday</span>
                 </div>
                 {WEEKLY_MISSIONS.map(m => {
@@ -399,13 +401,13 @@ export default function Achievements() {
                       <div className="w-10 h-10 rounded-xl bg-secondary/20 flex items-center justify-center text-xl shrink-0">{m.icon}</div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <p className="text-sm font-bold">{m.title}</p>
+                          <p className="text-sm font-bold">{lang === "ar" ? (m.titleAr ?? m.title) : m.title}</p>
                           <div className="text-right shrink-0">
-                            <span className="text-xs font-bold text-yellow-400">+{m.xp} XP</span>
+                            <span className="text-xs font-bold text-yellow-400">+{m.xp} {t("unit_xp")}</span>
                             <span className="text-[10px] text-muted-foreground ml-1 inline-flex items-center gap-1">+{m.coins}<Coins className="w-3 h-3 text-yellow-400" /></span>
                           </div>
                         </div>
-                        <p className="text-xs text-muted-foreground">{m.description}</p>
+                        <p className="text-xs text-muted-foreground">{lang === "ar" ? (m.descAr ?? m.description) : m.description}</p>
                         <div className="h-1 bg-muted rounded-full mt-1.5 overflow-hidden">
                           <div className="h-full bg-secondary rounded-full" style={{ width: completed ? "100%" : "30%" }} />
                         </div>
@@ -421,9 +423,9 @@ export default function Achievements() {
                 <div className="p-3.5 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
                   <div className="flex items-center gap-2 mb-1">
                     <Brain className="w-4 h-4 text-primary" />
-                    <p className="text-sm font-black text-primary">Personal Missions</p>
+                    <p className="text-sm font-black text-primary">{t("rewards_personal_title")}</p>
                   </div>
-                  <p className="text-xs text-muted-foreground">AI-generated personalized challenges based on your behavior patterns and detected habits.</p>
+                  <p className="text-xs text-muted-foreground">{t("mission_personal_desc")}</p>
                 </div>
                 {SMART_MISSIONS.map(m => {
                   const diff = m.difficulty ?? "easy";
@@ -441,12 +443,12 @@ export default function Achievements() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
-                            <p className="text-sm font-black">{m.title}</p>
+                            <p className="text-sm font-black">{lang === "ar" ? (m.titleAr ?? m.title) : m.title}</p>
                             <span className={cn("text-[9px] font-black px-1.5 py-0.5 rounded-full border", diffCfg.color)}>{diffCfg.label}</span>
                           </div>
-                          <p className="text-xs text-muted-foreground mb-2">{m.description}</p>
+                          <p className="text-xs text-muted-foreground mb-2">{lang === "ar" ? (m.descAr ?? m.description) : m.description}</p>
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-yellow-400">+{m.xp} XP</span>
+                            <span className="text-xs font-bold text-yellow-400">+{m.xp} {t("unit_xp")}</span>
                             <span className="text-xs text-muted-foreground flex items-center gap-1">+{m.coins}<Coins className="w-3 h-3 text-yellow-400" /></span>
                           </div>
                         </div>
@@ -465,10 +467,10 @@ export default function Achievements() {
             <div className="p-4 rounded-2xl bg-gradient-to-br from-destructive/15 to-orange-900/10 border border-destructive/30">
               <div className="flex items-center gap-2 mb-1.5">
                 <Sword className="w-5 h-5 text-destructive" />
-                <h3 className="text-base font-black text-destructive">Boss Challenges</h3>
-                <span className="ml-auto text-[10px] font-black bg-destructive/15 text-destructive px-2 py-0.5 rounded-full border border-destructive/30">{BOSS_CHALLENGES.length} BOSSES</span>
+                <h3 className="text-base font-black text-destructive">{t("rewards_boss_title")}</h3>
+                <span className="ml-auto text-[10px] font-black bg-destructive/15 text-destructive px-2 py-0.5 rounded-full border border-destructive/30">{BOSS_CHALLENGES.length} {t("rewards_bosses_count")}</span>
               </div>
-              <p className="text-xs text-muted-foreground">Extreme multi-day challenges with legendary XP rewards. Complete them only if you're truly ready.</p>
+              <p className="text-xs text-muted-foreground">{t("rewards_boss_desc")}</p>
             </div>
 
             {BOSS_CHALLENGES.map((boss, i) => {
@@ -488,18 +490,18 @@ export default function Achievements() {
                       <span className={cn("text-[10px] font-black px-2 py-0.5 rounded-full border", diffCfg.color)}>
                         {diffCfg.label.toUpperCase()}
                       </span>
-                      <span className="text-[10px] text-muted-foreground">{boss.days} days</span>
+                      <span className="text-[10px] text-muted-foreground">{boss.days} {t("rewards_days")}</span>
                     </div>
                   </div>
-                  <h4 className="text-base font-black mb-1">{boss.title}</h4>
-                  <p className="text-sm text-muted-foreground mb-3 leading-relaxed">{boss.description}</p>
+                  <h4 className="text-base font-black mb-1">{lang === "ar" ? (boss.titleAr ?? boss.title) : boss.title}</h4>
+                  <p className="text-sm text-muted-foreground mb-3 leading-relaxed">{lang === "ar" ? (boss.descAr ?? boss.description) : boss.description}</p>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <span className="text-sm font-black text-yellow-400">+{boss.xp} XP</span>
+                      <span className="text-sm font-black text-yellow-400">+{boss.xp} {t("unit_xp")}</span>
                       <span className="text-sm text-muted-foreground flex items-center gap-1">+{boss.coins}<Coins className="w-3.5 h-3.5 text-yellow-400" /></span>
                     </div>
                     <button className="px-4 py-2 rounded-xl bg-destructive/15 text-destructive text-xs font-black border border-destructive/30 hover:bg-destructive/25 transition-colors press-scale">
-                      Accept Challenge
+                      {t("challenge_accept")}
                     </button>
                   </div>
                 </motion.div>

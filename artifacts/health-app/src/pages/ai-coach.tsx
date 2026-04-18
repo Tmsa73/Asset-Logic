@@ -9,10 +9,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLang } from "@/contexts/language-context";
 
 const PERSONALITY_CONFIG = {
-  motivator: { emoji: "🔥", label: "Motivator", color: "text-orange-400 border-orange-400/40 bg-orange-400/10" },
-  friendly: { emoji: "😊", label: "Friendly", color: "text-primary border-primary/40 bg-primary/10" },
-  strict: { emoji: "💪", label: "Strict Coach", color: "text-destructive border-destructive/40 bg-destructive/10" },
-  silent: { emoji: "🧘", label: "Silent Mode", color: "text-secondary border-secondary/40 bg-secondary/10" },
+  motivator: { emoji: "🔥", labelKey: "ai_personality_motivator", color: "text-orange-400 border-orange-400/40 bg-orange-400/10" },
+  friendly: { emoji: "😊", labelKey: "ai_personality_friendly", color: "text-primary border-primary/40 bg-primary/10" },
+  strict: { emoji: "💪", labelKey: "ai_personality_strict", color: "text-destructive border-destructive/40 bg-destructive/10" },
+  silent: { emoji: "🧘", labelKey: "ai_personality_silent", color: "text-secondary border-secondary/40 bg-secondary/10" },
 };
 
 const TOPIC_CHIPS = [
@@ -73,7 +73,7 @@ export default function AiCoach() {
   const { data: insights } = useGetAiInsights();
   const qc = useQueryClient();
   const sendMessage = useSendAiMessage();
-  const { t } = useLang();
+  const { t, lang } = useLang();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -94,11 +94,12 @@ export default function AiCoach() {
 
   const hasMessages = messages && messages.length > 0;
   const personalityCfg = PERSONALITY_CONFIG[personality];
+  const personalityLabel = t(personalityCfg.labelKey as any);
   const habits = insights?.tips?.slice(0, 2) ?? [];
 
   return (
     <div
-      className="flex flex-col bg-background"
+      className="flex flex-col bg-background bg-[radial-gradient(circle_at_top,hsl(var(--primary)/0.08),transparent_34%)]"
       style={{ height: "calc(100dvh - 58px)", marginBottom: "-72px" }}
     >
       {/* Header */}
@@ -122,7 +123,7 @@ export default function AiCoach() {
               className={cn("flex items-center gap-1 px-2 py-1 rounded-full border text-[10px] font-bold transition-all", personalityCfg.color)}
             >
               <span>{personalityCfg.emoji}</span>
-              <span className="hidden sm:inline">{personalityCfg.label}</span>
+              <span className="hidden sm:inline">{personalityLabel}</span>
             </button>
             {hasMessages && (
               <div className="flex items-center gap-1 bg-muted/50 px-2 py-1 rounded-full">
@@ -152,7 +153,7 @@ export default function AiCoach() {
                     )}
                   >
                     <span className="text-base">{cfg.emoji}</span>
-                    <span className="leading-tight text-center">{cfg.label.split(" ")[0]}</span>
+                    <span className="leading-tight text-center">{t(cfg.labelKey as any).split(" ")[0]}</span>
                   </button>
                 ))}
               </div>
@@ -231,14 +232,14 @@ export default function AiCoach() {
               </p>
               <div className={cn("mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold", personalityCfg.color)}>
                 <span>{personalityCfg.emoji}</span>
-                <span>{t("ai_mode")} {personalityCfg.label} {t("ai_mode_suffix")}</span>
+                <span>{t("ai_mode")} {personalityLabel} {t("ai_mode_suffix")}</span>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2 w-full">
               {TOPIC_CHIPS.map(chip => (
                 <button
                   key={chip.label}
-                  onClick={() => handleSend(chip.label)}
+                  onClick={() => handleSend(t(chip.tKey))}
                   disabled={sendMessage.isPending}
                   className="flex items-center gap-2 p-3 rounded-xl bg-card border border-border/40 text-left hover:border-primary/30 hover:bg-primary/5 transition-all press-scale"
                 >
@@ -294,7 +295,7 @@ export default function AiCoach() {
         {TOPIC_CHIPS.map(chip => (
           <button
             key={chip.label}
-            onClick={() => handleSend(chip.label)}
+            onClick={() => handleSend(t(chip.tKey))}
             disabled={sendMessage.isPending}
             className={cn(
               "flex items-center gap-1 px-2.5 py-1.5 rounded-full border text-[10px] font-semibold whitespace-nowrap transition-all press-scale shrink-0",
@@ -316,7 +317,7 @@ export default function AiCoach() {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), handleSend())}
-              placeholder={`${t("ai_send_placeholder")} ${personalityCfg.label.toLowerCase()} ${t("ai_send_placeholder_suffix")}`}
+              placeholder={`${t("ai_send_placeholder")} ${personalityLabel.toLowerCase()} ${t("ai_send_placeholder_suffix")}`}
               disabled={sendMessage.isPending}
               className="w-full rounded-full bg-card border border-border/50 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 h-11 px-4 text-sm outline-none transition-all placeholder:text-muted-foreground/50"
             />

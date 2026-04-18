@@ -80,6 +80,28 @@ export interface UpdateProfileBody {
   avatarUrl?: string | null;
 }
 
+export interface BodyMeasurement {
+  id: number;
+  weight?: number | null;
+  waist?: number | null;
+  chest?: number | null;
+  hips?: number | null;
+  arm?: number | null;
+  bodyFat?: number | null;
+  notes?: string | null;
+  loggedAt: string;
+}
+
+export interface CreateBodyMeasurementBody {
+  weight?: number | null;
+  waist?: number | null;
+  chest?: number | null;
+  hips?: number | null;
+  arm?: number | null;
+  bodyFat?: number | null;
+  notes?: string | null;
+}
+
 export interface ProfileStats {
   totalWorkouts: number;
   totalMealsLogged: number;

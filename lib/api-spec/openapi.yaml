@@ -21,6 +21,7 @@ tags:
   - name: progress
   - name: notifications
   - name: mealiq
+  - name: measurements
 
 paths:
   /healthz:
@@ -78,6 +79,38 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProfileStats"
+
+  /measurements:
+    get:
+      operationId: getBodyMeasurements
+      tags: [measurements]
+      summary: Get body measurements
+      responses:
+        "200":
+          description: Body measurements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BodyMeasurement"
+    post:
+      operationId: createBodyMeasurement
+      tags: [measurements]
+      summary: Create body measurement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBodyMeasurementBody"
+      responses:
+        "201":
+          description: Body measurement created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BodyMeasurement"
 
   /meals:
     get:
@@ -588,6 +621,62 @@ components:
         dailyStepGoal:
           type: integer
         avatarUrl:
+          type: string
+          nullable: true
+
+    BodyMeasurement:
+      type: object
+      properties:
+        id:
+          type: integer
+        weight:
+          type: number
+          nullable: true
+        waist:
+          type: number
+          nullable: true
+        chest:
+          type: number
+          nullable: true
+        hips:
+          type: number
+          nullable: true
+        arm:
+          type: number
+          nullable: true
+        bodyFat:
+          type: number
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        loggedAt:
+          type: string
+          format: date-time
+      required: [id, loggedAt]
+
+    CreateBodyMeasurementBody:
+      type: object
+      properties:
+        weight:
+          type: number
+          nullable: true
+        waist:
+          type: number
+          nullable: true
+        chest:
+          type: number
+          nullable: true
+        hips:
+          type: number
+          nullable: true
+        arm:
+          type: number
+          nullable: true
+        bodyFat:
+          type: number
+          nullable: true
+        notes:
           type: string
           nullable: true
 

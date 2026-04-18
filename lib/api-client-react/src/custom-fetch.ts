@@ -349,6 +349,11 @@ export async function customFetch<T = unknown>(
     headers.set("accept", DEFAULT_JSON_ACCEPT);
   }
 
+  if (!headers.has("accept-language") && typeof document !== "undefined") {
+    const lang = document.documentElement.lang || localStorage.getItem("bodylogic-lang") || "en";
+    headers.set("accept-language", lang.startsWith("ar") ? "ar" : "en");
+  }
+
   // Attach bearer token when an auth getter is configured and no
   // Authorization header has been explicitly provided.
   if (_authTokenGetter && !headers.has("authorization")) {

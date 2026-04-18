@@ -154,7 +154,7 @@ export function MorningBriefCard() {
                 onClick={() => setExpanded((v) => !v)}
                 className="w-full flex items-center justify-center gap-1 py-1.5 text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors"
               >
-                {expanded ? "Show less" : "See today's focus & insight"}
+                {expanded ? t("morning_show_less") : t("morning_see_focus")}
                 <motion.span animate={{ rotate: expanded ? 90 : 0 }} transition={{ duration: 0.2 }}>
                   <ChevronRight className={cn("w-3 h-3", isAr && "rtl-flip")} />
                 </motion.span>

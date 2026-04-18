@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useGetDashboard, useGetAiInsights, useGetWaterIntake, useGetSteps, useGetProgress, useGetLifeBalance, useGetNotifications, useMarkNotificationRead, useLogWater, useLogMeal, getGetWaterIntakeQueryKey, getGetDashboardQueryKey, getGetNotificationsQueryKey, getGetNutritionSummaryQueryKey, getGetMealsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Bell, Droplets, Footprints, Moon, Flame, Zap, Dumbbell, Utensils, Sparkles, Brain, X, Trophy, Crown, ChevronRight, Coins, Sword, CheckCheck, Star, BedDouble, Activity } from "lucide-react";
+import { Bell, Droplets, Footprints, Moon, Flame, Zap, Dumbbell, Utensils, Sparkles, Brain, X, Trophy, Crown, ChevronRight, Coins, Sword, CheckCheck, Star, BedDouble, Activity, Clock } from "lucide-react";
 import { Link } from "wouter";
 import { getActiveTitle, calcLevel, calcMomentumScore, getStoredTitleId } from "@/lib/gamification";
 import { motion, AnimatePresence } from "framer-motion";
@@ -53,7 +53,7 @@ export default function Home() {
         qc.invalidateQueries({ queryKey: getGetMealsQueryKey({ date: new Date().toISOString().split("T")[0]! }) });
         qc.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
         setQuickLoggedIds(prev => new Set([...prev, idx]));
-        toast({ title: `✅ ${food.name} logged!`, description: `${food.calories} ${t("unit_kcal")} added` });
+        toast({ title: food.name, description: `${food.calories} ${t("unit_kcal")}` });
         playGamificationSound("xp");
       }
     });
@@ -530,11 +530,11 @@ export default function Home() {
               <p className="text-lg font-black text-yellow-400 leading-none">{progress?.level ?? dashboard.level}</p>
             </div>
             <div className="flex-1">
-              <p className="text-xs font-bold text-foreground">{progress?.title ?? activeTitle?.name ?? t("home_achiever")}</p>
+              <p className="text-xs font-bold text-foreground">{lang === "ar" ? (activeTitle?.nameAr ?? progress?.title ?? activeTitle?.name ?? t("home_achiever")) : (progress?.title ?? activeTitle?.name ?? t("home_achiever"))}</p>
               <div className="flex items-center gap-3 mt-1">
                 <div className="flex items-center gap-1">
                   <Zap className="w-3 h-3 text-yellow-400" />
-                  <span className="text-xs font-black text-yellow-400">{(progress?.xp ?? dashboard.xp).toLocaleString()} XP</span>
+                  <span className="text-xs font-black text-yellow-400">{(progress?.xp ?? dashboard.xp).toLocaleString()} {t("unit_xp")}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Coins className="w-3 h-3 text-yellow-400" />
@@ -637,7 +637,7 @@ export default function Home() {
         {recentFoods.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-2.5">
-              <span className="text-xs font-black text-muted-foreground uppercase tracking-wider">🕐 {t("home_log_again")}</span>
+              <span className="text-xs font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1"><Clock className="w-3 h-3" /> {t("home_log_again")}</span>
               <Link href="/nutrition" className="text-[10px] font-bold text-primary">{t("home_all_meals_link")} →</Link>
             </div>
             <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
