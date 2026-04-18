@@ -26,7 +26,7 @@ export default function Home() {
   const logWater = useLogWater();
   const qc = useQueryClient();
   const { toast } = useToast();
-  const { t } = useLang();
+  const { t, lang } = useLang();
 
   const logMeal = useLogMeal();
   const [recentFoods] = useState<FoodHistoryItem[]>(() => getFoodHistory().slice(0, 4));
@@ -72,7 +72,7 @@ export default function Home() {
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: getGetWaterIntakeQueryKey() });
         qc.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
-        toast({ title: `+${ml}ml added 💧`, description: "Water intake updated!" });
+        toast({ title: `+${ml}${t("home_water_added")}`, description: t("home_water_updated") });
         playGamificationSound("xp");
       }
     });
@@ -173,7 +173,7 @@ export default function Home() {
   const waterPts = waterPct >= 100 ? 15 : 0;
   const sleepPts = dashboard.lastSleepHours >= 7 ? 10 : dashboard.lastSleepHours >= 6 ? 5 : 0;
   const factors = [
-    { label: "Streak", pts: streakPts, max: 30, icon: Flame, color: "bg-orange-400" },
+    { label: t("home_streak_short"), pts: streakPts, max: 30, icon: Flame, color: "bg-orange-400" },
     { label: t("nav_fitness"), pts: workoutPts, max: 25, icon: Dumbbell, color: "bg-secondary" },
     { label: t("home_meal"), pts: mealPts, max: 20, icon: Utensils, color: "bg-primary" },
     { label: t("home_water_label"), pts: waterPts, max: 15, icon: Droplets, color: "bg-blue-400" },
@@ -205,7 +205,7 @@ export default function Home() {
                   <div>
                     <h2 className="font-black text-sm leading-tight">{t("home_notifications")}</h2>
                     <p className="text-[10px] text-primary font-bold mt-0.5">
-                      {unreadCount > 0 ? `${unreadCount} unread` : "All caught up"}
+                      {unreadCount > 0 ? `${unreadCount} ${t("home_unread")}` : t("home_all_caught")}
                     </p>
                   </div>
                 </div>
@@ -526,7 +526,7 @@ export default function Home() {
               <p className="text-lg font-black text-yellow-400 leading-none">{progress?.level ?? dashboard.level}</p>
             </div>
             <div className="flex-1">
-              <p className="text-xs font-bold text-foreground">{progress?.title ?? activeTitle?.name ?? "Achiever"}</p>
+              <p className="text-xs font-bold text-foreground">{progress?.title ?? activeTitle?.name ?? t("home_achiever")}</p>
               <div className="flex items-center gap-3 mt-1">
                 <div className="flex items-center gap-1">
                   <Zap className="w-3 h-3 text-yellow-400" />
@@ -589,9 +589,9 @@ export default function Home() {
               <p className={cn("text-4xl font-black leading-none", getMealIQColor(dashboard.mealIqScore))}>
                 {dashboard.mealIqScore ?? "—"}
               </p>
-              <p className="text-xs text-muted-foreground mt-1">/ 28 max score</p>
+              <p className="text-xs text-muted-foreground mt-1">{t("home_max_score")}</p>
               <div className={cn("mt-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold", getMealIQColor(dashboard.mealIqScore) === "text-primary" ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground")}>
-                Grade: {getMealIQGrade(dashboard.mealIqScore)}
+                {t("home_grade_label")}: {getMealIQGrade(dashboard.mealIqScore)}
               </div>
             </button>
           </MealIqQuiz>
@@ -601,8 +601,8 @@ export default function Home() {
               <Sparkles className={cn("w-4 h-4", tipIconColors[tip?.category ?? "general"])} />
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{t("home_ai_tip")}</span>
             </div>
-            <p className="text-xs font-bold text-foreground leading-snug line-clamp-3">{tip?.title ?? "Stay consistent!"}</p>
-            <p className="text-[10px] text-muted-foreground mt-1 line-clamp-2">{tip?.description ?? "Every healthy choice adds up."}</p>
+            <p className="text-xs font-bold text-foreground leading-snug line-clamp-3">{tip?.title ?? t("home_tip_fallback")}</p>
+            <p className="text-[10px] text-muted-foreground mt-1 line-clamp-2">{tip?.description ?? t("home_tip_desc_fallback")}</p>
           </div>
         </div>
 
@@ -633,8 +633,8 @@ export default function Home() {
         {recentFoods.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-2.5">
-              <span className="text-xs font-black text-muted-foreground uppercase tracking-wider">🕐 Log Again</span>
-              <Link href="/nutrition" className="text-[10px] font-bold text-primary">All meals →</Link>
+              <span className="text-xs font-black text-muted-foreground uppercase tracking-wider">🕐 {t("home_log_again")}</span>
+              <Link href="/nutrition" className="text-[10px] font-bold text-primary">{t("home_all_meals_link")} →</Link>
             </div>
             <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
               {recentFoods.map((food, idx) => {
@@ -653,7 +653,7 @@ export default function Home() {
                   >
                     <div className="flex items-center gap-1.5 w-full">
                       <span className="text-base leading-none">{food.emoji}</span>
-                      {logged && <span className="text-[9px] font-black text-primary ml-auto">✓ Done</span>}
+                      {logged && <span className="text-[9px] font-black text-primary ml-auto">✓ {t("home_done_check")}</span>}
                     </div>
                     <p className="text-xs font-bold text-foreground leading-snug line-clamp-2">{food.name}</p>
                     <p className="text-[10px] font-semibold text-muted-foreground">{food.calories} kcal</p>
@@ -717,8 +717,13 @@ export default function Home() {
                 });
                 const weeks: typeof days[] = [];
                 for (let i = 0; i < days.length; i += 7) weeks.push(days.slice(i, i + 7));
-                const dayLabels = ["S", "M", "T", "W", "T", "F", "S"];
-                const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+                const locale = lang === "ar" ? "ar-SA" : "en-US";
+                const dayLabels = Array.from({ length: 7 }, (_, i) =>
+                  new Intl.DateTimeFormat(locale, { weekday: "narrow" }).format(new Date(2024, 0, 7 + i))
+                );
+                const monthNames = Array.from({ length: 12 }, (_, i) =>
+                  new Intl.DateTimeFormat(locale, { month: "short" }).format(new Date(2024, i, 1))
+                );
                 return (
                   <div>
                     <div className="grid grid-cols-7 gap-1 mb-1.5">

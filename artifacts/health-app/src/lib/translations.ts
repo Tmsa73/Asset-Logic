@@ -360,6 +360,119 @@ const translations = {
     // Nutrition extras
     nutrition_fiber_sugar: "Fiber & Sugar",
 
+    // BMI labels
+    bmi_underweight: "Underweight",
+    bmi_healthy: "Healthy",
+    bmi_overweight: "Overweight",
+    bmi_obese: "Obese",
+
+    // Home extras
+    home_unread: "unread",
+    home_log_again: "Log Again",
+    home_all_meals_link: "All meals",
+    home_done_check: "Done",
+    home_max_score: "/ 28 max",
+    home_grade_label: "Grade",
+    home_streak_short: "Streak",
+    home_achiever: "Achiever",
+    home_to_level: "to Level",
+
+    // Profile extras
+    profile_name_updated: "Name updated!",
+    profile_photo_updated: "Profile photo updated!",
+    profile_image_large: "Image too large",
+    profile_image_large_desc: "Please choose an image under 5MB",
+    profile_streak_label: "Streak",
+    profile_workouts_label: "Workouts",
+    profile_meals_label: "Meals",
+
+    // Life balance item labels (short)
+    lb_meals: "Meals",
+    lb_fit: "Fit",
+    lb_sleep: "Sleep",
+    lb_water: "Water",
+    lb_habit: "Habit",
+
+    // Rewards sub-tabs
+    rewards_tab_badges: "Badges",
+    rewards_tab_titles: "Titles",
+    rewards_tab_missions: "Missions",
+    rewards_tab_boss: "Boss",
+
+    // Category tabs
+    rewards_cat_all: "All",
+    rewards_cat_meals: "Meals",
+    rewards_cat_fitness: "Fitness",
+    rewards_cat_ai: "AI",
+    rewards_cat_xp: "XP",
+    rewards_cat_elite: "Elite",
+    rewards_all_tiers_label: "All Tiers",
+    rewards_unlocked_of: "unlocked",
+
+    // Difficulty
+    difficulty_nightmare: "Nightmare",
+
+    // AI Personalities (labels)
+    ai_personality_motivator: "Motivator",
+    ai_personality_friendly: "Friendly",
+    ai_personality_strict: "Strict",
+    ai_personality_silent: "Silent",
+    ai_personality_custom: "Custom",
+
+    // Diet options
+    diet_custom: "Custom Diet",
+
+    // Goals
+    goal_lose: "Lose Weight",
+    goal_maintain: "Maintain Weight",
+    goal_muscle: "Build Muscle",
+    goal_fitness: "Improve Fitness",
+    activity_sedentary: "Sedentary",
+    activity_light: "Light",
+    activity_moderate: "Moderate",
+    activity_active: "Active",
+    activity_very_active: "Very Active",
+
+    // Settings / profile misc toasts
+    profile_mode_activated: "mode activated",
+    settings_export_started: "Export started",
+    settings_cache_cleared: "Cache cleared",
+    settings_delete_confirm: "Are you sure?",
+    challenge_boss_accepted_desc: "Check notifications for updates.",
+
+    // Home toasts and fallbacks
+    home_water_added: "ml added 💧",
+    home_water_updated: "Water intake updated!",
+    home_tip_fallback: "Stay consistent!",
+    home_tip_desc_fallback: "Every healthy choice adds up.",
+
+    // Profile actions and missions
+    profile_equip: "Equip",
+    profile_equipped: "equipped!",
+    profile_title_updated: "Your title has been updated.",
+    profile_updated: "Profile updated!",
+    profile_update_failed: "Update failed",
+    mission_daily: "Daily",
+    mission_weekly: "Weekly",
+    mission_personal: "Personal",
+    challenge_accept: "Accept Challenge",
+    challenge_accepted_label: "✓ Accepted",
+    common_saving: "Saving...",
+
+    // Profile custom fields
+    profile_describe_coach: "Describe your ideal AI coach:",
+    profile_ai_placeholder: "e.g. Calm, direct, science-based, and encouraging...",
+    profile_custom_saved: "Custom style saved",
+    profile_save_custom: "Save Custom Style",
+    profile_describe_diet: "Describe your diet preferences:",
+    profile_diet_placeholder: "e.g. Halal, dairy-free, high-protein, moderate carbs...",
+    profile_custom_diet_saved: "Custom diet saved",
+    profile_save_custom_diet: "Save Custom Diet",
+    profile_describe_condition: "Describe your condition or limitation:",
+    profile_condition_placeholder: "e.g. Knee pain, medication considerations, injury history...",
+    profile_health_saved: "Health profile saved",
+    profile_goals_saved: "Goals saved!",
+
     // Common
     common_steps: "steps",
     common_min: "min",
@@ -732,6 +845,119 @@ const translations = {
 
     // Nutrition extras
     nutrition_fiber_sugar: "الألياف والسكر",
+
+    // BMI labels
+    bmi_underweight: "نقص وزن",
+    bmi_healthy: "صحي",
+    bmi_overweight: "زيادة وزن",
+    bmi_obese: "سمنة",
+
+    // Home extras
+    home_unread: "غير مقروء",
+    home_log_again: "سجّل مجدداً",
+    home_all_meals_link: "كل الوجبات",
+    home_done_check: "تم",
+    home_max_score: "/ ٢٨ كحد أقصى",
+    home_grade_label: "التقدير",
+    home_streak_short: "سلسلة",
+    home_achiever: "متحقق",
+    home_to_level: "للمستوى",
+
+    // Profile extras
+    profile_name_updated: "تم تحديث الاسم!",
+    profile_photo_updated: "✅ تم تحديث الصورة!",
+    profile_image_large: "الصورة كبيرة جداً",
+    profile_image_large_desc: "اختر صورة أقل من ٥ ميغابايت",
+    profile_streak_label: "سلسلة",
+    profile_workouts_label: "تمارين",
+    profile_meals_label: "وجبات",
+
+    // Life balance item labels (short)
+    lb_meals: "وجبات",
+    lb_fit: "لياقة",
+    lb_sleep: "نوم",
+    lb_water: "ماء",
+    lb_habit: "عادة",
+
+    // Rewards sub-tabs
+    rewards_tab_badges: "الشارات",
+    rewards_tab_titles: "الألقاب",
+    rewards_tab_missions: "المهام",
+    rewards_tab_boss: "تحدي",
+
+    // Category tabs
+    rewards_cat_all: "الكل",
+    rewards_cat_meals: "الوجبات",
+    rewards_cat_fitness: "اللياقة",
+    rewards_cat_ai: "الذكاء",
+    rewards_cat_xp: "النقاط",
+    rewards_cat_elite: "النخبة",
+    rewards_all_tiers_label: "كل المستويات",
+    rewards_unlocked_of: "مفتوح",
+
+    // Difficulty
+    difficulty_nightmare: "كابوس",
+
+    // AI Personalities (labels)
+    ai_personality_motivator: "المحفّز",
+    ai_personality_friendly: "الودود",
+    ai_personality_strict: "الصارم",
+    ai_personality_silent: "الصامت",
+    ai_personality_custom: "مخصص",
+
+    // Diet options
+    diet_custom: "نظام مخصص",
+
+    // Goals
+    goal_lose: "إنقاص الوزن",
+    goal_maintain: "الحفاظ على الوزن",
+    goal_muscle: "بناء العضلات",
+    goal_fitness: "تحسين اللياقة",
+    activity_sedentary: "خامل",
+    activity_light: "نشاط خفيف",
+    activity_moderate: "نشاط معتدل",
+    activity_active: "نشيط",
+    activity_very_active: "نشيط جداً",
+
+    // Settings / profile misc toasts
+    profile_mode_activated: "تم التفعيل",
+    settings_export_started: "بدأ التصدير",
+    settings_cache_cleared: "تم مسح ذاكرة التخزين",
+    settings_delete_confirm: "هل أنت متأكد؟",
+    challenge_boss_accepted_desc: "تحقق من الإشعارات للمتابعة.",
+
+    // Home toasts and fallbacks
+    home_water_added: "مل مضاف 💧",
+    home_water_updated: "تم تحديث كمية المياه!",
+    home_tip_fallback: "حافظ على الانتظام!",
+    home_tip_desc_fallback: "كل خيار صحي يُحدث فرقًا.",
+
+    // Profile actions and missions
+    profile_equip: "تفعيل",
+    profile_equipped: "تم تفعيله!",
+    profile_title_updated: "تم تحديث لقبك.",
+    profile_updated: "تم تحديث الملف الشخصي!",
+    profile_update_failed: "فشل التحديث",
+    mission_daily: "يومي",
+    mission_weekly: "أسبوعي",
+    mission_personal: "شخصي",
+    challenge_accept: "قبول التحدي",
+    challenge_accepted_label: "✓ مقبول",
+    common_saving: "جارٍ الحفظ...",
+
+    // Profile custom fields
+    profile_describe_coach: "صف المدرب الذكاء الاصطناعي المثالي:",
+    profile_ai_placeholder: "مثال: هادئ، مباشر، علمي، ومشجع...",
+    profile_custom_saved: "تم حفظ الأسلوب المخصص",
+    profile_save_custom: "حفظ الأسلوب المخصص",
+    profile_describe_diet: "صف تفضيلاتك الغذائية:",
+    profile_diet_placeholder: "مثال: حلال، خالٍ من الألبان، بروتين عالٍ...",
+    profile_custom_diet_saved: "تم حفظ النظام الغذائي المخصص",
+    profile_save_custom_diet: "حفظ النظام المخصص",
+    profile_describe_condition: "صف حالتك أو قيودك:",
+    profile_condition_placeholder: "مثال: ألم الركبة، الأدوية، إصابات سابقة...",
+    profile_health_saved: "تم حفظ الملف الصحي",
+    profile_goals_saved: "تم حفظ الأهداف!",
 
     // Common
     common_steps: "خطوة",

@@ -47,58 +47,58 @@ type Language = "en" | "ar";
 
 // ── Config ─────────────────────────────────────────────────────────
 const LIFE_BALANCE_ITEMS = [
-  { id: "nutrition", label: "Meals", color: "bg-primary", icon: Utensils, iconColor: "text-primary" },
-  { id: "fitness", label: "Fit", color: "bg-secondary", icon: Dumbbell, iconColor: "text-secondary" },
-  { id: "sleep", label: "Sleep", color: "bg-accent", icon: Moon, iconColor: "text-accent" },
-  { id: "hydration", label: "Water", color: "bg-blue-400", icon: Droplets, iconColor: "text-blue-400" },
-  { id: "consistency", label: "Habit", color: "bg-yellow-400", icon: Flame, iconColor: "text-yellow-500" },
+  { id: "nutrition", labelKey: "lb_meals" as const, color: "bg-primary", icon: Utensils, iconColor: "text-primary" },
+  { id: "fitness", labelKey: "lb_fit" as const, color: "bg-secondary", icon: Dumbbell, iconColor: "text-secondary" },
+  { id: "sleep", labelKey: "lb_sleep" as const, color: "bg-accent", icon: Moon, iconColor: "text-accent" },
+  { id: "hydration", labelKey: "lb_water" as const, color: "bg-blue-400", icon: Droplets, iconColor: "text-blue-400" },
+  { id: "consistency", labelKey: "lb_habit" as const, color: "bg-yellow-400", icon: Flame, iconColor: "text-yellow-500" },
 ];
 
-const CATEGORY_TABS: { key: AchievementCategory | "all"; label: string; icon: string }[] = [
-  { key: "all", label: "All", icon: "🏆" },
-  { key: "nutrition", label: "Meals", icon: "🥗" },
-  { key: "fitness", label: "Fitness", icon: "💪" },
-  { key: "ai", label: "AI", icon: "🤖" },
-  { key: "milestones", label: "XP", icon: "📈" },
-  { key: "elite", label: "Elite", icon: "👑" },
+const CATEGORY_TABS: { key: AchievementCategory | "all"; labelKey: string; icon: string }[] = [
+  { key: "all", labelKey: "rewards_cat_all", icon: "🏆" },
+  { key: "nutrition", labelKey: "rewards_cat_meals", icon: "🥗" },
+  { key: "fitness", labelKey: "rewards_cat_fitness", icon: "💪" },
+  { key: "ai", labelKey: "rewards_cat_ai", icon: "🤖" },
+  { key: "milestones", labelKey: "rewards_cat_xp", icon: "📈" },
+  { key: "elite", labelKey: "rewards_cat_elite", icon: "👑" },
 ];
 
 const DIFFICULTY_CONFIG = {
-  easy: { label: "Easy", color: "text-primary bg-primary/15 border-primary/30" },
-  medium: { label: "Medium", color: "text-yellow-400 bg-yellow-500/15 border-yellow-500/30" },
-  hard: { label: "Hard", color: "text-destructive bg-destructive/15 border-destructive/30" },
-  legendary: { label: "Nightmare", color: "text-primary bg-gradient-to-r from-primary/20 to-secondary/20 border-primary/40" },
+  easy: { labelKey: "rewards_easy", color: "text-primary bg-primary/15 border-primary/30" },
+  medium: { labelKey: "rewards_medium", color: "text-yellow-400 bg-yellow-500/15 border-yellow-500/30" },
+  hard: { labelKey: "rewards_hard", color: "text-destructive bg-destructive/15 border-destructive/30" },
+  legendary: { labelKey: "difficulty_nightmare", color: "text-primary bg-gradient-to-r from-primary/20 to-secondary/20 border-primary/40" },
 };
 
-const AI_PERSONALITIES: { value: AiPersonality; label: string; emoji: string; desc: string; color: string }[] = [
-  { value: "motivator", label: "Motivator", emoji: "🔥", desc: "Energetic & hype", color: "border-orange-500 bg-orange-500/10 text-orange-400" },
-  { value: "friendly", label: "Friendly", emoji: "😊", desc: "Warm & supportive", color: "border-primary bg-primary/10 text-primary" },
-  { value: "strict", label: "Strict", emoji: "💪", desc: "No excuses, discipline", color: "border-destructive bg-destructive/10 text-destructive" },
-  { value: "silent", label: "Silent", emoji: "🧘", desc: "Data-only minimal chat", color: "border-secondary bg-secondary/10 text-secondary" },
-  { value: "custom", label: "Custom", emoji: "✍️", desc: "Write your own coaching style", color: "border-accent bg-accent/10 text-accent" },
+const AI_PERSONALITIES: { value: AiPersonality; labelKey: string; emoji: string; descKey: string; color: string }[] = [
+  { value: "motivator", labelKey: "ai_personality_motivator", emoji: "🔥", descKey: "settings_motivator_desc", color: "border-orange-500 bg-orange-500/10 text-orange-400" },
+  { value: "friendly", labelKey: "ai_personality_friendly", emoji: "😊", descKey: "settings_friendly_desc", color: "border-primary bg-primary/10 text-primary" },
+  { value: "strict", labelKey: "ai_personality_strict", emoji: "💪", descKey: "settings_strict_desc", color: "border-destructive bg-destructive/10 text-destructive" },
+  { value: "silent", labelKey: "ai_personality_silent", emoji: "🧘", descKey: "settings_silent_desc", color: "border-secondary bg-secondary/10 text-secondary" },
+  { value: "custom", labelKey: "ai_personality_custom", emoji: "✍️", descKey: "settings_silent_desc", color: "border-accent bg-accent/10 text-accent" },
 ];
 
-const DIET_OPTIONS: { value: DietType; label: string; icon: string }[] = [
-  { value: "none", label: "No Restriction", icon: "🍽️" },
-  { value: "vegetarian", label: "Vegetarian", icon: "🥦" },
-  { value: "vegan", label: "Vegan", icon: "🌿" },
-  { value: "keto", label: "Keto", icon: "🥑" },
-  { value: "pescatarian", label: "Pescatarian", icon: "🐟" },
-  { value: "paleo", label: "Paleo", icon: "🍖" },
-  { value: "mediterranean", label: "Mediterranean", icon: "🫒" },
-  { value: "custom", label: "Custom Diet", icon: "✍️" },
+const DIET_OPTIONS: { value: DietType; labelKey: string; icon: string }[] = [
+  { value: "none", labelKey: "diet_none", icon: "🍽️" },
+  { value: "vegetarian", labelKey: "diet_vegetarian", icon: "🥦" },
+  { value: "vegan", labelKey: "diet_vegan", icon: "🌿" },
+  { value: "keto", labelKey: "diet_keto", icon: "🥑" },
+  { value: "pescatarian", labelKey: "diet_pescatarian", icon: "🐟" },
+  { value: "paleo", labelKey: "diet_paleo", icon: "🍖" },
+  { value: "mediterranean", labelKey: "diet_mediterranean", icon: "🫒" },
+  { value: "custom", labelKey: "diet_custom", icon: "✍️" },
 ];
 
-const HEALTH_CONDITIONS: { value: HealthCondition; label: string; icon: string }[] = [
-  { value: "diabetes", label: "Diabetes", icon: "🩺" },
-  { value: "heart", label: "Heart Issue", icon: "❤️" },
-  { value: "hypertension", label: "Hypertension", icon: "🫀" },
-  { value: "obesity", label: "Obesity", icon: "⚖️" },
-  { value: "allergies", label: "Allergies", icon: "🚫" },
-  { value: "thyroid", label: "Thyroid", icon: "🦋" },
-  { value: "asthma", label: "Asthma", icon: "💨" },
-  { value: "none", label: "None", icon: "✅" },
-  { value: "custom", label: "Other", icon: "✍️" },
+const HEALTH_CONDITIONS: { value: HealthCondition; labelKey: string; icon: string }[] = [
+  { value: "diabetes", labelKey: "health_diabetes", icon: "🩺" },
+  { value: "heart", labelKey: "health_heart", icon: "❤️" },
+  { value: "hypertension", labelKey: "health_hypertension", icon: "🫀" },
+  { value: "obesity", labelKey: "health_obesity", icon: "⚖️" },
+  { value: "allergies", labelKey: "health_allergies", icon: "🚫" },
+  { value: "thyroid", labelKey: "health_thyroid", icon: "🦋" },
+  { value: "asthma", labelKey: "health_asthma", icon: "💨" },
+  { value: "none", labelKey: "health_none", icon: "✅" },
+  { value: "custom", labelKey: "ai_personality_custom", icon: "✍️" },
 ];
 
 const PROFILE_BANNERS = [
@@ -111,9 +111,9 @@ const PROFILE_BANNERS = [
 ];
 
 const THEME_OPTIONS = [
-  { value: "dark", label: "Dark", icon: Moon, preview: "bg-slate-900" },
-  { value: "light", label: "Light", icon: Sun, preview: "bg-green-50" },
-  { value: "system", label: "System", icon: Monitor, preview: "bg-gradient-to-br from-slate-900 to-green-50" },
+  { value: "dark", labelKey: "settings_dark", icon: Moon, preview: "bg-slate-900" },
+  { value: "light", labelKey: "settings_light", icon: Sun, preview: "bg-green-50" },
+  { value: "system", labelKey: "settings_system", icon: Monitor, preview: "bg-gradient-to-br from-slate-900 to-green-50" },
 ];
 
 // ── Main Component ────────────────────────────────────────────────
@@ -148,7 +148,7 @@ export default function Profile() {
   const levelInfo = calcLevel(progress.xp);
   const bmi = profile.height > 0 ? (profile.weight / ((profile.height / 100) ** 2)).toFixed(1) : "0";
   const bmiNum = Number(bmi);
-  const bmiLabel = bmiNum < 18.5 ? "Underweight" : bmiNum < 25 ? "Healthy" : bmiNum < 30 ? "Overweight" : "Obese";
+  const bmiLabel = bmiNum < 18.5 ? t("bmi_underweight") : bmiNum < 25 ? t("bmi_healthy") : bmiNum < 30 ? t("bmi_overweight") : t("bmi_obese");
   const bmiColor = bmiNum < 18.5 ? "text-blue-400" : bmiNum < 25 ? "text-primary" : bmiNum < 30 ? "text-yellow-400" : "text-destructive";
   const earnedBadges = progress.badges.filter(b => b.earned);
   const memberSince = new Date(profile.createdAt ?? Date.now()).toLocaleDateString("en-US", { month: "short", year: "numeric" });
@@ -288,19 +288,19 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
     setDisplayName(trimmed);
     localStorage.setItem("bodylogic-display-name", trimmed);
     setEditingName(false);
-    toast({ title: "Name updated!" });
+    toast({ title: t("profile_name_updated") });
   };
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { toast({ title: "Image too large", description: "Please choose an image under 5MB", variant: "destructive" }); return; }
+    if (file.size > 5 * 1024 * 1024) { toast({ title: t("profile_image_large"), description: t("profile_image_large_desc"), variant: "destructive" }); return; }
     const reader = new FileReader();
     reader.onload = (ev) => {
       const dataUrl = ev.target?.result as string;
       setLocalAvatar(dataUrl);
       localStorage.setItem("userAvatar", dataUrl);
-      toast({ title: "✅ Profile photo updated!" });
+      toast({ title: t("profile_photo_updated") });
     };
     reader.readAsDataURL(file);
   };
@@ -353,9 +353,13 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
               <span className={cn("text-sm font-black", activeTitle.color, activeTitle.glow && "drop-shadow-[0_0_8px_currentColor]")}>{activeTitle.name}</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
-              <span className="text-[10px] font-bold bg-primary/15 text-primary px-2 py-0.5 rounded-full border border-primary/20 capitalize">{profile.goal.replace("_", " ")}</span>
-              <span className="text-[10px] font-bold bg-secondary/15 text-secondary px-2 py-0.5 rounded-full border border-secondary/20 capitalize">{profile.activityLevel.replace("_", " ")}</span>
-              <span className="text-[10px] font-bold bg-muted text-muted-foreground px-2 py-0.5 rounded-full">Since {memberSince}</span>
+              <span className="text-[10px] font-bold bg-primary/15 text-primary px-2 py-0.5 rounded-full border border-primary/20">
+                {profile.goal === "lose_weight" ? t("goal_lose") : profile.goal === "maintain_weight" ? t("goal_maintain") : profile.goal === "build_muscle" ? t("goal_muscle") : t("goal_fitness")}
+              </span>
+              <span className="text-[10px] font-bold bg-secondary/15 text-secondary px-2 py-0.5 rounded-full border border-secondary/20">
+                {profile.activityLevel === "sedentary" ? t("activity_sedentary") : profile.activityLevel === "lightly_active" ? t("activity_light") : profile.activityLevel === "moderately_active" ? t("activity_moderate") : profile.activityLevel === "very_active" ? t("activity_very_active") : t("activity_active")}
+              </span>
+              <span className="text-[10px] font-bold bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{t("profile_member_since")} {memberSince}</span>
             </div>
           </div>
         </div>
@@ -377,10 +381,10 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
 
         <div className="grid grid-cols-4 gap-2 mt-4">
           {[
-            { label: "Streak", value: `${stats.currentStreak}d`, icon: Flame, color: "text-orange-400" },
-            { label: "Workouts", value: stats.totalWorkouts, icon: Dumbbell, color: "text-secondary" },
-            { label: "Meals", value: stats.totalMealsLogged, icon: Utensils, color: "text-primary" },
-            { label: "Coins", value: progress.coins, icon: Coins, color: "text-yellow-400" },
+            { label: t("profile_streak_label"), value: `${stats.currentStreak}d`, icon: Flame, color: "text-orange-400" },
+            { label: t("profile_workouts_label"), value: stats.totalWorkouts, icon: Dumbbell, color: "text-secondary" },
+            { label: t("profile_meals_label"), value: stats.totalMealsLogged, icon: Utensils, color: "text-primary" },
+            { label: t("home_coins"), value: progress.coins, icon: Coins, color: "text-yellow-400" },
           ].map(s => (
             <div key={s.label} className="bg-black/10 rounded-xl p-2.5 text-center backdrop-blur-sm">
               <s.icon className={cn("w-3.5 h-3.5 mx-auto mb-1", s.color)} />
@@ -399,8 +403,8 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/10 backdrop-blur-sm">
             <Calendar className="w-3 h-3 text-white/70" />
             <span className="text-[10px] font-bold text-white/80">
-              {profile.age > 0 ? `${profile.age}y` : "Age N/A"}
-              {profile.gender && profile.gender !== "unspecified" && profile.gender !== "" ? ` • ${profile.gender}` : ""}
+              {profile.age > 0 ? `${profile.age}y` : ""}
+              {profile.gender && profile.gender !== "unspecified" && profile.gender !== "" ? (profile.age > 0 ? ` • ${profile.gender}` : profile.gender) : ""}
             </span>
           </div>
         </div>
@@ -440,7 +444,7 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
                   </div>
                   <span className="relative z-10 text-[10px] font-black text-white drop-shadow mb-1.5">{score}%</span>
                 </div>
-                <p className="text-[10px] font-bold text-center text-muted-foreground uppercase">{item.label}</p>
+                <p className="text-[10px] font-bold text-center text-muted-foreground uppercase">{t(item.labelKey)}</p>
               </div>
             );
           })}
@@ -506,8 +510,8 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
               <DetailRow label={t("profile_weight")} value={`${profile.weight} kg`} />
               <DetailRow label={t("profile_height")} value={`${profile.height} cm`} />
               <DetailRow label={t("profile_bmi")} value={<span className={bmiColor}>{bmi} ({bmiLabel})</span>} />
-              <DetailRow label={t("profile_activity")} value={<span className="capitalize">{profile.activityLevel.replace("_", " ")}</span>} />
-              <DetailRow label={t("profile_goal")} value={<span className="capitalize text-primary">{profile.goal.replace("_", " ")}</span>} />
+              <DetailRow label={t("profile_activity")} value={<span>{profile.activityLevel === "sedentary" ? t("activity_sedentary") : profile.activityLevel === "lightly_active" ? t("activity_light") : profile.activityLevel === "moderately_active" ? t("activity_moderate") : profile.activityLevel === "very_active" ? t("activity_very_active") : t("activity_active")}</span>} />
+              <DetailRow label={t("profile_goal")} value={<span className="text-primary">{profile.goal === "lose_weight" ? t("goal_lose") : profile.goal === "maintain_weight" ? t("goal_maintain") : profile.goal === "build_muscle" ? t("goal_muscle") : t("goal_fitness")}</span>} />
               <DetailRow label={t("profile_calorie_goal")} value={`${profile.dailyCalorieGoal.toLocaleString()} kcal`} />
             </div>
           )}
@@ -568,7 +572,7 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
             </div>
             <div className="flex justify-between mt-1">
               <span className="text-[10px] font-bold text-primary">{progress.xp.toLocaleString()} XP</span>
-              <span className="text-[10px] text-muted-foreground">{levelInfo.xpToNext.toLocaleString()} to L{progress.level + 1}</span>
+              <span className="text-[10px] text-muted-foreground">{levelInfo.xpToNext.toLocaleString()} {t("home_to_level")} {progress.level + 1}</span>
             </div>
           </div>
         </div>
@@ -600,21 +604,21 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
       {/* Rewards Sub-tabs */}
       <div className="flex gap-1.5 bg-muted/40 p-1 rounded-xl">
         {([
-          { key: "achievements", label: "Badges", icon: Trophy },
-          { key: "titles", label: "Titles", icon: Crown },
-          { key: "missions", label: "Missions", icon: Target },
-          { key: "bosses", label: "Boss", icon: Sword },
-        ] as { key: RewardsTab; label: string; icon: typeof Trophy }[]).map(t => (
+          { key: "achievements", labelKey: "rewards_tab_badges", icon: Trophy },
+          { key: "titles", labelKey: "rewards_tab_titles", icon: Crown },
+          { key: "missions", labelKey: "rewards_tab_missions", icon: Target },
+          { key: "bosses", labelKey: "rewards_tab_boss", icon: Sword },
+        ] as { key: RewardsTab; labelKey: string; icon: typeof Trophy }[]).map(tab => (
           <button
-            key={t.key}
-            onClick={() => setRewardsTab(t.key)}
+            key={tab.key}
+            onClick={() => setRewardsTab(tab.key)}
             className={cn(
               "flex-1 flex flex-col items-center gap-0.5 py-2 rounded-lg text-[10px] font-bold transition-all",
-              rewardsTab === t.key ? "bg-background shadow text-primary" : "text-muted-foreground"
+              rewardsTab === tab.key ? "bg-background shadow text-primary" : "text-muted-foreground"
             )}
           >
-            <t.icon className="w-4 h-4" />
-            {t.label}
+            <tab.icon className="w-4 h-4" />
+            {t(tab.labelKey as any)}
           </button>
         ))}
       </div>
@@ -629,12 +633,12 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
                 onClick={() => setCatFilter(c.key as AchievementCategory | "all")}
                 className={cn("px-3 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-all", catFilter === c.key ? "bg-primary text-primary-foreground" : "bg-muted/60 text-muted-foreground border border-border/40")}
               >
-                {c.icon} {c.label}
+                {c.icon} {t(c.labelKey as any)}
               </button>
             ))}
           </div>
           <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-            <button onClick={() => setTierFilter("all")} className={cn("px-3 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap", tierFilter === "all" ? "bg-muted text-foreground" : "text-muted-foreground")}>All Tiers</button>
+            <button onClick={() => setTierFilter("all")} className={cn("px-3 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap", tierFilter === "all" ? "bg-muted text-foreground" : "text-muted-foreground")}>{t("rewards_all_tiers_label")}</button>
             {(["bronze", "silver", "gold", "platinum", "legendary"] as BadgeTier[]).map(tier => {
               const cfg = TIER_CONFIG[tier];
               return (
@@ -644,7 +648,7 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
               );
             })}
           </div>
-          <p className="text-xs text-muted-foreground font-bold">{filteredAchievements.filter(a => unlockedIds.has(a.id)).length} / {filteredAchievements.length} unlocked</p>
+          <p className="text-xs text-muted-foreground font-bold">{filteredAchievements.filter(a => unlockedIds.has(a.id)).length} / {filteredAchievements.length} {t("rewards_unlocked_of")}</p>
           <div className="grid grid-cols-2 gap-3">
             {filteredAchievements.map((achievement, i) => {
               const isUnlocked = unlockedIds.has(achievement.id);
@@ -702,12 +706,12 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
                         onClick={() => {
                           setActiveTitleId(title.id);
                           setStoredTitleId(title.id);
-                          toast({ title: `${title.name} equipped!`, description: "Your title has been updated." });
+                          toast({ title: `${title.name} ${t("profile_equipped")}`, description: t("profile_title_updated") });
                           playGamificationSound("xp");
                         }}
                         className="px-3 py-1.5 rounded-xl bg-primary/10 text-primary text-[10px] font-black border border-primary/30 hover:bg-primary/20 transition-colors press-scale"
                       >
-                        Equip
+                        {t("profile_equip")}
                       </button>
                     )
                   ) : (
@@ -724,9 +728,9 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
       {rewardsTab === "missions" && (
         <div className="space-y-4">
           <div className="flex gap-1 bg-muted/40 p-1 rounded-xl">
-            {([{ key: "daily", label: "Daily" }, { key: "weekly", label: "Weekly" }, { key: "smart", label: "Personal" }] as { key: MissionTab; label: string }[]).map(t => (
-              <button key={t.key} onClick={() => setMissionTab(t.key)} className={cn("flex-1 py-2 rounded-lg text-[11px] font-bold transition-all", missionTab === t.key ? "bg-background shadow text-primary" : "text-muted-foreground")}>
-                {t.label}
+            {([{ key: "daily", labelKey: "mission_daily" }, { key: "weekly", labelKey: "mission_weekly" }, { key: "smart", labelKey: "mission_personal" }] as { key: MissionTab; labelKey: string }[]).map(tab => (
+              <button key={tab.key} onClick={() => setMissionTab(tab.key)} className={cn("flex-1 py-2 rounded-lg text-[11px] font-bold transition-all", missionTab === tab.key ? "bg-background shadow text-primary" : "text-muted-foreground")}>
+                {t(tab.labelKey as any)}
               </button>
             ))}
           </div>
@@ -802,7 +806,7 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
                           <p className="text-sm font-black">{m.title}</p>
-                          <span className={cn("text-[9px] font-black px-1.5 py-0.5 rounded-full border", diffCfg.color)}>{diffCfg.label}</span>
+                          <span className={cn("text-[9px] font-black px-1.5 py-0.5 rounded-full border", diffCfg.color)}>{t(diffCfg.labelKey as any)}</span>
                         </div>
                         <p className="text-xs text-muted-foreground mb-2">{m.description}</p>
                         <div className="flex items-center justify-between">
@@ -825,10 +829,10 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
           <div className="p-4 rounded-2xl bg-gradient-to-br from-destructive/15 to-orange-900/10 border border-destructive/30">
             <div className="flex items-center gap-2 mb-1.5">
               <Sword className="w-5 h-5 text-destructive" />
-              <h3 className="text-base font-black text-destructive">Boss Challenges</h3>
-              <span className="ml-auto text-[10px] font-black bg-destructive/15 text-destructive px-2 py-0.5 rounded-full border border-destructive/30">{BOSS_CHALLENGES.length} BOSSES</span>
+              <h3 className="text-base font-black text-destructive">{t("rewards_boss_title")}</h3>
+              <span className="ml-auto text-[10px] font-black bg-destructive/15 text-destructive px-2 py-0.5 rounded-full border border-destructive/30">{BOSS_CHALLENGES.length} {t("rewards_bosses_count")}</span>
             </div>
-            <p className="text-xs text-muted-foreground">Extreme multi-day challenges. Accept to track in notifications.</p>
+            <p className="text-xs text-muted-foreground">{t("rewards_boss_desc")}</p>
           </div>
           {BOSS_CHALLENGES.map((boss, i) => {
             const diffCfg = DIFFICULTY_CONFIG[boss.difficulty as keyof typeof DIFFICULTY_CONFIG];
@@ -839,8 +843,8 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
                 <div className="flex items-start justify-between mb-3">
                   <div className="text-4xl">{boss.icon}</div>
                   <div className="flex flex-col items-end gap-1">
-                    <span className={cn("text-[10px] font-black px-2 py-0.5 rounded-full border", diffCfg.color)}>{diffCfg.label.toUpperCase()}</span>
-                    <span className="text-[10px] text-muted-foreground">{boss.days} days</span>
+                    <span className={cn("text-[10px] font-black px-2 py-0.5 rounded-full border", diffCfg.color)}>{t(diffCfg.labelKey as any).toUpperCase()}</span>
+                    <span className="text-[10px] text-muted-foreground">{boss.days} {t("rewards_days")}</span>
                   </div>
                 </div>
                 <h4 className="text-base font-black mb-1">{boss.title}</h4>
@@ -862,7 +866,7 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
                         localStorage.setItem("bodylogic-accepted-challenges", JSON.stringify(stored));
                       } catch {}
                       playGamificationSound("achievement");
-                      toast({ title: `${boss.icon} Challenge Accepted!`, description: `"${boss.title}" — Check notifications for updates.` });
+                      toast({ title: `${boss.icon} ${t("home_challenge_accepted")}`, description: `"${boss.title}" — ${t("challenge_boss_accepted_desc")}` });
                     }}
                     disabled={isAccepted}
                     className={cn(
@@ -872,7 +876,7 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
                         : "bg-destructive/15 text-destructive border-destructive/30 hover:bg-destructive/25"
                     )}
                   >
-                    {isAccepted ? "✓ Accepted" : "Accept Challenge"}
+                    {isAccepted ? t("challenge_accepted_label") : t("challenge_accept")}
                   </button>
                 </div>
               </motion.div>
@@ -1157,7 +1161,7 @@ function SettingsTab() {
   const handleSavePersonality = (p: AiPersonality) => {
     setAiPersonality(p);
     const found = AI_PERSONALITIES.find(x => x.value === p);
-    toast({ title: `${found?.emoji} ${found?.label} mode activated`, description: found?.desc });
+    toast({ title: `${found?.emoji} ${found ? t(found.labelKey as any) : ""} ${t("profile_mode_activated")}`, description: found ? t(found.descKey as any) : "" });
   };
 
   const handleSoundToggle = (enabled: boolean) => {
@@ -1181,19 +1185,19 @@ function SettingsTab() {
                   className={cn("flex flex-col items-start gap-1.5 p-3 rounded-xl border-2 transition-all text-left", active ? p.color : "border-border/50 bg-muted/20")}>
                   <div className="flex items-center gap-2 w-full">
                     <span className="text-xl">{p.emoji}</span>
-                    <span className={cn("text-xs font-bold flex-1", !active && "text-foreground")}>{p.label}</span>
+                    <span className={cn("text-xs font-bold flex-1", !active && "text-foreground")}>{t(p.labelKey as any)}</span>
                     {active && <div className="w-1.5 h-1.5 rounded-full bg-current" />}
                   </div>
-                  <p className="text-[10px] text-muted-foreground leading-tight">{p.desc}</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight">{t(p.descKey as any)}</p>
                 </button>
               );
             })}
           </div>
           {aiPersonality === "custom" && (
             <div className="space-y-2">
-              <p className="text-xs font-semibold text-accent">Describe your ideal AI coach:</p>
-              <textarea value={customPersonality} onChange={e => setCustomPersonality(e.target.value)} placeholder="e.g. Calm, direct, science-based, and encouraging..." rows={3} className="w-full rounded-xl bg-muted/30 border border-accent/30 p-3 text-xs outline-none resize-none text-foreground placeholder:text-muted-foreground/50" />
-              <button onClick={() => toast({ title: "Custom personality saved", description: customPersonality.slice(0, 70) })} disabled={!customPersonality.trim()} className="w-full py-2 rounded-xl bg-accent/15 text-accent text-xs font-bold border border-accent/30 disabled:opacity-40">Save Custom Style</button>
+              <p className="text-xs font-semibold text-accent">{t("profile_describe_coach")}</p>
+              <textarea value={customPersonality} onChange={e => setCustomPersonality(e.target.value)} placeholder={t("profile_ai_placeholder")} rows={3} className="w-full rounded-xl bg-muted/30 border border-accent/30 p-3 text-xs outline-none resize-none text-foreground placeholder:text-muted-foreground/50" />
+              <button onClick={() => toast({ title: t("profile_custom_saved"), description: customPersonality.slice(0, 70) })} disabled={!customPersonality.trim()} className="w-full py-2 rounded-xl bg-accent/15 text-accent text-xs font-bold border border-accent/30 disabled:opacity-40">{t("profile_save_custom")}</button>
             </div>
           )}
         </div>
@@ -1210,16 +1214,16 @@ function SettingsTab() {
                   className={cn("flex items-center gap-2.5 p-3 rounded-xl border-2 transition-all text-left relative", active ? "border-secondary bg-secondary/10" : "border-border/40 bg-muted/20")}>
                   {active && <Check className="absolute top-1.5 right-1.5 w-3 h-3 text-secondary" />}
                   <span className="text-lg shrink-0">{d.icon}</span>
-                  <span className={cn("text-xs font-bold truncate", active ? "text-secondary" : "text-foreground")}>{d.label}</span>
+                  <span className={cn("text-xs font-bold truncate", active ? "text-secondary" : "text-foreground")}>{t(d.labelKey as any)}</span>
                 </button>
               );
             })}
           </div>
           {diet === "custom" && (
             <div className="mt-3 space-y-2">
-              <p className="text-xs font-semibold text-secondary">Describe your diet preferences:</p>
-              <textarea value={customDiet} onChange={e => setCustomDiet(e.target.value)} placeholder="e.g. Halal, dairy-free, high-protein, moderate carbs..." rows={3} className="w-full rounded-xl bg-muted/30 border border-secondary/30 p-3 text-xs outline-none resize-none text-foreground placeholder:text-muted-foreground/50" />
-              <button onClick={() => toast({ title: "Custom diet saved", description: customDiet.slice(0, 70) })} disabled={!customDiet.trim()} className="w-full py-2 rounded-xl bg-secondary/15 text-secondary text-xs font-bold border border-secondary/30 disabled:opacity-40">Save Custom Diet</button>
+              <p className="text-xs font-semibold text-secondary">{t("profile_describe_diet")}</p>
+              <textarea value={customDiet} onChange={e => setCustomDiet(e.target.value)} placeholder={t("profile_diet_placeholder")} rows={3} className="w-full rounded-xl bg-muted/30 border border-secondary/30 p-3 text-xs outline-none resize-none text-foreground placeholder:text-muted-foreground/50" />
+              <button onClick={() => toast({ title: t("profile_custom_diet_saved"), description: customDiet.slice(0, 70) })} disabled={!customDiet.trim()} className="w-full py-2 rounded-xl bg-secondary/15 text-secondary text-xs font-bold border border-secondary/30 disabled:opacity-40">{t("profile_save_custom_diet")}</button>
             </div>
           )}
         </div>
@@ -1237,18 +1241,18 @@ function SettingsTab() {
                   className={cn("flex items-center gap-2 p-2.5 rounded-xl border-2 transition-all text-left relative", active ? "border-orange-400/50 bg-orange-400/10" : "border-border/40 bg-muted/20")}>
                   {active && <Check className="absolute top-1.5 right-1.5 w-3 h-3 text-orange-400" />}
                   <span className="text-base">{h.icon}</span>
-                  <span className={cn("text-xs font-bold truncate", active ? "text-orange-400" : "text-muted-foreground")}>{h.label}</span>
+                  <span className={cn("text-xs font-bold truncate", active ? "text-orange-400" : "text-muted-foreground")}>{t(h.labelKey as any)}</span>
                 </button>
               );
             })}
           </div>
           {selectedConditions.has("custom") && (
             <div className="space-y-2">
-              <p className="text-xs font-semibold text-orange-400">Describe your condition or limitation:</p>
-              <textarea value={customCondition} onChange={e => setCustomCondition(e.target.value)} placeholder="e.g. Knee pain, medication considerations, injury history..." rows={3} className="w-full rounded-xl bg-muted/30 border border-orange-400/30 p-3 text-xs outline-none resize-none text-foreground placeholder:text-muted-foreground/50" />
+              <p className="text-xs font-semibold text-orange-400">{t("profile_describe_condition")}</p>
+              <textarea value={customCondition} onChange={e => setCustomCondition(e.target.value)} placeholder={t("profile_condition_placeholder")} rows={3} className="w-full rounded-xl bg-muted/30 border border-orange-400/30 p-3 text-xs outline-none resize-none text-foreground placeholder:text-muted-foreground/50" />
             </div>
           )}
-          <button onClick={() => toast({ title: "🧬 Health profile saved" })} className="w-full py-2.5 rounded-xl bg-orange-400/15 text-orange-400 text-sm font-bold border border-orange-400/30 hover:bg-orange-400/25 transition-colors press-scale">
+          <button onClick={() => toast({ title: t("profile_health_saved") })} className="w-full py-2.5 rounded-xl bg-orange-400/15 text-orange-400 text-sm font-bold border border-orange-400/30 hover:bg-orange-400/25 transition-colors press-scale">
             {t("settings_health_save")}
           </button>
         </div>
@@ -1261,7 +1265,7 @@ function SettingsTab() {
           <GoalSlider label={t("settings_calories_goal")} value={calGoal} min={1200} max={4000} step={100} onChange={setCalGoal} unit="kcal" textColor="text-secondary" />
           <GoalSlider label={t("settings_water_goal")} value={waterGoal} min={1000} max={5000} step={250} onChange={setWaterGoal} unit="ml" textColor="text-blue-400" />
           <GoalSlider label={t("settings_sleep_goal")} value={sleepGoal} min={5} max={12} step={0.5} onChange={setSleepGoal} unit="hrs" textColor="text-accent" />
-          <button onClick={() => toast({ title: "✅ Goals saved!" })} className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 press-scale transition-all">
+          <button onClick={() => toast({ title: t("profile_goals_saved") })} className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 press-scale transition-all">
             {t("settings_save_goals")}
           </button>
         </div>
@@ -1345,9 +1349,9 @@ function SettingsTab() {
       {/* Data & Privacy */}
       <SettingsSection icon={<Shield className="w-4 h-4 text-destructive" />} title={t("settings_privacy")}>
         <div className="divide-y divide-border/50">
-          <ActionRow label={t("settings_export")} desc={t("settings_export_desc")} icon={<Download className="w-4 h-4 text-muted-foreground" />} onClick={() => toast({ title: "📤 Export started" })} />
-          <ActionRow label={t("settings_cache")} desc={t("settings_cache_desc")} icon={<Trash2 className="w-4 h-4 text-muted-foreground" />} onClick={() => toast({ title: "🗑️ Cache cleared" })} />
-          <ActionRow label={t("settings_delete")} desc={t("settings_delete_desc")} icon={<Trash2 className="w-4 h-4 text-destructive" />} onClick={() => toast({ title: "⚠️ Are you sure?", variant: "destructive" })} danger />
+          <ActionRow label={t("settings_export")} desc={t("settings_export_desc")} icon={<Download className="w-4 h-4 text-muted-foreground" />} onClick={() => toast({ title: `📤 ${t("settings_export_started")}` })} />
+          <ActionRow label={t("settings_cache")} desc={t("settings_cache_desc")} icon={<Trash2 className="w-4 h-4 text-muted-foreground" />} onClick={() => toast({ title: `🗑️ ${t("settings_cache_cleared")}` })} />
+          <ActionRow label={t("settings_delete")} desc={t("settings_delete_desc")} icon={<Trash2 className="w-4 h-4 text-destructive" />} onClick={() => toast({ title: `⚠️ ${t("settings_delete_confirm")}`, variant: "destructive" })} danger />
         </div>
       </SettingsSection>
 
@@ -1433,6 +1437,7 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
 }
 
 function EditProfileForm({ profile, onCancel }: { profile: any; onCancel: () => void }) {
+  const { t } = useLang();
   const [age, setAge] = useState(profile.age ? profile.age.toString() : "");
   const [height, setHeight] = useState(profile.height ? profile.height.toString() : "");
   const [weight, setWeight] = useState(profile.weight.toString());
@@ -1444,8 +1449,8 @@ function EditProfileForm({ profile, onCancel }: { profile: any; onCancel: () => 
   const { toast } = useToast();
   const update = useUpdateProfile({
     mutation: {
-      onSuccess: () => { qc.invalidateQueries({ queryKey: getGetProfileQueryKey() }); toast({ title: "✅ Profile updated!" }); onCancel(); },
-      onError: () => toast({ title: "Update failed", variant: "destructive" }),
+      onSuccess: () => { qc.invalidateQueries({ queryKey: getGetProfileQueryKey() }); toast({ title: t("profile_updated") }); onCancel(); },
+      onError: () => toast({ title: t("profile_update_failed"), variant: "destructive" }),
     },
   });
   const onSubmit = (e: React.FormEvent) => {
@@ -1508,8 +1513,8 @@ function EditProfileForm({ profile, onCancel }: { profile: any; onCancel: () => 
         </Select>
       </div>
       <div className="flex gap-2 pt-2">
-        <Button type="button" variant="outline" className="flex-1 rounded-xl h-10" onClick={onCancel} disabled={update.isPending}><X className="w-4 h-4 mr-1" /> Cancel</Button>
-        <Button type="submit" className="flex-1 rounded-xl h-10" disabled={update.isPending}><Check className="w-4 h-4 mr-1" /> {update.isPending ? "Saving…" : "Save"}</Button>
+        <Button type="button" variant="outline" className="flex-1 rounded-xl h-10" onClick={onCancel} disabled={update.isPending}><X className="w-4 h-4 mr-1" /> {t("common_cancel")}</Button>
+        <Button type="submit" className="flex-1 rounded-xl h-10" disabled={update.isPending}><Check className="w-4 h-4 mr-1" /> {update.isPending ? t("common_saving") : t("common_save")}</Button>
       </div>
     </form>
   );
