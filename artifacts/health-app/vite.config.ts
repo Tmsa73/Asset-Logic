@@ -57,6 +57,17 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    cssCodeSplit: true,
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ["react", "react-dom"],
+          charts: ["recharts"],
+          motion: ["framer-motion"],
+        },
+      },
+    },
   },
   server: {
     port,

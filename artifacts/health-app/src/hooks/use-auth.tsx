@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 
 export type AuthUser = {
   id: number;
@@ -26,29 +26,51 @@ const AuthContext = createContext<AuthContextType>({
   logout: async () => {},
 });
 
+const BASE_URL = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
+const apiPath = (path: string) => `${BASE_URL}${path}`;
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/auth/me", { credentials: "include" })
+    const controller = new AbortController();
+    let active = true;
+
+    fetch(apiPath("/api/auth/me"), {
+      credentials: "include",
+      signal: controller.signal,
+    })
       .then(res => res.ok ? res.json() : null)
-      .then(data => { if (data) setUser(data); })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .then(data => { if (active && data) setUser(data); })
+      .catch(error => {
+        if (active && error?.name !== "AbortError") {
+          setUser(null);
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
   }, []);
 
-  const login = (userData: AuthUser) => {
+  const login = useCallback((userData: AuthUser) => {
     setUser(userData);
-  };
+  }, []);
 
-  const logout = async () => {
-    await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+  const logout = useCallback(async () => {
+    await fetch(apiPath("/api/auth/logout"), { method: "POST", credentials: "include" });
     setUser(null);
-  };
+  }, []);
+
+  const value = useMemo(() => ({ user, loading, login, logout }), [user, loading, login, logout]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

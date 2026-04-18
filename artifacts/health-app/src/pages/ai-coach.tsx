@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useGetAiMessages, useSendAiMessage, useGetAiInsights, getGetAiMessagesQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -9,10 +9,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLang } from "@/contexts/language-context";
 
 const PERSONALITY_CONFIG = {
-  motivator: { emoji: "🔥", labelKey: "ai_personality_motivator", color: "text-orange-400 border-orange-400/40 bg-orange-400/10" },
-  friendly: { emoji: "😊", labelKey: "ai_personality_friendly", color: "text-primary border-primary/40 bg-primary/10" },
-  strict: { emoji: "💪", labelKey: "ai_personality_strict", color: "text-destructive border-destructive/40 bg-destructive/10" },
-  silent: { emoji: "🧘", labelKey: "ai_personality_silent", color: "text-secondary border-secondary/40 bg-secondary/10" },
+  motivator: { icon: Zap, labelKey: "ai_personality_motivator", color: "text-orange-400 border-orange-400/40 bg-orange-400/10" },
+  friendly: { icon: Heart, labelKey: "ai_personality_friendly", color: "text-primary border-primary/40 bg-primary/10" },
+  strict: { icon: Dumbbell, labelKey: "ai_personality_strict", color: "text-destructive border-destructive/40 bg-destructive/10" },
+  silent: { icon: Moon, labelKey: "ai_personality_silent", color: "text-secondary border-secondary/40 bg-secondary/10" },
 };
 
 const TOPIC_CHIPS = [
@@ -61,6 +61,11 @@ function formatMessage(content: string) {
   });
 }
 
+function FormattedMessage({ content }: { content: string }) {
+  const formatted = useMemo(() => formatMessage(content), [content]);
+  return <>{formatted}</>;
+}
+
 export default function AiCoach() {
   const [input, setInput] = useState("");
   const [showInsights, setShowInsights] = useState(false);
@@ -76,7 +81,7 @@ export default function AiCoach() {
   const { t, lang } = useLang();
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: sendMessage.isPending ? "smooth" : "auto" });
   }, [messages, sendMessage.isPending]);
 
   const handleSend = (text?: string) => {
@@ -94,6 +99,7 @@ export default function AiCoach() {
 
   const hasMessages = messages && messages.length > 0;
   const personalityCfg = PERSONALITY_CONFIG[personality];
+  const PersonalityIcon = personalityCfg.icon;
   const personalityLabel = t(personalityCfg.labelKey as any);
   const habits = insights?.tips?.slice(0, 2) ?? [];
 
@@ -122,7 +128,7 @@ export default function AiCoach() {
               onClick={() => setShowPersonalityPicker(!showPersonalityPicker)}
               className={cn("flex items-center gap-1 px-2 py-1 rounded-full border text-[10px] font-bold transition-all", personalityCfg.color)}
             >
-              <span>{personalityCfg.emoji}</span>
+              <PersonalityIcon className="w-3 h-3" />
               <span className="hidden sm:inline">{personalityLabel}</span>
             </button>
             {hasMessages && (
@@ -143,19 +149,22 @@ export default function AiCoach() {
               className="overflow-hidden mt-2"
             >
               <div className="grid grid-cols-4 gap-1.5 pb-1">
-                {(Object.entries(PERSONALITY_CONFIG) as [keyof typeof PERSONALITY_CONFIG, typeof PERSONALITY_CONFIG[keyof typeof PERSONALITY_CONFIG]][]).map(([key, cfg]) => (
-                  <button
-                    key={key}
-                    onClick={() => { setPersonality(key); setShowPersonalityPicker(false); }}
-                    className={cn(
-                      "flex flex-col items-center gap-0.5 p-2 rounded-xl border transition-all text-[10px] font-bold",
-                      personality === key ? cfg.color : "border-border/40 bg-muted/20 text-muted-foreground"
-                    )}
-                  >
-                    <span className="text-base">{cfg.emoji}</span>
-                    <span className="leading-tight text-center">{t(cfg.labelKey as any).split(" ")[0]}</span>
-                  </button>
-                ))}
+                {(Object.entries(PERSONALITY_CONFIG) as [keyof typeof PERSONALITY_CONFIG, typeof PERSONALITY_CONFIG[keyof typeof PERSONALITY_CONFIG]][]).map(([key, cfg]) => {
+                  const Icon = cfg.icon;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => { setPersonality(key); setShowPersonalityPicker(false); }}
+                      className={cn(
+                        "flex flex-col items-center gap-0.5 p-2 rounded-xl border transition-all text-[10px] font-bold",
+                        personality === key ? cfg.color : "border-border/40 bg-muted/20 text-muted-foreground"
+                      )}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span className="leading-tight text-center">{t(cfg.labelKey as any).split(" ")[0]}</span>
+                    </button>
+                  );
+                })}
               </div>
             </motion.div>
           )}
@@ -231,7 +240,7 @@ export default function AiCoach() {
                 {t("ai_coach_desc")}
               </p>
               <div className={cn("mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold", personalityCfg.color)}>
-                <span>{personalityCfg.emoji}</span>
+                <PersonalityIcon className="w-3.5 h-3.5" />
                 <span>{t("ai_mode")} {personalityLabel} {t("ai_mode_suffix")}</span>
               </div>
             </div>
@@ -274,7 +283,7 @@ export default function AiCoach() {
                         ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground rounded-2xl rounded-br-sm shadow-md"
                         : "bg-card border border-border/40 text-foreground rounded-2xl rounded-bl-sm shadow-sm"
                     )}>
-                      {isUser ? msg.content : <div className="space-y-0.5 text-[13px]">{formatMessage(msg.content)}</div>}
+                      {isUser ? msg.content : <div className="space-y-0.5 text-[13px]"><FormattedMessage content={msg.content} /></div>}
                     </div>
                     <span className={cn("text-[9px] font-bold text-muted-foreground/50 px-1", isUser ? "text-right" : "text-left")}>{time}</span>
                   </div>

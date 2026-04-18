@@ -93,6 +93,7 @@ All gamification logic lives in the frontend lib:
   - `API Server` serves `/api` on local port 8080.
   - `Start application` serves `/` on local port 3000.
 - Verified the latest implementation with HTTP 200 responses from `/` and `/api/healthz`, both workflows running, and browser console reconnecting without runtime errors.
+- Latest optimization pass added route-level code splitting, React Query cache defaults, safer auth request cleanup, stable bottom navigation rendering, cheaper Meal IQ question shuffling, AI Coach message memoization, and production chunk splitting for React/charts/motion.
 
 ## Important Notes
 

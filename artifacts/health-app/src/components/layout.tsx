@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, memo, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { Home, Utensils, Dumbbell, Sparkles, User } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -18,7 +18,7 @@ export function Layout({ children }: { children: ReactNode }) {
   );
 }
 
-function BottomNav() {
+const BottomNav = memo(function BottomNav() {
   const [location] = useLocation();
   const { t } = useLang();
 
@@ -27,13 +27,13 @@ function BottomNav() {
       ? location === "/profile" || location === "/achievements" || location === "/settings"
       : location === href;
 
-  const tabs = [
+  const tabs = useMemo(() => [
     { href: "/fitness", icon: Dumbbell, label: t("nav_fitness") },
     { href: "/ai-coach", icon: Sparkles, label: t("nav_ai") },
     { href: "/", icon: Home, label: t("nav_home") },
     { href: "/nutrition", icon: Utensils, label: t("nav_nutrition") },
     { href: "/profile", icon: User, label: t("nav_profile") },
-  ];
+  ], [t]);
 
   return (
     <nav
@@ -78,4 +78,4 @@ function BottomNav() {
       </div>
     </nav>
   );
-}
+});

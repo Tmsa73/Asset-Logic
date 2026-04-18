@@ -91,7 +91,12 @@ const BASE_QUESTIONS: Question[] = [
 ];
 
 function pickQuestions() {
-  return [...BASE_QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 5);
+  const questions = [...BASE_QUESTIONS];
+  for (let i = questions.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [questions[i], questions[j]] = [questions[j]!, questions[i]!];
+  }
+  return questions.slice(0, 5);
 }
 
 const OPTION_LABELS = ["A", "B", "C", "D"];
