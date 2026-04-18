@@ -17,12 +17,15 @@ interface MorningBrief {
   generatedAt: string;
 }
 
+const BASE_URL = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
+const apiPath = (path: string) => `${BASE_URL}${path}`;
+
 function getTodayKey() {
   return `bodylogic-morning-brief-${new Date().toISOString().split("T")[0]}`;
 }
 
 async function fetchMorningBrief(): Promise<MorningBrief> {
-  const res = await fetch("/api/ai/morning-brief");
+  const res = await fetch(apiPath("/api/ai/morning-brief"), { credentials: "include" });
   if (!res.ok) throw new Error("Failed to fetch morning brief");
   return res.json();
 }

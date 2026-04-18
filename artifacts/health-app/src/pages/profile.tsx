@@ -1162,23 +1162,28 @@ function HistoryTab() {
 
       {/* Category filter */}
       <div className="flex gap-2 overflow-x-auto pb-1">
-        {(["all", "meal", "workout", "sleep"] as GetHistoryType[]).map(f => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={cn(
-              "px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all",
-              filter === f
-                ? f === "all" ? "bg-primary text-primary-foreground"
-                  : f === "meal" ? "bg-primary text-primary-foreground"
-                  : f === "workout" ? "bg-secondary text-secondary-foreground"
-                  : "bg-purple-500 text-white"
-                : "bg-muted/60 text-muted-foreground border border-border/40"
-            )}
-          >
-            {f === "all" ? t("history_all") : f === "meal" ? `🍽 ${t("history_meals")}` : f === "workout" ? `💪 ${t("history_workouts")}` : `😴 ${t("history_sleep")}`}
-          </button>
-        ))}
+        {(["all", "meal", "workout", "sleep"] as GetHistoryType[]).map(f => {
+          const Icon = f === "all" ? Calendar : f === "meal" ? Utensils : f === "workout" ? Dumbbell : Moon;
+          const label = f === "all" ? t("history_all") : f === "meal" ? t("history_meals") : f === "workout" ? t("history_workouts") : t("history_sleep");
+          return (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all inline-flex items-center gap-1.5",
+                filter === f
+                  ? f === "all" ? "bg-primary text-primary-foreground"
+                    : f === "meal" ? "bg-primary text-primary-foreground"
+                    : f === "workout" ? "bg-secondary text-secondary-foreground"
+                    : "bg-purple-500 text-white"
+                  : "bg-muted/60 text-muted-foreground border border-border/40"
+              )}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              <span>{label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* History list */}

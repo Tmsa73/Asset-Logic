@@ -6,7 +6,7 @@ import {
 } from "@workspace/api-client-react";
 import { useLang } from "@/contexts/language-context";
 import { useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2, Flame, Brain, Trophy, Utensils, Camera, ImagePlus, Sparkles, CheckCircle2, AlertCircle, Loader2, ChevronDown } from "lucide-react";
+import { Plus, Trash2, Flame, Brain, Trophy, Utensils, Camera, ImagePlus, Sparkles, CheckCircle2, AlertCircle, Loader2, ChevronDown, Clock } from "lucide-react";
 import { checkMealCalories, checkProtein } from "@/lib/logic-validator";
 import { LogicBadge } from "@/components/logic-badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -549,7 +549,7 @@ export default function Nutrition() {
                               {suggestions.some(s => s.isHistory) && suggestions.some(s => !s.isHistory) ? "Recent & Database" : suggestions.some(s => s.isHistory) ? "Recently Logged" : "Database"}
                             </span>
                             {suggestions.some(s => s.isHistory) && (
-                              <span className="text-[9px] font-black text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-full flex items-center gap-1">🕐 Your History</span>
+                              <span className="text-[9px] font-black text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-full flex items-center gap-1"><Clock className="w-3 h-3" /> Your History</span>
                             )}
                           </div>
                           <div className="max-h-52 overflow-y-auto">
@@ -560,7 +560,9 @@ export default function Nutrition() {
                                 onMouseDown={() => applyFoodSuggestion(food)}
                                 className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-muted/50 transition-colors text-left"
                               >
-                                <span className="text-xl shrink-0 w-7 text-center">{food.emoji}</span>
+                                <span className="shrink-0 w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                                  <Utensils className="w-4 h-4 text-primary" />
+                                </span>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-1.5">
                                     <p className="text-sm font-bold truncate">{food.name}</p>

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { type Lang, t as translate, type TranslationKey } from "@/lib/translations";
 
 interface LanguageContextValue {
@@ -19,18 +19,23 @@ const STORAGE_KEY = "bodylogic-lang";
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return (stored === "ar" || stored === "en") ? stored : "en";
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      return (stored === "ar" || stored === "en") ? stored : "en";
+    } catch {
+      return "en";
+    }
   });
 
   const dir: "ltr" | "rtl" = lang === "ar" ? "rtl" : "ltr";
 
-  const setLang = (newLang: Lang) => {
+  const setLang = useCallback((newLang: Lang) => {
     setLangState(newLang);
-    localStorage.setItem(STORAGE_KEY, newLang);
-  };
+    try { localStorage.setItem(STORAGE_KEY, newLang); } catch {}
+  }, []);
 
-  const tFn = (key: TranslationKey) => translate(lang, key);
+  const tFn = useCallback((key: TranslationKey) => translate(lang, key), [lang]);
+  const value = useMemo(() => ({ lang, dir, setLang, t: tFn }), [lang, dir, setLang, tFn]);
 
   // Apply dir + lang to the <html> element for global effect
   useEffect(() => {
@@ -45,7 +50,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, [lang, dir]);
 
   return (
-    <LanguageContext.Provider value={{ lang, dir, setLang, t: tFn }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );

@@ -21,6 +21,15 @@ import { cn } from "@/lib/utils";
 import { checkSleepHours, checkWorkoutCalories, checkWorkoutDuration } from "@/lib/logic-validator";
 import { LogicBadge, ValidatedValue, FieldError } from "@/components/logic-badge";
 
+const WORKOUT_TYPE_ICONS: Record<string, typeof Dumbbell> = {
+  strength: Dumbbell,
+  cardio: Activity,
+  hiit: Zap,
+  yoga: Moon,
+  flexibility: Activity,
+  other: Dumbbell,
+};
+
 export default function Fitness() {
   const [date] = useState(new Date().toISOString().split('T')[0]!);
   const { data: summary, isLoading: isLoadingSummary } = useGetFitnessSummary();
@@ -481,26 +490,31 @@ function LogWorkoutDialog() {
                   )}
                 </div>
                 <div className="max-h-48 overflow-y-auto">
-                  {suggestions.map((w, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onMouseDown={() => applyWorkoutSuggestion(w)}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-muted/50 transition-colors text-left"
-                    >
-                      <span className="text-xl shrink-0 w-7 text-center">{w.emoji}</span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <p className="text-sm font-bold truncate">{w.name}</p>
-                          {w.isHistory && <span className="text-[9px] font-black text-amber-500 bg-amber-500/10 px-1 py-0.5 rounded shrink-0">{t("fitness_recent")}</span>}
+                  {suggestions.map((w, i) => {
+                    const WorkoutIcon = WORKOUT_TYPE_ICONS[w.type] ?? Dumbbell;
+                    return (
+                      <button
+                        key={i}
+                        type="button"
+                        onMouseDown={() => applyWorkoutSuggestion(w)}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-muted/50 transition-colors text-left"
+                      >
+                        <span className="shrink-0 w-8 h-8 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center">
+                          <WorkoutIcon className="w-4 h-4 text-secondary" />
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <p className="text-sm font-bold truncate">{w.name}</p>
+                            {w.isHistory && <span className="text-[9px] font-black text-amber-500 bg-amber-500/10 px-1 py-0.5 rounded shrink-0">{t("fitness_recent")}</span>}
+                          </div>
+                          <p className="text-[10px] text-muted-foreground capitalize">
+                            {typeLabel[w.type] ?? w.type} · {intensityLabel[w.intensity] ?? w.intensity} · {w.durationMinutes}{t("unit_min")} · {w.caloriesBurned} {t("unit_kcal")}
+                          </p>
                         </div>
-                        <p className="text-[10px] text-muted-foreground capitalize">
-                          {typeLabel[w.type] ?? w.type} · {intensityLabel[w.intensity] ?? w.intensity} · {w.durationMinutes}{t("unit_min")} · {w.caloriesBurned} {t("unit_kcal")}
-                        </p>
-                      </div>
-                      <span className="text-[10px] font-bold text-secondary shrink-0 bg-secondary/10 px-1.5 py-0.5 rounded-full capitalize">{typeLabel[w.type] ?? w.type}</span>
-                    </button>
-                  ))}
+                        <span className="text-[10px] font-bold text-secondary shrink-0 bg-secondary/10 px-1.5 py-0.5 rounded-full capitalize">{typeLabel[w.type] ?? w.type}</span>
+                      </button>
+                    );
+                  })}
                 </div>
                 <div className="px-3 py-1.5 border-t border-border/30 bg-muted/20">
                   <p className="text-[9px] text-muted-foreground">{t("fitness_autofill_hint")}</p>

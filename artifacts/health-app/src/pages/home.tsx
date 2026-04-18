@@ -656,8 +656,8 @@ export default function Home() {
                     )}
                   >
                     <div className="flex items-center gap-1.5 w-full">
-                      <span className="text-base leading-none">{food.emoji}</span>
-                      {logged && <span className="text-[9px] font-black text-primary ml-auto">✓ {t("home_done_check")}</span>}
+                      <Utensils className="w-4 h-4 text-primary" />
+                      {logged && <span className="text-[9px] font-black text-primary ml-auto inline-flex items-center gap-1"><CheckCheck className="w-3 h-3" /> {t("home_done_check")}</span>}
                     </div>
                     <p className="text-xs font-bold text-foreground leading-snug line-clamp-2">{food.name}</p>
                     <p className="text-[10px] font-semibold text-muted-foreground">{food.calories} {t("unit_kcal")}</p>

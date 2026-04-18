@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight, ChevronRight, Languages } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight, ChevronRight, Languages, Target, Dumbbell, Activity, Scale, type LucideIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
@@ -8,6 +8,9 @@ import { useLang } from "@/contexts/language-context";
 import appLogo from "@assets/392c7c4e-518a-4bcf-9754-0d66a29e96dd_Nero_AI_Background_Remove_1776541221733.png";
 
 type Mode = "login" | "register";
+
+const BASE_URL = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
+const apiPath = (path: string) => `${BASE_URL}${path}`;
 
 export default function AuthPage() {
   const [mode, setMode] = useState<Mode>("login");
@@ -28,11 +31,11 @@ export default function AuthPage() {
   const { login } = useAuth();
   const { t, lang, setLang } = useLang();
 
-  const GOALS = [
-    { value: "lose_weight", label: t("profile_goal_lose"), emoji: "⚡" },
-    { value: "build_muscle", label: t("profile_goal_muscle"), emoji: "💪" },
-    { value: "improve_fitness", label: t("profile_goal_fitness"), emoji: "🏃" },
-    { value: "maintain", label: t("profile_goal_maintain"), emoji: "⚖️" },
+  const GOALS: { value: string; label: string; icon: LucideIcon }[] = [
+    { value: "lose_weight", label: t("profile_goal_lose"), icon: Target },
+    { value: "build_muscle", label: t("profile_goal_muscle"), icon: Dumbbell },
+    { value: "improve_fitness", label: t("profile_goal_fitness"), icon: Activity },
+    { value: "maintain", label: t("profile_goal_maintain"), icon: Scale },
   ];
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -40,7 +43,7 @@ export default function AuthPage() {
     if (!email || !password) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch(apiPath("/api/auth/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -61,7 +64,7 @@ export default function AuthPage() {
     if (step === 1) { setStep(2); return; }
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch(apiPath("/api/auth/register"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -312,19 +315,23 @@ export default function AuthPage() {
                     <div>
                       <label className="text-xs font-semibold text-muted-foreground mb-2 block">{t("auth_goal")}</label>
                       <div className="grid grid-cols-2 gap-2">
-                        {GOALS.map(g => (
-                          <button
-                            key={g.value}
-                            type="button"
-                            onClick={() => setGoal(g.value)}
-                            className={cn(
-                              "p-3 rounded-xl border-2 text-sm font-bold flex items-center gap-2 transition-all",
-                              goal === g.value ? "border-primary bg-primary/10 text-primary" : "border-border bg-muted/30 text-foreground"
-                            )}
-                          >
-                            <span>{g.emoji}</span>{g.label}
-                          </button>
-                        ))}
+                        {GOALS.map(g => {
+                          const Icon = g.icon;
+                          return (
+                            <button
+                              key={g.value}
+                              type="button"
+                              onClick={() => setGoal(g.value)}
+                              className={cn(
+                                "p-3 rounded-xl border-2 text-sm font-bold flex items-center gap-2 transition-all",
+                                goal === g.value ? "border-primary bg-primary/10 text-primary" : "border-border bg-muted/30 text-foreground"
+                              )}
+                            >
+                              <Icon className="w-4 h-4 shrink-0" />
+                              <span>{g.label}</span>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
 
