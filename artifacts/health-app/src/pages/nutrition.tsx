@@ -7,6 +7,8 @@ import {
 import { useLang } from "@/contexts/language-context";
 import { useQueryClient } from "@tanstack/react-query";
 import { Plus, Trash2, Flame, Brain, Trophy, Utensils, Camera, ImagePlus, Sparkles, CheckCircle2, AlertCircle, Loader2, ChevronDown } from "lucide-react";
+import { checkMealCalories, checkProtein } from "@/lib/logic-validator";
+import { LogicBadge } from "@/components/logic-badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -179,8 +181,11 @@ export default function Nutrition() {
   const { toast } = useToast();
   const { t } = useLang();
 
+  const calInputCheck = checkMealCalories(form.calories ? Number(form.calories) : undefined);
+
   const handleAdd = () => {
     if (!form.name || !form.calories) return;
+    if (calInputCheck.status === "invalid") return;
     const mealName = form.name;
     logMeal.mutate({ data: {
       name: mealName,
@@ -578,7 +583,25 @@ export default function Nutrition() {
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <Label className="text-xs">{t("nutrition_calories")}</Label>
-                        <Input type="number" value={form.calories} onChange={e => setForm(f => ({ ...f, calories: e.target.value }))} placeholder="500" className="mt-1" />
+                        <Input
+                          type="number"
+                          value={form.calories}
+                          onChange={e => setForm(f => ({ ...f, calories: e.target.value }))}
+                          placeholder="500"
+                          className={cn(
+                            "mt-1",
+                            form.calories && calInputCheck.status === "invalid" && "border-destructive focus-visible:ring-destructive",
+                            form.calories && calInputCheck.status === "warning" && "border-amber-500 focus-visible:ring-amber-500"
+                          )}
+                        />
+                        {form.calories && calInputCheck.status !== "ok" && (
+                          <p className={cn(
+                            "flex items-center gap-1 text-[10px] font-bold mt-1",
+                            calInputCheck.status === "invalid" ? "text-destructive" : "text-amber-500"
+                          )}>
+                            {calInputCheck.status === "invalid" ? "⛔" : "⚠"} {calInputCheck.reason}
+                          </p>
+                        )}
                       </div>
                       <div>
                         <Label className="text-xs">{t("nutrition_meal_type")}</Label>
@@ -606,7 +629,11 @@ export default function Nutrition() {
                         </div>
                       ))}
                     </div>
-                    <Button className="w-full" onClick={handleAdd} disabled={logMeal.isPending || isScanning}>
+                    <Button
+                      className="w-full"
+                      onClick={handleAdd}
+                      disabled={logMeal.isPending || isScanning || (!!form.calories && calInputCheck.status === "invalid")}
+                    >
                       {logMeal.isPending ? t("nutrition_logging") : isScanning ? "Analyzing..." : t("nutrition_log_btn")}
                     </Button>
                     {/* Rescan options inside dialog */}
@@ -633,23 +660,47 @@ export default function Nutrition() {
             </div>
           ) : (
             <div className="space-y-2">
-              {meals.map(meal => (
-                <div key={meal.id} className="flex items-center gap-3 p-3 bg-card rounded-xl border border-border/50 hover-elevate group">
-                  <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center text-sm shrink-0", mealTypeColors[meal.mealType] ?? mealTypeColors.snack)}>
-                    {mealTypeIcons[meal.mealType] ?? "🍽️"}
+              {meals.map(meal => {
+                const calCheck = checkMealCalories(meal.calories);
+                const proteinCheck = checkProtein(meal.protein);
+                const hasIssue = calCheck.status !== "ok" || proteinCheck.status !== "ok";
+                return (
+                  <div key={meal.id} className={cn(
+                    "flex flex-col gap-1.5 p-3 bg-card rounded-xl border hover-elevate group",
+                    hasIssue ? "border-amber-500/30" : "border-border/50"
+                  )}>
+                    <div className="flex items-center gap-3">
+                      <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center text-sm shrink-0", mealTypeColors[meal.mealType] ?? mealTypeColors.snack)}>
+                        {mealTypeIcons[meal.mealType] ?? "🍽️"}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold truncate">{meal.name}</p>
+                        <p className="text-xs text-muted-foreground">P:{meal.protein}g · C:{meal.carbs}g · F:{meal.fat}g</p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center gap-1">
+                          <span className={cn(
+                            "text-sm font-bold",
+                            calCheck.status === "invalid" ? "text-destructive line-through opacity-60" :
+                            calCheck.status === "warning" ? "text-amber-400" : "text-primary"
+                          )}>{meal.calories}</span>
+                          <span className="text-xs text-muted-foreground">kcal</span>
+                          {calCheck.status !== "ok" && <LogicBadge check={calCheck} compact />}
+                        </div>
+                        <button onClick={() => handleDelete(meal.id)} className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                    {hasIssue && (
+                      <div className="ml-12 space-y-1">
+                        {calCheck.status !== "ok" && <LogicBadge check={calCheck} />}
+                        {proteinCheck.status !== "ok" && <LogicBadge check={proteinCheck} />}
+                      </div>
+                    )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate">{meal.name}</p>
-                    <p className="text-xs text-muted-foreground">P:{meal.protein}g · C:{meal.carbs}g · F:{meal.fat}g</p>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-sm font-bold text-primary">{meal.calories}</span>
-                    <button onClick={() => handleDelete(meal.id)} className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

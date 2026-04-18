@@ -18,6 +18,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Dumbbell, Plus, Timer, Flame, Moon, Zap, Activity, Trash2, Footprints, CheckCircle2 } from "lucide-react";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 import { cn } from "@/lib/utils";
+import { checkSleepHours, checkWorkoutCalories, checkWorkoutDuration } from "@/lib/logic-validator";
+import { LogicBadge, ValidatedValue, FieldError } from "@/components/logic-badge";
 
 export default function Fitness() {
   const [date] = useState(new Date().toISOString().split('T')[0]!);
@@ -155,10 +157,28 @@ export default function Fitness() {
                   </div>
                   <div className="text-right flex items-center gap-2">
                     <div>
-                      <p className="text-sm font-black">{workout.durationMinutes} <span className="text-xs font-medium text-muted-foreground font-normal">min</span></p>
-                      <p className="text-xs font-bold text-orange-500 flex items-center justify-end gap-0.5 mt-0.5">
-                        <Flame className="w-3 h-3" /> {workout.caloriesBurned}
-                      </p>
+                      {(() => {
+                        const durCheck = checkWorkoutDuration(workout.durationMinutes);
+                        const calCheck = checkWorkoutCalories(workout.caloriesBurned, workout.durationMinutes);
+                        return (
+                          <>
+                            <div className="flex items-center justify-end gap-1">
+                              <p className={cn("text-sm font-black", durCheck.status === "invalid" && "text-destructive line-through opacity-60")}>
+                                {workout.durationMinutes}
+                              </p>
+                              <span className="text-xs text-muted-foreground">min</span>
+                              {durCheck.status !== "ok" && <LogicBadge check={durCheck} compact />}
+                            </div>
+                            <div className="flex items-center justify-end gap-1 mt-0.5">
+                              <Flame className="w-3 h-3 text-orange-500" />
+                              <p className={cn("text-xs font-bold text-orange-500", calCheck.status === "invalid" && "text-destructive line-through opacity-60")}>
+                                {workout.caloriesBurned}
+                              </p>
+                              {calCheck.status !== "ok" && <LogicBadge check={calCheck} compact />}
+                            </div>
+                          </>
+                        );
+                      })()}
                     </div>
                     <button onClick={() => handleDelete(workout.id)} className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100">
                       <Trash2 className="w-3.5 h-3.5" />
@@ -205,26 +225,92 @@ export default function Fitness() {
 
               {todaySleep ? (
                 <>
-                  <div className="flex items-baseline gap-1 mb-4">
-                    <span className="text-4xl font-black tracking-tight text-white">{todaySleep.durationHours}</span>
-                    <span className="text-sm font-medium text-indigo-200">hours</span>
-                  </div>
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between text-[10px] font-bold text-indigo-300 uppercase tracking-wider">
-                      <span>Deep 25%</span>
-                      <span>Light 55%</span>
-                      <span>REM 20%</span>
-                    </div>
-                    <div className="h-2 flex rounded-full overflow-hidden bg-indigo-950/60">
-                      <div className="h-full bg-indigo-500" style={{ width: '25%' }} />
-                      <div className="h-full bg-indigo-400" style={{ width: '55%' }} />
-                      <div className="h-full bg-indigo-300" style={{ width: '20%' }} />
-                    </div>
-                  </div>
-                  {sleepChartData.length > 0 && (
-                    <div className="h-16 w-full mt-6">
+                  {(() => {
+                    const sleepCheck = checkSleepHours(todaySleep.durationHours);
+                    const displayHours = (sleepCheck.status === "invalid")
+                      ? null
+                      : Math.round(todaySleep.durationHours * 10) / 10;
+
+                    return (
+                      <>
+                        <div className="flex items-baseline gap-2 mb-1">
+                          {sleepCheck.status === "invalid" ? (
+                            <div className="flex items-center gap-2">
+                              <span className="text-4xl font-black tracking-tight text-destructive line-through opacity-50">
+                                {todaySleep.durationHours.toFixed(1)}
+                              </span>
+                              <div className="flex flex-col gap-1">
+                                <span className="inline-flex items-center gap-1 bg-destructive/20 border border-destructive/40 text-destructive text-[10px] font-black px-2 py-1 rounded-lg">
+                                  ⚠ Not Logical
+                                </span>
+                                <span className="text-indigo-200 text-[10px]">—</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <span className={cn(
+                                "text-4xl font-black tracking-tight",
+                                sleepCheck.status === "warning" ? "text-amber-400" : "text-white"
+                              )}>
+                                {displayHours}
+                              </span>
+                              <span className="text-sm font-medium text-indigo-200">{t("fitness_hours")}</span>
+                              {sleepCheck.status === "warning" && (
+                                <span className="inline-flex items-center gap-1 bg-amber-500/20 border border-amber-500/30 text-amber-400 text-[10px] font-black px-1.5 py-0.5 rounded-md">
+                                  ⚠ Unusual
+                                </span>
+                              )}
+                            </>
+                          )}
+                        </div>
+                        {sleepCheck.status !== "ok" && (
+                          <div className={cn(
+                            "mb-3 flex items-start gap-1.5 px-2.5 py-2 rounded-xl border text-[11px] font-semibold",
+                            sleepCheck.status === "invalid"
+                              ? "bg-destructive/15 border-destructive/30 text-destructive"
+                              : "bg-amber-500/15 border-amber-500/30 text-amber-400"
+                          )}>
+                            {sleepCheck.status === "invalid" ? "⚠" : "ℹ"} {sleepCheck.reason}
+                            {sleepCheck.status === "invalid" && (
+                              <span className="text-indigo-300/70 ml-1">Please tap "Log Sleep" to fix.</span>
+                            )}
+                          </div>
+                        )}
+                        {sleepCheck.status !== "invalid" && displayHours !== null && (
+                          <>
+                            <div className="space-y-1.5 mb-4">
+                              {(() => {
+                                const deepH = todaySleep.deepSleepHours ?? (displayHours * 0.25);
+                                const lightH = todaySleep.lightSleepHours ?? (displayHours * 0.55);
+                                const remH = todaySleep.remSleepHours ?? (displayHours * 0.20);
+                                const deepPct = Math.round((deepH / displayHours) * 100);
+                                const lightPct = Math.round((lightH / displayHours) * 100);
+                                const remPct = 100 - deepPct - lightPct;
+                                return (
+                                  <>
+                                    <div className="flex justify-between text-[10px] font-bold text-indigo-300 uppercase tracking-wider">
+                                      <span>Deep {deepPct}%</span>
+                                      <span>Light {lightPct}%</span>
+                                      <span>REM {remPct}%</span>
+                                    </div>
+                                    <div className="h-2 flex rounded-full overflow-hidden bg-indigo-950/60">
+                                      <div className="h-full bg-indigo-500 transition-all" style={{ width: `${deepPct}%` }} />
+                                      <div className="h-full bg-indigo-400 transition-all" style={{ width: `${lightPct}%` }} />
+                                      <div className="h-full bg-indigo-300 transition-all" style={{ width: `${remPct}%` }} />
+                                    </div>
+                                  </>
+                                );
+                              })()}
+                            </div>
+                          </>
+                        )}
+                      </>
+                    );
+                  })()}
+                  {sleepChartData.length > 0 && checkSleepHours(todaySleep.durationHours).status !== "invalid" && (
+                    <div className="h-16 w-full mt-2">
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={sleepChartData}>
+                        <LineChart data={sleepChartData.map(d => ({ ...d, hours: Math.max(0, d.hours) }))}>
                           <Line type="monotone" dataKey="hours" stroke="#a5b4fc" strokeWidth={3} dot={{ r: 3, fill: "#a5b4fc", strokeWidth: 0 }} />
                         </LineChart>
                       </ResponsiveContainer>
@@ -300,9 +386,16 @@ function LogWorkoutDialog() {
     strength: "🏋️", cardio: "🏃", hiit: "🔥", yoga: "🧘", flexibility: "🤸", other: "⚡"
   };
 
+  const durFormCheck = checkWorkoutDuration(form.duration ? Number(form.duration) : undefined);
+  const calFormCheck = checkWorkoutCalories(
+    form.calories ? Number(form.calories) : undefined,
+    form.duration ? Number(form.duration) : undefined
+  );
+
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.duration || !form.calories) return;
+    if (durFormCheck.status === "invalid" || calFormCheck.status === "invalid") return;
     logWorkout.mutate({
       data: {
         name: form.name,
@@ -425,14 +518,41 @@ function LogWorkoutDialog() {
           <div className="grid grid-cols-2 gap-2">
             <div>
               <Label className="text-xs">{t("fitness_duration")}</Label>
-              <Input type="number" value={form.duration} onChange={e => setForm(f => ({ ...f, duration: e.target.value }))} className="mt-1" />
+              <Input
+                type="number"
+                value={form.duration}
+                onChange={e => setForm(f => ({ ...f, duration: e.target.value }))}
+                className={cn("mt-1", form.duration && durFormCheck.status === "invalid" && "border-destructive")}
+              />
+              {form.duration && durFormCheck.status !== "ok" && (
+                <p className={cn("text-[10px] font-bold mt-1", durFormCheck.status === "invalid" ? "text-destructive" : "text-amber-500")}>
+                  {durFormCheck.status === "invalid" ? "⛔" : "⚠"} {durFormCheck.reason}
+                </p>
+              )}
             </div>
             <div>
               <Label className="text-xs">{t("fitness_est_cal")}</Label>
-              <Input type="number" value={form.calories} onChange={e => setForm(f => ({ ...f, calories: e.target.value }))} className="mt-1" />
+              <Input
+                type="number"
+                value={form.calories}
+                onChange={e => setForm(f => ({ ...f, calories: e.target.value }))}
+                className={cn("mt-1",
+                  form.calories && calFormCheck.status === "invalid" && "border-destructive",
+                  form.calories && calFormCheck.status === "warning" && "border-amber-500"
+                )}
+              />
+              {form.calories && calFormCheck.status !== "ok" && (
+                <p className={cn("text-[10px] font-bold mt-1", calFormCheck.status === "invalid" ? "text-destructive" : "text-amber-500")}>
+                  {calFormCheck.status === "invalid" ? "⛔" : "⚠"} {calFormCheck.reason}
+                </p>
+              )}
             </div>
           </div>
-          <Button type="submit" className="w-full" disabled={logWorkout.isPending}>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={logWorkout.isPending || durFormCheck.status === "invalid" || calFormCheck.status === "invalid"}
+          >
             {logWorkout.isPending ? t("fitness_logging") : t("fitness_log_btn")}
           </Button>
         </form>
@@ -450,24 +570,40 @@ function LogSleepDialog() {
   const logSleep = useLogSleep();
   const { t } = useLang();
 
+  // Live calculation of sleep duration
+  const calcPreview = (): { hours: number; isOvernight: boolean } => {
+    const [bH, bM] = form.bedtime.split(":").map(Number);
+    const [wH, wM] = form.wakeTime.split(":").map(Number);
+    const bedMins = (bH ?? 0) * 60 + (bM ?? 0);
+    const wakeMins = (wH ?? 0) * 60 + (wM ?? 0);
+    let diffMins = wakeMins - bedMins;
+    const isOvernight = diffMins <= 0;
+    if (isOvernight) diffMins += 24 * 60;
+    return { hours: Math.round((diffMins / 60) * 10) / 10, isOvernight };
+  };
+
+  const preview = calcPreview();
+  const previewCheck = checkSleepHours(preview.hours);
+
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (previewCheck.status === "invalid") return;
+
     const today = new Date().toISOString().split('T')[0];
     const prevDay = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-    const isYest = parseInt(form.bedtime.split(':')[0]!) > 18;
-    const btDate = isYest ? prevDay : today;
+    const btDate = preview.isOvernight ? prevDay : today;
     
     logSleep.mutate({
       data: {
-        bedtime: `${btDate}T${form.bedtime}:00Z`,
-        wakeTime: `${today}T${form.wakeTime}:00Z`,
+        bedtime: `${btDate}T${form.bedtime}:00`,
+        wakeTime: `${today}T${form.wakeTime}:00`,
         quality: form.quality as any
       }
     }, {
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: getGetSleepLogsQueryKey() });
         setOpen(false);
-        toast({ title: "Sleep logged!" });
+        toast({ title: `Sleep logged — ${preview.hours}h!` });
       }
     });
   };
@@ -480,7 +616,7 @@ function LogSleepDialog() {
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[95vw] rounded-2xl">
-        <DialogHeader><DialogTitle>{t("fitness_last_sleep")}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>{t("fitness_log_sleep")}</DialogTitle></DialogHeader>
         <form onSubmit={onSubmit} className="space-y-3 pt-2">
           <div className="grid grid-cols-2 gap-2">
             <div>
@@ -492,6 +628,29 @@ function LogSleepDialog() {
               <Input type="time" value={form.wakeTime} onChange={e => setForm(f => ({ ...f, wakeTime: e.target.value }))} className="mt-1" />
             </div>
           </div>
+
+          {/* Live preview */}
+          <div className={cn(
+            "flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-bold",
+            previewCheck.status === "invalid"
+              ? "bg-destructive/10 border-destructive/30 text-destructive"
+              : previewCheck.status === "warning"
+              ? "bg-amber-500/10 border-amber-500/30 text-amber-500"
+              : "bg-primary/8 border-primary/20 text-primary"
+          )}>
+            <Moon className="w-4 h-4 shrink-0" />
+            <span>
+              {previewCheck.status === "invalid"
+                ? `⚠ ${previewCheck.reason}`
+                : <>
+                    {preview.hours}h sleep
+                    {preview.isOvernight && <span className="text-muted-foreground font-normal text-xs ml-1">(overnight ✓)</span>}
+                    {previewCheck.status === "warning" && <span className="text-xs ml-1">— {previewCheck.reason}</span>}
+                  </>
+              }
+            </span>
+          </div>
+
           <div>
             <Label className="text-xs">{t("fitness_quality")}</Label>
             <Select value={form.quality} onValueChange={v => setForm(f => ({ ...f, quality: v }))}>
@@ -504,8 +663,12 @@ function LogSleepDialog() {
               </SelectContent>
             </Select>
           </div>
-          <Button type="submit" className="w-full" disabled={logSleep.isPending}>
-            {logSleep.isPending ? t("fitness_logging") : t("fitness_save_sleep")}
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={logSleep.isPending || previewCheck.status === "invalid"}
+          >
+            {logSleep.isPending ? t("fitness_logging") : `${t("fitness_save_sleep")} · ${preview.hours}h`}
           </Button>
         </form>
       </DialogContent>
