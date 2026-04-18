@@ -512,7 +512,7 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
               <DetailRow label={t("profile_bmi")} value={<span className={bmiColor}>{bmi} ({bmiLabel})</span>} />
               <DetailRow label={t("profile_activity")} value={<span>{profile.activityLevel === "sedentary" ? t("activity_sedentary") : profile.activityLevel === "lightly_active" ? t("activity_light") : profile.activityLevel === "moderately_active" ? t("activity_moderate") : profile.activityLevel === "very_active" ? t("activity_very_active") : t("activity_active")}</span>} />
               <DetailRow label={t("profile_goal")} value={<span className="text-primary">{profile.goal === "lose_weight" ? t("goal_lose") : profile.goal === "maintain_weight" ? t("goal_maintain") : profile.goal === "build_muscle" ? t("goal_muscle") : t("goal_fitness")}</span>} />
-              <DetailRow label={t("profile_calorie_goal")} value={`${profile.dailyCalorieGoal.toLocaleString()} kcal`} />
+              <DetailRow label={t("profile_calorie_goal")} value={`${profile.dailyCalorieGoal.toLocaleString()} ${t("unit_kcal")}`} />
             </div>
           )}
         </CardContent>
@@ -1262,9 +1262,9 @@ function SettingsTab() {
       <SettingsSection icon={<Target className="w-4 h-4 text-yellow-400" />} title={t("settings_goals")}>
         <div className="p-4 space-y-4">
           <GoalSlider label={t("settings_steps")} value={stepGoal} min={2000} max={20000} step={500} onChange={setStepGoal} unit={t("common_steps")} textColor="text-primary" />
-          <GoalSlider label={t("settings_calories_goal")} value={calGoal} min={1200} max={4000} step={100} onChange={setCalGoal} unit="kcal" textColor="text-secondary" />
-          <GoalSlider label={t("settings_water_goal")} value={waterGoal} min={1000} max={5000} step={250} onChange={setWaterGoal} unit="ml" textColor="text-blue-400" />
-          <GoalSlider label={t("settings_sleep_goal")} value={sleepGoal} min={5} max={12} step={0.5} onChange={setSleepGoal} unit="hrs" textColor="text-accent" />
+          <GoalSlider label={t("settings_calories_goal")} value={calGoal} min={1200} max={4000} step={100} onChange={setCalGoal} unit={t("unit_kcal")} textColor="text-secondary" />
+          <GoalSlider label={t("settings_water_goal")} value={waterGoal} min={1000} max={5000} step={250} onChange={setWaterGoal} unit={t("unit_ml")} textColor="text-blue-400" />
+          <GoalSlider label={t("settings_sleep_goal")} value={sleepGoal} min={5} max={12} step={0.5} onChange={setSleepGoal} unit={t("unit_hrs")} textColor="text-accent" />
           <button onClick={() => toast({ title: t("profile_goals_saved") })} className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 press-scale transition-all">
             {t("settings_save_goals")}
           </button>

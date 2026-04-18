@@ -362,13 +362,13 @@ export default function Nutrition() {
                   strokeDashoffset={(2 * Math.PI * 48) - (calPct / 100) * (2 * Math.PI * 48)}
                   transform="rotate(-90 55 55)" className="transition-all duration-1000" />
                 <text x="55" y="50" textAnchor="middle" style={{ fill: "hsl(var(--foreground))", fontSize: "20px", fontWeight: "900" }}>{summary.totalCalories}</text>
-                <text x="55" y="66" textAnchor="middle" style={{ fill: "hsl(var(--muted-foreground))", fontSize: "10px" }}>kcal</text>
+                <text x="55" y="66" textAnchor="middle" style={{ fill: "hsl(var(--muted-foreground))", fontSize: "10px" }}>{t("unit_kcal")}</text>
               </svg>
             </div>
             <div className="flex-1 space-y-2">
               <div>
                 <p className="text-xs text-muted-foreground">{t("nutrition_daily_goal")}</p>
-                <p className="text-xl font-black">{calorieGoal} <span className="text-sm text-muted-foreground font-normal">kcal</span></p>
+                <p className="text-xl font-black">{calorieGoal} <span className="text-sm text-muted-foreground font-normal">{t("unit_kcal")}</span></p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">{t("nutrition_remaining")}</p>
@@ -567,7 +567,7 @@ export default function Nutrition() {
                                     {food.isHistory && <span className="text-[9px] font-black text-amber-500 bg-amber-500/10 px-1 py-0.5 rounded shrink-0">{t("common_recent")}</span>}
                                   </div>
                                   <p className="text-[10px] text-muted-foreground">
-                                    {food.calories} kcal · {food.protein}g protein · {food.carbs}g carbs · {food.fat}g fat
+                                    {food.calories} {t("unit_kcal")} · {food.protein}{t("unit_g")} {t("unit_protein")} · {food.carbs}{t("unit_g")} {t("unit_carbs")} · {food.fat}{t("unit_g")} {t("unit_fat")}
                                   </p>
                                 </div>
                                 <span className="text-[10px] font-bold text-primary shrink-0 bg-primary/10 px-1.5 py-0.5 rounded-full capitalize">{food.mealType}</span>

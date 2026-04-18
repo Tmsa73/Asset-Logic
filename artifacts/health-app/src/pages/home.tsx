@@ -53,7 +53,7 @@ export default function Home() {
         qc.invalidateQueries({ queryKey: getGetMealsQueryKey({ date: new Date().toISOString().split("T")[0]! }) });
         qc.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
         setQuickLoggedIds(prev => new Set([...prev, idx]));
-        toast({ title: `✅ ${food.name} logged!`, description: `${food.calories} kcal added` });
+        toast({ title: `✅ ${food.name} logged!`, description: `${food.calories} ${t("unit_kcal")} added` });
         playGamificationSound("xp");
       }
     });
@@ -660,7 +660,7 @@ export default function Home() {
                       {logged && <span className="text-[9px] font-black text-primary ml-auto">✓ {t("home_done_check")}</span>}
                     </div>
                     <p className="text-xs font-bold text-foreground leading-snug line-clamp-2">{food.name}</p>
-                    <p className="text-[10px] font-semibold text-muted-foreground">{food.calories} kcal</p>
+                    <p className="text-[10px] font-semibold text-muted-foreground">{food.calories} {t("unit_kcal")}</p>
                   </button>
                 );
               })}

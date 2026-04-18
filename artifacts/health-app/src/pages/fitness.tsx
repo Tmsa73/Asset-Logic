@@ -474,7 +474,7 @@ function LogWorkoutDialog() {
                           {w.isHistory && <span className="text-[9px] font-black text-amber-500 bg-amber-500/10 px-1 py-0.5 rounded shrink-0">Recent</span>}
                         </div>
                         <p className="text-[10px] text-muted-foreground capitalize">
-                          {w.type} · {w.intensity} · {w.durationMinutes}min · {w.caloriesBurned} kcal
+                          {w.type} · {w.intensity} · {w.durationMinutes}{t("unit_min")} · {w.caloriesBurned} {t("unit_kcal")}
                         </p>
                       </div>
                       <span className="text-[10px] font-bold text-secondary shrink-0 bg-secondary/10 px-1.5 py-0.5 rounded-full capitalize">{w.type}</span>
