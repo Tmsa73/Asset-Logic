@@ -1,19 +1,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight, ChevronRight } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight, ChevronRight, Languages } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useLang } from "@/contexts/language-context";
 
 type Mode = "login" | "register";
-
-const GOALS = [
-  { value: "lose_weight", label: "Lose Weight", emoji: "⚡" },
-  { value: "build_muscle", label: "Build Muscle", emoji: "💪" },
-  { value: "improve_fitness", label: "Improve Fitness", emoji: "🏃" },
-  { value: "maintain", label: "Maintain Weight", emoji: "⚖️" },
-];
 
 export default function AuthPage() {
   const [mode, setMode] = useState<Mode>("login");
@@ -32,7 +25,14 @@ export default function AuthPage() {
 
   const { toast } = useToast();
   const { login } = useAuth();
-  const { t } = useLang();
+  const { t, lang, setLang } = useLang();
+
+  const GOALS = [
+    { value: "lose_weight", label: t("profile_goal_lose"), emoji: "⚡" },
+    { value: "build_muscle", label: t("profile_goal_muscle"), emoji: "💪" },
+    { value: "improve_fitness", label: t("profile_goal_fitness"), emoji: "🏃" },
+    { value: "maintain", label: t("profile_goal_maintain"), emoji: "⚖️" },
+  ];
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +69,7 @@ export default function AuthPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Registration failed");
       login(data);
-      toast({ title: "Welcome to BodyLogic!", description: `Your journey starts now, ${data.name}!` });
+      toast({ title: t("auth_signup"), description: `${data.name}!` });
     } catch (err: any) {
       toast({ title: "Registration failed", description: err.message, variant: "destructive" });
     } finally {
@@ -80,20 +80,158 @@ export default function AuthPage() {
   return (
     <div className="min-h-[100dvh] w-full bg-background flex justify-center">
       <div className="w-full max-w-[430px] min-h-[100dvh] flex flex-col relative overflow-hidden">
-        {/* Background gradient */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 right-0 w-48 h-48 bg-secondary/10 rounded-full blur-3xl" />
+
+        {/* Ambient background blobs */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <motion.div
+            className="absolute top-[-80px] left-1/2 -translate-x-1/2 w-80 h-80 rounded-full"
+            style={{ background: "radial-gradient(circle, rgba(34,197,94,0.13) 0%, transparent 70%)" }}
+            animate={{ scale: [1, 1.15, 1], opacity: [0.7, 1, 0.7] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute bottom-[-60px] right-[-40px] w-64 h-64 rounded-full"
+            style={{ background: "radial-gradient(circle, rgba(59,130,246,0.10) 0%, transparent 70%)" }}
+            animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.9, 0.5] }}
+            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          />
+        </div>
+
+        {/* Language toggle — top right */}
+        <div className="absolute top-4 right-4 z-20">
+          <motion.button
+            onClick={() => setLang(lang === "en" ? "ar" : "en")}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/60 bg-card/80 backdrop-blur-sm text-xs font-bold text-foreground shadow-sm"
+            whileTap={{ scale: 0.93 }}
+            whileHover={{ scale: 1.04 }}
+          >
+            <Languages className="w-3.5 h-3.5 text-primary" />
+            <span>{lang === "en" ? "العربية" : "English"}</span>
+          </motion.button>
         </div>
 
         <div className="flex-1 flex flex-col justify-center px-6 py-10 relative z-10">
-          {/* Logo */}
+
+          {/* ── Animated Logo ── */}
           <div className="flex flex-col items-center mb-8">
-            <div className="relative mb-3">
-              <img src="/logo.png" alt="BodyLogic Logo" className="object-contain" style={{ width: 148, height: 148, filter: "drop-shadow(0 0 14px rgba(34,197,94,0.4)) drop-shadow(0 4px 16px rgba(0,0,0,0.25))" }} />
+            <div className="relative flex items-center justify-center mb-4" style={{ width: 180, height: 180 }}>
+
+              {/* Outer slow-rotating gradient ring */}
+              <motion.div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background: "conic-gradient(from 0deg, rgba(34,197,94,0.6), rgba(59,130,246,0.5), rgba(16,185,129,0.4), transparent, rgba(34,197,94,0.6))",
+                  borderRadius: "50%",
+                  padding: 3,
+                }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              >
+                <div className="w-full h-full rounded-full bg-background" />
+              </motion.div>
+
+              {/* Middle pulsing glow ring */}
+              <motion.div
+                className="absolute rounded-full"
+                style={{
+                  width: 148,
+                  height: 148,
+                  background: "transparent",
+                  boxShadow: "0 0 0 0 rgba(34,197,94,0.45)",
+                }}
+                animate={{
+                  boxShadow: [
+                    "0 0 0 0px rgba(34,197,94,0.45)",
+                    "0 0 0 14px rgba(34,197,94,0.0)",
+                    "0 0 0 0px rgba(34,197,94,0.45)",
+                  ],
+                }}
+                transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+              />
+
+              {/* Inner glow halo */}
+              <motion.div
+                className="absolute rounded-full"
+                style={{ width: 140, height: 140 }}
+                animate={{
+                  background: [
+                    "radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 70%)",
+                    "radial-gradient(circle, rgba(59,130,246,0.18) 0%, transparent 70%)",
+                    "radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 70%)",
+                  ],
+                }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+              />
+
+              {/* Orbiting dot */}
+              <motion.div
+                className="absolute"
+                style={{ width: 180, height: 180, top: 0, left: 0 }}
+                animate={{ rotate: -360 }}
+                transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+              >
+                <div
+                  className="absolute rounded-full bg-primary shadow-[0_0_8px_3px_rgba(34,197,94,0.7)]"
+                  style={{ width: 10, height: 10, top: 8, left: "50%", transform: "translateX(-50%)" }}
+                />
+              </motion.div>
+
+              {/* Orbiting dot 2 (opposite, slower) */}
+              <motion.div
+                className="absolute"
+                style={{ width: 160, height: 160, top: 10, left: 10 }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 9, repeat: Infinity, ease: "linear" }}
+              >
+                <div
+                  className="absolute rounded-full bg-blue-400 shadow-[0_0_6px_2px_rgba(59,130,246,0.6)]"
+                  style={{ width: 7, height: 7, bottom: 6, right: "50%", transform: "translateX(50%)" }}
+                />
+              </motion.div>
+
+              {/* Logo image — breathing */}
+              <motion.img
+                src="/logo.png"
+                alt="BodyLogic"
+                className="relative z-10 object-contain select-none"
+                style={{
+                  width: 120,
+                  height: 120,
+                  filter: "drop-shadow(0 0 18px rgba(34,197,94,0.55)) drop-shadow(0 4px 20px rgba(0,0,0,0.35))",
+                }}
+                animate={{ scale: [1, 1.045, 1], filter: [
+                  "drop-shadow(0 0 14px rgba(34,197,94,0.5)) drop-shadow(0 4px 16px rgba(0,0,0,0.3))",
+                  "drop-shadow(0 0 28px rgba(34,197,94,0.85)) drop-shadow(0 4px 20px rgba(0,0,0,0.35))",
+                  "drop-shadow(0 0 14px rgba(34,197,94,0.5)) drop-shadow(0 4px 16px rgba(0,0,0,0.3))",
+                ]}}
+                transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
+                initial={{ scale: 0.7, opacity: 0 }}
+              />
             </div>
-            <h1 className="text-2xl font-black gradient-text">BodyLogic</h1>
-            <p className="text-sm text-muted-foreground mt-1">{t("auth_tagline")}</p>
+
+            {/* Brand name with gradient shimmer */}
+            <motion.h1
+              className="text-3xl font-black tracking-tight"
+              style={{
+                background: "linear-gradient(90deg, #22c55e, #3b82f6, #10b981, #22c55e)",
+                backgroundSize: "200% auto",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+              animate={{ backgroundPosition: ["0% center", "200% center"] }}
+              transition={{ duration: 3.5, repeat: Infinity, ease: "linear" }}
+              initial={{ opacity: 0, y: 10 }}
+            >
+              BodyLogic
+            </motion.h1>
+            <motion.p
+              className="text-sm text-muted-foreground mt-1"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              {t("auth_tagline")}
+            </motion.p>
           </div>
 
           {/* Tab switcher */}
@@ -123,7 +261,7 @@ export default function AuthPage() {
                 onSubmit={handleLogin}
                 className="space-y-4"
               >
-                <Field icon={<Mail className="w-4 h-4" />} label="Email" type="email" value={email} onChange={setEmail} placeholder="you@example.com" />
+                <Field icon={<Mail className="w-4 h-4" />} label={t("auth_email")} type="email" value={email} onChange={setEmail} placeholder={t("auth_email_placeholder")} />
                 <PasswordField value={password} onChange={setPassword} show={showPw} onToggle={() => setShowPw(!showPw)} />
 
                 <button
@@ -205,15 +343,15 @@ export default function AuthPage() {
                     {/* Metrics */}
                     <div className="grid grid-cols-3 gap-2">
                       <div>
-                        <label className="text-xs font-semibold text-muted-foreground mb-1 block">Age</label>
+                        <label className="text-xs font-semibold text-muted-foreground mb-1 block">{t("auth_age")}</label>
                         <input type="number" value={age} onChange={e => setAge(e.target.value)} className="w-full h-10 rounded-xl bg-muted border border-border/50 text-sm text-center font-bold focus:outline-none focus:ring-2 focus:ring-primary" />
                       </div>
                       <div>
-                        <label className="text-xs font-semibold text-muted-foreground mb-1 block">Weight (kg)</label>
+                        <label className="text-xs font-semibold text-muted-foreground mb-1 block">{t("auth_weight")}</label>
                         <input type="number" value={weight} onChange={e => setWeight(e.target.value)} className="w-full h-10 rounded-xl bg-muted border border-border/50 text-sm text-center font-bold focus:outline-none focus:ring-2 focus:ring-primary" />
                       </div>
                       <div>
-                        <label className="text-xs font-semibold text-muted-foreground mb-1 block">Height (cm)</label>
+                        <label className="text-xs font-semibold text-muted-foreground mb-1 block">{t("auth_height")}</label>
                         <input type="number" value={height} onChange={e => setHeight(e.target.value)} className="w-full h-10 rounded-xl bg-muted border border-border/50 text-sm text-center font-bold focus:outline-none focus:ring-2 focus:ring-primary" />
                       </div>
                     </div>
@@ -221,19 +359,19 @@ export default function AuthPage() {
                     <div className="flex gap-2">
                       <button type="button" onClick={() => setStep(1)}
                         className="flex-1 h-12 bg-muted text-foreground font-bold rounded-2xl press-scale">
-                        Back
+                        {t("auth_back")}
                       </button>
                       <button type="submit" disabled={loading}
                         className="flex-1 h-12 bg-gradient-to-r from-primary to-secondary text-background font-bold rounded-2xl flex items-center justify-center gap-2 press-scale disabled:opacity-50">
-                        {loading ? <LoadingDots /> : <><span>Create Account</span><ArrowRight className="w-4 h-4" /></>}
+                        {loading ? <LoadingDots /> : <><span>{t("auth_create")}</span><ArrowRight className="w-4 h-4" /></>}
                       </button>
                     </div>
                   </>
                 )}
 
                 <p className="text-center text-xs text-muted-foreground">
-                  Already have an account?{" "}
-                  <button type="button" onClick={() => setMode("login")} className="text-primary font-bold">Sign in</button>
+                  {t("auth_have_account")}{" "}
+                  <button type="button" onClick={() => setMode("login")} className="text-primary font-bold">{t("auth_signin_link")}</button>
                 </p>
               </motion.form>
             )}
