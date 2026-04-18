@@ -68,6 +68,11 @@
   unicode-bidi: embed;
 }
 
+/* Flip horizontal directional icons in RTL */
+[dir="rtl"] .rtl-flip {
+  transform: scaleX(-1);
+}
+
 /* Smooth dir transition */
 html {
   transition: none;

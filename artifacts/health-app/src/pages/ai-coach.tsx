@@ -327,7 +327,7 @@ export default function AiCoach() {
             disabled={sendMessage.isPending || !input.trim()}
             className="rounded-full h-11 w-11 shrink-0 bg-primary text-background hover:bg-primary/90 transition-all active:scale-95 shadow-md"
           >
-            <Send className="w-4 h-4 ml-0.5" />
+            <Send className="w-4 h-4 ms-0.5 rtl-flip" />
           </Button>
         </div>
       </div>

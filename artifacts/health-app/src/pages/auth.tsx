@@ -269,7 +269,7 @@ export default function AuthPage() {
                   disabled={loading || !email || !password}
                   className="w-full h-12 bg-gradient-to-r from-primary to-secondary text-background font-bold rounded-2xl flex items-center justify-center gap-2 press-scale disabled:opacity-50 mt-2"
                 >
-                  {loading ? <LoadingDots /> : <><span>{t("auth_signin_btn")}</span><ArrowRight className="w-4 h-4" /></>}
+                  {loading ? <LoadingDots /> : <><span>{t("auth_signin_btn")}</span><ArrowRight className="w-4 h-4 rtl-flip" /></>}
                 </button>
 
                 <p className="text-center text-xs text-muted-foreground mt-4">
@@ -300,7 +300,7 @@ export default function AuthPage() {
                       disabled={!name || !email || !password}
                       className="w-full h-12 bg-gradient-to-r from-primary to-secondary text-background font-bold rounded-2xl flex items-center justify-center gap-2 press-scale disabled:opacity-50"
                     >
-                      <span>{t("auth_continue")}</span><ChevronRight className="w-4 h-4" />
+                      <span>{t("auth_continue")}</span><ChevronRight className="w-4 h-4 rtl-flip" />
                     </button>
                   </>
                 ) : (
@@ -363,7 +363,7 @@ export default function AuthPage() {
                       </button>
                       <button type="submit" disabled={loading}
                         className="flex-1 h-12 bg-gradient-to-r from-primary to-secondary text-background font-bold rounded-2xl flex items-center justify-center gap-2 press-scale disabled:opacity-50">
-                        {loading ? <LoadingDots /> : <><span>{t("auth_create")}</span><ArrowRight className="w-4 h-4" /></>}
+                        {loading ? <LoadingDots /> : <><span>{t("auth_create")}</span><ArrowRight className="w-4 h-4 rtl-flip" /></>}
                       </button>
                     </div>
                   </>
