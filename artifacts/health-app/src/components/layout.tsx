@@ -1,17 +1,21 @@
 import { ReactNode, memo, useMemo } from "react";
 import { Link, useLocation } from "wouter";
+
+const HIDE_FOOTER_ON = new Set<string>(["/ai-coach"]);
 import { Home, Utensils, Dumbbell, Sparkles, User, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useLang } from "@/contexts/language-context";
 
 export function Layout({ children }: { children: ReactNode }) {
+  const [location] = useLocation();
+  const showFooter = !HIDE_FOOTER_ON.has(location);
   return (
     <div className="min-h-[100dvh] w-full bg-background flex justify-center">
       <div className="w-full max-w-[430px] bg-background min-h-[100dvh] relative flex flex-col overflow-hidden">
         <main className="flex-1 overflow-y-auto scrollbar-thin" style={{ paddingBottom: "72px" }}>
           {children}
-          <AppFooter />
+          {showFooter && <AppFooter />}
         </main>
         <BottomNav />
       </div>
