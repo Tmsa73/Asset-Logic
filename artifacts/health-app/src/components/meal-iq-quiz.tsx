@@ -11,16 +11,18 @@ import { useLang } from "@/contexts/language-context";
 const QUIZ_COOLDOWN_KEY = "bodylogic-quiz-cooldown";
 const COOLDOWN_MS = 60 * 60 * 1000;
 
-async function awardGameReward(xp: number, source: string): Promise<void> {
+async function awardGameReward(xp: number, source: string): Promise<{ coins: number; totalXP: number } | null> {
   try {
     const base = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
-    await fetch(`${base}/api/progress/award-game`, {
+    const res = await fetch(`${base}/api/progress/award-game`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ xp, source }),
       credentials: "include",
     });
-  } catch {}
+    if (!res.ok) return null;
+    return await res.json();
+  } catch { return null; }
 }
 
 function getLastPlayed(): number {
@@ -215,13 +217,15 @@ export function MealIqQuiz({ children, score }: { children: React.ReactNode; sco
       if (!onCooldown) {
         const correctRatio = newCorrect / questions.length;
         const xp = correctRatio >= 1 ? 50 : correctRatio >= 0.8 ? 35 : correctRatio >= 0.6 ? 20 : 10;
-        const coins = correctRatio >= 1 ? 15 : correctRatio >= 0.8 ? 10 : correctRatio >= 0.6 ? 5 : 2;
-        setCoinsEarned(coins);
         setXpEarned(xp);
         setLastPlayed();
         setCooldownRemaining(COOLDOWN_MS);
         playGamificationSound("coins");
-        await awardGameReward(xp, "meal_iq_quiz");
+        const result = await awardGameReward(xp, "meal_iq_quiz");
+        const coinDelta = result
+          ? Math.max(0, result.coins - Math.floor(Math.max(0, result.totalXP - xp) / 10))
+          : Math.floor(xp / 10);
+        setCoinsEarned(coinDelta);
         qc.invalidateQueries({ queryKey: getGetProgressQueryKey() });
         qc.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
       }

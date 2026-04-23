@@ -571,7 +571,7 @@ export default function Home() {
               <Droplets className="w-4 h-4 text-blue-400" />
               <span className="text-sm font-bold">{t("home_quick_water")}</span>
             </div>
-            <span className="text-xs text-muted-foreground">{water?.glasses ?? Math.floor(dashboard.waterMl / 250)} {t("home_glasses")} · {waterPct}% {t("home_goal")}</span>
+            <span className="text-xs text-muted-foreground">{(water?.totalMl ?? dashboard.waterMl).toLocaleString()}ml · {water?.glasses ?? Math.floor(dashboard.waterMl / 250)} {t("home_glasses")} · {waterPct}%</span>
           </div>
           <div className="grid grid-cols-4 gap-2">
             {[150, 250, 330, 500].map(ml => (

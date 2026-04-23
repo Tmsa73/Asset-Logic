@@ -1,6 +1,6 @@
 import { ReactNode, memo, useMemo } from "react";
 import { Link, useLocation } from "wouter";
-import { Home, Utensils, Dumbbell, Sparkles, User } from "lucide-react";
+import { Home, Utensils, Dumbbell, Sparkles, User, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useLang } from "@/contexts/language-context";
@@ -11,12 +11,47 @@ export function Layout({ children }: { children: ReactNode }) {
       <div className="w-full max-w-[430px] bg-background min-h-[100dvh] relative flex flex-col overflow-hidden">
         <main className="flex-1 overflow-y-auto scrollbar-thin" style={{ paddingBottom: "72px" }}>
           {children}
+          <AppFooter />
         </main>
         <BottomNav />
       </div>
     </div>
   );
 }
+
+const AppFooter = memo(function AppFooter() {
+  const year = new Date().getFullYear();
+  return (
+    <div className="px-5 pt-8 pb-6">
+      <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-gradient-to-r from-primary/5 via-yellow-400/5 to-secondary/5 px-4 py-4">
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-[0.06] pointer-events-none"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(45deg, hsl(var(--primary)) 0 1px, transparent 1px 12px), repeating-linear-gradient(-45deg, hsl(var(--secondary)) 0 1px, transparent 1px 12px)",
+          }}
+        />
+        <div className="relative flex items-center justify-center gap-2.5">
+          <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-md">
+            <Heart className="w-3.5 h-3.5 text-background" fill="currentColor" />
+          </div>
+          <div className="flex flex-col items-start leading-tight">
+            <span className="text-[11px] font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent tracking-wide">
+              BodyLogic
+            </span>
+            <span className="text-[9px] text-muted-foreground font-semibold">
+              © {year} · All rights reserved
+            </span>
+          </div>
+        </div>
+        <p className="relative text-center text-[9px] text-muted-foreground/70 mt-2 font-medium tracking-wider uppercase">
+          ✦ Built with care for your health ✦
+        </p>
+      </div>
+    </div>
+  );
+});
 
 const BottomNav = memo(function BottomNav() {
   const [location] = useLocation();
