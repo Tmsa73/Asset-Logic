@@ -18,11 +18,12 @@ router.get("/life-balance", async (req, res): Promise<void> => {
   const sleepDays = Number(sleepCount?.count ?? 0);
   const waterLogs = Number(waterCount?.count ?? 0);
 
-  const nutrition = Math.max(30, Math.min(100, Math.round((meals / 21) * 100)));
-  const fitness = Math.max(20, Math.min(100, Math.round((workouts / 5) * 100)));
-  const sleep = Math.max(25, Math.min(100, Math.round((sleepDays / 7) * 100)));
-  const hydration = Math.max(20, Math.min(100, Math.round((waterLogs / 28) * 100)));
-  const consistency = Math.round((nutrition + fitness + sleep + hydration) / 4 * 0.9);
+  const nutrition = Math.min(100, Math.round((meals / 21) * 100));
+  const fitness = Math.min(100, Math.round((workouts / 5) * 100));
+  const sleep = Math.min(100, Math.round((sleepDays / 7) * 100));
+  const hydration = Math.min(100, Math.round((waterLogs / 28) * 100));
+  const hasAny = meals + workouts + sleepDays + waterLogs > 0;
+  const consistency = hasAny ? Math.round((nutrition + fitness + sleep + hydration) / 4 * 0.9) : 0;
 
   const overallScore = Math.round((nutrition + fitness + sleep + hydration + consistency) / 5);
 
