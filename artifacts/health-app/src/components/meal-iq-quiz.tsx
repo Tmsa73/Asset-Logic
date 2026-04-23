@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { playGamificationSound } from "@/lib/sounds";
 import { useQueryClient } from "@tanstack/react-query";
-import { getGetProgressQueryKey, getGetDashboardQueryKey } from "@workspace/api-client-react";
+import { getGetProgressQueryKey, getGetDashboardQueryKey, useGetProfile } from "@workspace/api-client-react";
 import { useLang } from "@/contexts/language-context";
 
 const QUIZ_COOLDOWN_KEY = "bodylogic-quiz-cooldown";
@@ -90,20 +90,76 @@ const BASE_QUESTIONS: Question[] = [
   { question: "Which Arabian food is a great source of complex carbohydrates?", options: ["Ghee only", "Whole wheat khubz (bread)", "Luqaimat fried dough", "Plain sugar tea"], correct: 1, explanation: "Whole wheat khubz provides fiber and complex carbs that release energy gradually." },
 ];
 
-function pickQuestions() {
-  const questions = [...BASE_QUESTIONS];
-  for (let i = questions.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [questions[i], questions[j]] = [questions[j]!, questions[i]!];
+const GOAL_QUESTIONS: Record<string, Question[]> = {
+  lose_weight: [
+    { question: "For sustainable fat loss, the most important factor is:", options: ["Skipping all carbs", "A consistent moderate calorie deficit", "Eating only at night", "Cutting all fat"], correct: 1, explanation: "A 300–500 kcal/day deficit is sustainable and protects muscle mass." },
+    { question: "Which swap saves the most calories at lunch?", options: ["Soda → water", "More cheese", "Fried side → grilled vegetables", "Bigger portion"], correct: 2, explanation: "Swapping fried sides for vegetables is one of the easiest big wins." },
+    { question: "Best high-volume, low-calorie food when hungry?", options: ["Salted nuts", "Leafy greens with lean protein", "White bread", "Sugary cereal"], correct: 1, explanation: "High-volume foods fill you up with fewer calories." },
+    { question: "Why does protein help fat loss?", options: ["It has 0 calories", "Higher satiety + preserves lean mass", "Speeds digestion of sugar", "Removes carbs from food"], correct: 1, explanation: "Protein keeps you fuller longer and helps preserve muscle while in a deficit." },
+  ],
+  build_muscle: [
+    { question: "Daily protein target for muscle building is roughly:", options: ["0.5 g per kg bodyweight", "1.6–2.2 g per kg bodyweight", "10 g total per day", "Same as carbs"], correct: 1, explanation: "Most evidence supports ~1.6–2.2 g/kg for hypertrophy." },
+    { question: "Best post-workout meal includes:", options: ["Only water", "Protein + carbs within 1–2 hours", "Pure fat sources", "A long fast"], correct: 1, explanation: "Protein supports repair while carbs replenish glycogen." },
+    { question: "Which is a high-quality muscle-building food?", options: ["Plain candy", "Eggs, chicken, fish, dairy, legumes", "Soda", "Fried chips"], correct: 1, explanation: "Complete protein sources with leucine drive muscle synthesis." },
+    { question: "If your weight isn't going up, you should:", options: ["Eat less", "Slightly increase calories (250–500 kcal)", "Skip dinner", "Cut all carbs"], correct: 1, explanation: "A small surplus is needed to add lean mass over time." },
+  ],
+  improve_fitness: [
+    { question: "Best pre-cardio fuel 60 minutes before:", options: ["Big steak", "A small carb-rich snack like banana or oats", "Heavy fried food", "Nothing for 12 hours"], correct: 1, explanation: "Light easy-digest carbs give energy without GI distress." },
+    { question: "For endurance training, a key nutrient is:", options: ["Only protein", "Carbohydrates as primary fuel", "Zero water", "Pure fat"], correct: 1, explanation: "Carbs replenish glycogen — the main fuel for moderate-to-high intensity work." },
+    { question: "Which hydration tip helps performance most?", options: ["Drink only after workout", "Drink water steadily through the day + electrolytes if sweating heavily", "Skip water entirely", "Caffeine only"], correct: 1, explanation: "Steady hydration plus electrolytes prevents performance drops." },
+    { question: "What's a smart recovery snack?", options: ["Candy bar only", "Greek yogurt with fruit", "Soda", "Plain butter"], correct: 1, explanation: "It combines protein for repair with carbs for refueling." },
+  ],
+  maintain_weight: [
+    { question: "To maintain weight long-term, focus on:", options: ["Strict short diets", "Consistent balanced meals + activity", "Skipping meals", "Cutting all food groups"], correct: 1, explanation: "Sustainability beats restriction — small consistent habits win." },
+    { question: "Which habit best prevents weight regain?", options: ["Daily weigh-ins with no plan", "Tracking trends + flexible meal habits", "Random crash diets", "Avoiding all carbs"], correct: 1, explanation: "Trend tracking + flexible eating habits is what research shows works." },
+    { question: "How can you enjoy treats without gaining weight?", options: ["Eat them all in secret", "Plan moderate portions in your weekly intake", "Eat only treats and skip meals", "Avoid all sweets forever"], correct: 1, explanation: "Planned moderation is more sustainable than restriction-rebound cycles." },
+  ],
+};
+
+const TEEN_QUESTIONS: Question[] = [
+  { question: "For growing teens, breakfast should include:", options: ["Only soda", "Protein + carbs + fruit (e.g. eggs + toast + fruit)", "Energy drinks only", "Nothing"], correct: 1, explanation: "Teens need consistent fuel for growth, school, and sport." },
+];
+
+const SENIOR_QUESTIONS: Question[] = [
+  { question: "After age 50, a key nutrient to prioritize is:", options: ["Trans fat", "Protein + calcium + vitamin D", "Pure sugar", "Less water"], correct: 1, explanation: "Protein helps preserve muscle, while calcium & D support bones." },
+];
+
+function pickQuestions(profile?: { goal?: string | null; age?: number | null }) {
+  const goalKey = profile?.goal ?? "";
+  const goalPool = GOAL_QUESTIONS[goalKey] ?? [];
+  const agePool: Question[] = [];
+  if (profile?.age != null) {
+    if (profile.age < 20) agePool.push(...TEEN_QUESTIONS);
+    if (profile.age >= 50) agePool.push(...SENIOR_QUESTIONS);
   }
-  return questions.slice(0, 5);
+  const personalized = [...goalPool, ...agePool];
+  const general = [...BASE_QUESTIONS];
+  const shuffle = <T,>(arr: T[]) => {
+    for (let i = arr.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j]!, arr[i]!];
+    }
+    return arr;
+  };
+  shuffle(personalized);
+  shuffle(general);
+  // Aim for 3 personalized + 2 general when available
+  const out: Question[] = [];
+  out.push(...personalized.slice(0, 3));
+  for (const q of general) {
+    if (out.length >= 5) break;
+    out.push(q);
+  }
+  return out.slice(0, 5);
 }
 
 const OPTION_LABELS = ["A", "B", "C", "D"];
 
 export function MealIqQuiz({ children, score }: { children: React.ReactNode; score?: number | null }) {
   const [open, setOpen] = useState(false);
-  const [questions, setQuestions] = useState<Question[]>(() => pickQuestions());
+  const { data: profile } = useGetProfile();
+  const profileForQuiz = useMemo(() => ({ goal: (profile as any)?.goal, age: (profile as any)?.age }), [profile]);
+  const [questions, setQuestions] = useState<Question[]>(() => pickQuestions(profileForQuiz));
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const [coinsEarned, setCoinsEarned] = useState(0);
@@ -138,7 +194,7 @@ export function MealIqQuiz({ children, score }: { children: React.ReactNode; sco
   }, [score]);
 
   const reset = () => {
-    setQuestions(pickQuestions());
+    setQuestions(pickQuestions(profileForQuiz));
     setIndex(0);
     setAnswers([]);
     setCoinsEarned(0);

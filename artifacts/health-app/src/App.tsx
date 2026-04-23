@@ -8,6 +8,7 @@ import NotFound from "@/pages/not-found";
 import { ThemeProvider } from "@/components/theme-provider";
 import AuthPage from "@/pages/auth";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
+import { useLang } from "@/contexts/language-context";
 import { LanguageProvider } from "@/contexts/language-context";
 
 const Home = lazy(() => import("@/pages/home"));
@@ -29,13 +30,14 @@ const queryClient = new QueryClient({
 });
 
 function AppLoader() {
+  const { t } = useLang();
   return (
     <div className="min-h-[100dvh] flex items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-4">
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center animate-pulse">
           <span className="text-background text-2xl font-black">B</span>
         </div>
-        <p className="text-sm text-muted-foreground">Loading BodyLogic...</p>
+        <p className="text-sm text-muted-foreground">{t("common_loading")}</p>
       </div>
     </div>
   );

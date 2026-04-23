@@ -5,7 +5,17 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useLang } from "@/contexts/language-context";
-import appLogo from "@assets/392c7c4e-518a-4bcf-9754-0d66a29e96dd_Nero_AI_Background_Remove_1776541221733.png";
+import appLogo from "@assets/392c7c4e-518a-4bcf-9754-0d66a29e96dd_Nero_AI_Background_Remove_1776951404873.png";
+
+function clearLocalProgress() {
+  try {
+    Object.keys(localStorage).forEach((k) => {
+      if (k.startsWith("bodylogic-") || k === "userAvatar") {
+        localStorage.removeItem(k);
+      }
+    });
+  } catch {}
+}
 
 type Mode = "login" | "register";
 
@@ -72,6 +82,7 @@ export default function AuthPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Registration failed");
+      clearLocalProgress();
       login(data);
       toast({ title: t("auth_signup"), description: `${data.name}!` });
     } catch (err: any) {
@@ -265,8 +276,8 @@ export default function AuthPage() {
                 onSubmit={handleLogin}
                 className="space-y-4"
               >
-                <Field icon={<Mail className="w-4 h-4" />} label={t("auth_email")} type="email" value={email} onChange={setEmail} placeholder={t("auth_email_placeholder")} />
-                <PasswordField value={password} onChange={setPassword} show={showPw} onToggle={() => setShowPw(!showPw)} />
+                <Field icon={<Mail className="w-4 h-4 text-primary" />} label={t("auth_email")} type="email" value={email} onChange={setEmail} placeholder={t("auth_email_placeholder")} />
+                <PasswordField value={password} onChange={setPassword} show={showPw} onToggle={() => setShowPw(!showPw)} iconColor="text-secondary" />
 
                 <button
                   type="submit"
@@ -296,9 +307,9 @@ export default function AuthPage() {
                 {step === 1 ? (
                   <>
                     <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">{t("auth_step1")}</p>
-                    <Field icon={<User className="w-4 h-4" />} label={t("auth_name")} type="text" value={name} onChange={setName} placeholder={t("auth_name_placeholder")} />
-                    <Field icon={<Mail className="w-4 h-4" />} label={t("auth_email")} type="email" value={email} onChange={setEmail} placeholder={t("auth_email_placeholder")} />
-                    <PasswordField value={password} onChange={setPassword} show={showPw} onToggle={() => setShowPw(!showPw)} />
+                    <Field icon={<User className="w-4 h-4 text-primary" />} label={t("auth_name")} type="text" value={name} onChange={setName} placeholder={t("auth_name_placeholder")} />
+                    <Field icon={<Mail className="w-4 h-4 text-secondary" />} label={t("auth_email")} type="email" value={email} onChange={setEmail} placeholder={t("auth_email_placeholder")} />
+                    <PasswordField value={password} onChange={setPassword} show={showPw} onToggle={() => setShowPw(!showPw)} iconColor="text-yellow-400" />
                     <button
                       type="submit"
                       disabled={!name || !email || !password}
@@ -351,16 +362,16 @@ export default function AuthPage() {
                     {/* Metrics */}
                     <div className="grid grid-cols-3 gap-2">
                       <div>
-                        <label className="text-xs font-semibold text-muted-foreground mb-1 block">{t("auth_age")}</label>
-                        <input type="number" value={age} onChange={e => setAge(e.target.value)} className="w-full h-10 rounded-xl bg-muted border border-border/50 text-sm text-center font-bold focus:outline-none focus:ring-2 focus:ring-primary" />
+                        <label className="text-xs font-semibold text-primary mb-1 block">{t("auth_age")}</label>
+                        <input type="number" inputMode="numeric" min={5} max={120} value={age} onChange={e => setAge(e.target.value)} className="w-full h-10 rounded-xl bg-muted border border-primary/30 text-sm text-center font-bold focus:outline-none focus:ring-2 focus:ring-primary text-foreground" />
                       </div>
                       <div>
-                        <label className="text-xs font-semibold text-muted-foreground mb-1 block">{t("auth_weight")}</label>
-                        <input type="number" value={weight} onChange={e => setWeight(e.target.value)} className="w-full h-10 rounded-xl bg-muted border border-border/50 text-sm text-center font-bold focus:outline-none focus:ring-2 focus:ring-primary" />
+                        <label className="text-xs font-semibold text-orange-400 mb-1 block">{t("auth_weight")}</label>
+                        <input type="number" inputMode="decimal" min={20} max={400} value={weight} onChange={e => setWeight(e.target.value)} className="w-full h-10 rounded-xl bg-muted border border-orange-400/30 text-sm text-center font-bold focus:outline-none focus:ring-2 focus:ring-orange-400 text-foreground" />
                       </div>
                       <div>
-                        <label className="text-xs font-semibold text-muted-foreground mb-1 block">{t("auth_height")}</label>
-                        <input type="number" value={height} onChange={e => setHeight(e.target.value)} className="w-full h-10 rounded-xl bg-muted border border-border/50 text-sm text-center font-bold focus:outline-none focus:ring-2 focus:ring-primary" />
+                        <label className="text-xs font-semibold text-secondary mb-1 block">{t("auth_height")}</label>
+                        <input type="number" inputMode="decimal" min={50} max={280} value={height} onChange={e => setHeight(e.target.value)} className="w-full h-10 rounded-xl bg-muted border border-secondary/30 text-sm text-center font-bold focus:outline-none focus:ring-2 focus:ring-secondary text-foreground" />
                       </div>
                     </div>
 
@@ -411,15 +422,15 @@ function Field({ icon, label, type, value, onChange, placeholder }: {
   );
 }
 
-function PasswordField({ value, onChange, show, onToggle }: {
-  value: string; onChange: (v: string) => void; show: boolean; onToggle: () => void;
+function PasswordField({ value, onChange, show, onToggle, iconColor = "text-primary" }: {
+  value: string; onChange: (v: string) => void; show: boolean; onToggle: () => void; iconColor?: string;
 }) {
   const { t } = useLang();
   return (
     <div>
       <label className="text-xs font-semibold text-muted-foreground mb-1.5 block">{t("auth_password")}</label>
       <div className="relative">
-        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"><Lock className="w-4 h-4" /></span>
+        <span className={cn("absolute left-3.5 top-1/2 -translate-y-1/2", iconColor)}><Lock className="w-4 h-4" /></span>
         <input
           type={show ? "text" : "password"}
           value={value}
@@ -428,7 +439,7 @@ function PasswordField({ value, onChange, show, onToggle }: {
           autoComplete="current-password"
           className="w-full h-12 pl-10 pr-12 rounded-2xl bg-card border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary text-foreground placeholder:text-muted-foreground"
         />
-        <button type="button" onClick={onToggle} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground">
+        <button type="button" onClick={onToggle} className={cn("absolute right-3.5 top-1/2 -translate-y-1/2", iconColor, "opacity-80")}>
           {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
         </button>
       </div>

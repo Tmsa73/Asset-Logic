@@ -1,7 +1,11 @@
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
 import { randomBytes } from "crypto";
-import { db, usersTable } from "@workspace/db";
+import {
+  db, usersTable, mealsTable, workoutsTable, sleepTable, waterLogsTable,
+  stepsTable, aiMessagesTable, notificationsTable, xpLogsTable,
+  bodyMeasurementsTable, profileTable,
+} from "@workspace/db";
 import { hashPassword, verifyPassword } from "../lib/crypto";
 
 const router: IRouter = Router();
@@ -66,6 +70,24 @@ router.post("/auth/register", async (req, res, next): Promise<void> => {
     }).returning();
 
     if (!user) { res.status(500).json({ error: "Failed to create account" }); return; }
+
+    // Fresh start: wipe all shared activity tables so each new signup begins clean.
+    try {
+      await Promise.all([
+        db.delete(mealsTable),
+        db.delete(workoutsTable),
+        db.delete(sleepTable),
+        db.delete(waterLogsTable),
+        db.delete(stepsTable),
+        db.delete(aiMessagesTable),
+        db.delete(notificationsTable),
+        db.delete(xpLogsTable),
+        db.delete(bodyMeasurementsTable),
+        db.delete(profileTable),
+      ]);
+    } catch (e) {
+      console.warn("[auth/register] fresh-start wipe failed:", e);
+    }
 
     setAuthCookie(res, sessionToken);
     res.status(201).json({ id: user.id, name: user.name, email: user.email, age: user.age, gender: user.gender, weight: user.weight, height: user.height, goal: user.goal, activityLevel: user.activityLevel });

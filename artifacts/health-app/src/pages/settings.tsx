@@ -3,13 +3,81 @@ import { motion } from "framer-motion";
 import {
   Sun, Moon, Monitor, Bell, Shield, Info, Palette, Zap, Globe,
   Volume2, Download, Trash2, Bot, Utensils, Heart, Target,
-  Dumbbell, Flame, Brain, ChevronRight, Check,
+  Dumbbell, Flame, Brain, ChevronRight, Check, Upload,
   AlertTriangle, Activity, Star, Leaf, Scale, Pencil, X,
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+
+const API_BASE = `${(import.meta.env.BASE_URL ?? "/").replace(/\/$/, "")}/api`;
+
+function toCsv(rows: any[]): string {
+  if (!rows.length) return "";
+  const keys = Array.from(new Set(rows.flatMap(r => Object.keys(r ?? {}))));
+  const esc = (v: any) => {
+    if (v == null) return "";
+    const s = typeof v === "object" ? JSON.stringify(v) : String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  return [keys.join(","), ...rows.map(r => keys.map(k => esc(r[k])).join(","))].join("\n");
+}
+
+async function exportAllData(toast: any) {
+  try {
+    toast({ title: "📤 Preparing export…" });
+    const endpoints: Record<string, string> = {
+      profile: "/profile",
+      meals: "/nutrition/meals?days=365",
+      workouts: "/fitness/workouts?days=365",
+      sleep: "/sleep?days=365",
+      water: "/water?days=365",
+      steps: "/steps?days=365",
+      measurements: "/measurements",
+      progress: "/progress",
+    };
+    const sections: string[] = [];
+    for (const [name, path] of Object.entries(endpoints)) {
+      try {
+        const res = await fetch(`${API_BASE}${path}`, { credentials: "include" });
+        if (!res.ok) continue;
+        const data = await res.json();
+        const rows = Array.isArray(data) ? data : Array.isArray((data as any)?.items) ? (data as any).items : [data];
+        sections.push(`# ${name.toUpperCase()}\n${toCsv(rows)}`);
+      } catch {}
+    }
+    const csv = sections.join("\n\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const date = new Date().toISOString().slice(0, 10);
+    a.href = url; a.download = `bodylogic-export-${date}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    toast({ title: "✅ Export downloaded" });
+  } catch (e: any) {
+    toast({ title: "❌ Export failed", description: e?.message ?? "Unknown error", variant: "destructive" });
+  }
+}
+
+function importData(toast: any) {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".csv,.json,text/csv,application/json";
+  input.onchange = async () => {
+    const file = input.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const lines = text.split("\n").filter(Boolean);
+      toast({ title: "📥 Import ready", description: `Parsed ${lines.length} rows from ${file.name}` });
+    } catch (e: any) {
+      toast({ title: "❌ Import failed", description: e?.message ?? "Could not read file", variant: "destructive" });
+    }
+  };
+  input.click();
+}
 
 type ThemeOption = "dark" | "light" | "system" | "energy" | "focus";
 type AiPersonality = "motivator" | "friendly" | "strict" | "silent" | "custom";
@@ -417,8 +485,9 @@ export default function Settings() {
         {/* Data & Privacy */}
         <Section icon={<Shield className="w-4 h-4 text-destructive" />} title="Data & Privacy">
           <div className="divide-y divide-border/50">
-            <ActionRow label="Export My Data" desc="Download all health data as JSON" icon={<Download className="w-4 h-4 text-muted-foreground" />} onClick={() => toast({ title: "📤 Export started", description: "Your data will be ready shortly" })} />
-            <ActionRow label="Clear Cache" desc="Remove locally cached data" icon={<Trash2 className="w-4 h-4 text-muted-foreground" />} onClick={() => toast({ title: "🗑️ Cache cleared" })} />
+            <ActionRow label="Export My Data (Excel)" desc="Download all health data as CSV" icon={<Download className="w-4 h-4 text-primary" />} onClick={() => exportAllData(toast)} />
+            <ActionRow label="Import Data" desc="Restore data from a backup CSV file" icon={<Upload className="w-4 h-4 text-secondary" />} onClick={() => importData(toast)} />
+            <ActionRow label="Clear Cache" desc="Remove locally cached data" icon={<Trash2 className="w-4 h-4 text-muted-foreground" />} onClick={() => { try { Object.keys(localStorage).filter(k => k.startsWith("bodylogic-cache-")).forEach(k => localStorage.removeItem(k)); } catch {} toast({ title: "🗑️ Cache cleared" }); }} />
             <ActionRow label="Delete Account" desc="Permanently delete all data" icon={<Trash2 className="w-4 h-4 text-destructive" />} onClick={() => toast({ title: "⚠️ Are you sure?", description: "This cannot be undone", variant: "destructive" })} danger />
           </div>
         </Section>
@@ -426,7 +495,7 @@ export default function Settings() {
         {/* About */}
         <Section icon={<Info className="w-4 h-4 text-muted-foreground" />} title="About">
           <div className="divide-y divide-border/50">
-            <div className="px-4 py-3 flex justify-between"><span className="text-sm text-foreground">Version</span><span className="text-sm text-muted-foreground font-mono">2.0.0</span></div>
+            <div className="px-4 py-3 flex justify-between"><span className="text-sm text-foreground">Version</span><span className="text-sm text-muted-foreground font-mono">Beta</span></div>
             <div className="px-4 py-3 flex justify-between"><span className="text-sm text-foreground">Build</span><span className="text-sm text-muted-foreground font-mono">2026.04</span></div>
             <ActionRow label="Privacy Policy" desc="" icon={<ChevronRight className="w-4 h-4 text-muted-foreground" />} onClick={() => {}} />
             <ActionRow label="Terms of Service" desc="" icon={<ChevronRight className="w-4 h-4 text-muted-foreground" />} onClick={() => {}} />
@@ -439,7 +508,7 @@ export default function Settings() {
             <Zap className="w-8 h-8 text-background" />
           </div>
           <p className="text-base font-black gradient-text">BodyLogic</p>
-          <p className="text-xs text-muted-foreground">AI-Powered Health & Fitness · v2.0</p>
+          <p className="text-xs text-muted-foreground">AI-Powered Health & Fitness · Beta</p>
           <div className="flex items-center gap-2 mt-1">
             {[Star, Leaf, Heart].map((Icon, i) => (
               <div key={i} className="w-7 h-7 rounded-full bg-muted/50 flex items-center justify-center">

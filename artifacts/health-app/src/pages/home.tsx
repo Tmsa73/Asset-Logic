@@ -385,7 +385,12 @@ export default function Home() {
 
         {/* Greeting */}
         <div>
-          <h1 className="text-2xl font-black tracking-tight">{dashboard.greeting} 👋</h1>
+          <h1 className="text-2xl font-black tracking-tight">{(() => {
+            const h = new Date().getHours();
+            if (h < 12) return t("home_greeting_morning");
+            if (h < 18) return t("home_greeting_afternoon");
+            return t("home_greeting_evening");
+          })()} 👋</h1>
           {activeTitle && (
             <p className={cn("text-sm font-bold mt-0.5", activeTitle.color)}>{activeTitle.name}</p>
           )}

@@ -183,9 +183,9 @@ export default function Profile() {
           <div className="flex items-center justify-between mb-3">
             <h1 className="text-xl font-black gradient-text">{t("profile_title")}</h1>
             {tab === "me" && (
-              <div className="flex items-center gap-1.5 bg-primary/10 border border-primary/30 px-2.5 py-1 rounded-full">
-                <Crown className="w-3 h-3 text-yellow-400" />
-                <span className="text-[10px] font-black text-primary">Lv {progress.level}</span>
+              <div className="flex items-center gap-1.5 bg-gradient-to-r from-primary/20 via-yellow-400/15 to-secondary/20 border border-yellow-400/40 px-3 py-1.5 rounded-full shadow-sm shadow-yellow-400/20">
+                <Crown className="w-3.5 h-3.5 text-yellow-400" />
+                <span className="text-[10px] font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent uppercase tracking-wide">Lv {progress.level}</span>
               </div>
             )}
           </div>
@@ -330,8 +330,8 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
                 <Camera className="w-6 h-6 text-white" />
               </div>
             </button>
-            <div className="absolute -bottom-2 -right-2 w-9 h-9 bg-card rounded-xl flex items-center justify-center border-2 border-primary/30 shadow-md">
-              <span className="text-xs font-black text-primary leading-none">L{progress.level}</span>
+            <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-xl flex items-center justify-center border-2 border-yellow-400/60 shadow-lg shadow-yellow-400/30 bg-gradient-to-br from-primary via-yellow-400/30 to-secondary">
+              <span className="text-xs font-black text-background leading-none drop-shadow">L{progress.level}</span>
             </div>
           </div>
           <div className="flex-1 min-w-0">
@@ -520,13 +520,13 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
         </CardContent>
       </Card>
 
-      <BodyMeasurementsCard />
       </div>{/* end px-4 wrapper */}
     </div>
   );
 }
 
-function BodyMeasurementsCard() {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function _BodyMeasurementsCard_DEPRECATED() {
   const { t } = useLang();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -686,8 +686,8 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg glow-primary">
               <Crown className="w-8 h-8 text-background" />
             </div>
-            <div className="absolute -bottom-1.5 -right-1.5 bg-background border-2 border-primary rounded-full px-1.5 py-0.5">
-              <span className="text-[10px] font-black text-primary">L{progress.level}</span>
+            <div className="absolute -bottom-1.5 -right-1.5 bg-gradient-to-br from-yellow-400 to-orange-500 border-2 border-background rounded-full px-2 py-0.5 shadow-md">
+              <span className="text-[10px] font-black text-background">L{progress.level}</span>
             </div>
           </div>
           <div className="flex-1 min-w-0">
@@ -1492,7 +1492,7 @@ function SettingsTab() {
       {/* About */}
       <SettingsSection icon={<Info className="w-4 h-4 text-muted-foreground" />} title={t("settings_about")}>
         <div className="divide-y divide-border/50">
-          <div className="px-4 py-3 flex justify-between"><span className="text-sm">{t("settings_version")}</span><span className="text-sm text-muted-foreground font-mono">2.0.0</span></div>
+          <div className="px-4 py-3 flex justify-between"><span className="text-sm">{t("settings_version")}</span><span className="text-sm text-muted-foreground font-mono">Beta</span></div>
           <div className="px-4 py-3 flex justify-between"><span className="text-sm">{t("settings_build")}</span><span className="text-sm text-muted-foreground font-mono">2026.04</span></div>
         </div>
       </SettingsSection>
