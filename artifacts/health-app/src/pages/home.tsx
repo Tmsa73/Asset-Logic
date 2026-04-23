@@ -559,8 +559,8 @@ export default function Home() {
                 <circle cx="50" cy="50" r="45" fill="none"
                   stroke={momentumData.label === "Pro" ? "hsl(var(--primary))" : momentumData.label === "Good" ? "#eab308" : "hsl(var(--muted-foreground))"}
                   strokeWidth="9" strokeLinecap="round"
-                  strokeDasharray={`${(momentumData.score / 100) * 2 * Math.PI * 45} ${2 * Math.PI * 45}`}
-                  strokeDashoffset={2 * Math.PI * 45 * 0.25}
+                  strokeDasharray={circumference}
+                  strokeDashoffset={circumference - (momentumData.score / 100) * circumference}
                   transform="rotate(-90 50 50)" className="transition-all duration-1000" />
                 <text x="50" y="47" textAnchor="middle" style={{ fill: "hsl(var(--foreground))", fontSize: "20px", fontWeight: "900" }}>{momentumData.score}</text>
                 <text x="50" y="62" textAnchor="middle" style={{ fill: "hsl(var(--muted-foreground))", fontSize: "9px", fontWeight: "700" }}>/ 100</text>
