@@ -150,10 +150,26 @@ export default function Profile() {
 
   const activeTitle = getActiveTitle(progress.level, getStoredTitleId());
   const levelInfo = calcLevel(progress.xp);
-  const bmi = profile.height > 0 ? (profile.weight / ((profile.height / 100) ** 2)).toFixed(1) : "0";
-  const bmiNum = Number(bmi);
-  const bmiLabel = bmiNum < 18.5 ? t("bmi_underweight") : bmiNum < 25 ? t("bmi_healthy") : bmiNum < 30 ? t("bmi_overweight") : t("bmi_obese");
-  const bmiColor = bmiNum < 18.5 ? "text-blue-400" : bmiNum < 25 ? "text-primary" : bmiNum < 30 ? "text-yellow-400" : "text-destructive";
+  // BMI = weight (kg) / height (m)^2 — only valid when both are sensible
+  const heightM = Number(profile.height) / 100;
+  const weightKg = Number(profile.weight);
+  const bmiValid =
+    Number.isFinite(heightM) && heightM > 0.5 && heightM < 2.8 &&
+    Number.isFinite(weightKg) && weightKg > 0 && weightKg < 500;
+  const bmiNum = bmiValid ? weightKg / (heightM * heightM) : NaN;
+  const bmi = bmiValid ? bmiNum.toFixed(1) : "—";
+  const bmiLabel = !bmiValid
+    ? t("bmi_unknown")
+    : bmiNum < 18.5 ? t("bmi_underweight")
+    : bmiNum < 25   ? t("bmi_healthy")
+    : bmiNum < 30   ? t("bmi_overweight")
+    : t("bmi_obese");
+  const bmiColor = !bmiValid
+    ? "text-muted-foreground"
+    : bmiNum < 18.5 ? "text-blue-400"
+    : bmiNum < 25   ? "text-primary"
+    : bmiNum < 30   ? "text-yellow-400"
+    : "text-destructive";
   const earnedBadges = progress.badges.filter(b => b.earned);
   const memberSince = new Date(profile.createdAt ?? Date.now()).toLocaleDateString("en-US", { month: "short", year: "numeric" });
 
@@ -401,8 +417,14 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
         <div className="flex items-center gap-2 mt-3">
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/10 backdrop-blur-sm">
             <Activity className="w-3 h-3 text-white/70 light:text-foreground/70" />
-            <span className="text-[10px] font-bold text-white/80">BMI {bmi}</span>
-            <span className={cn("text-[10px] font-black", bmiColor)}>{bmiLabel}</span>
+            {bmiValid ? (
+              <>
+                <span className="text-[10px] font-bold text-white/80">BMI {bmi}</span>
+                <span className={cn("text-[10px] font-black", bmiColor)}>{bmiLabel}</span>
+              </>
+            ) : (
+              <span className="text-[10px] font-bold text-white/70">{bmiLabel}</span>
+            )}
           </div>
           {(profile.age > 0 || (profile.gender && profile.gender !== "unspecified" && profile.gender !== "")) && (
             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/10 backdrop-blur-sm">
@@ -513,9 +535,9 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
             <EditProfileForm profile={profile} onCancel={() => setIsEditing(false)} />
           ) : (
             <div className="divide-y divide-border/50">
-              <DetailRow label={t("profile_weight")} value={`${profile.weight} kg`} />
-              <DetailRow label={t("profile_height")} value={`${profile.height} cm`} />
-              <DetailRow label={t("profile_bmi")} value={<span className={bmiColor}>{bmi} ({bmiLabel})</span>} />
+              <DetailRow label={t("profile_weight")} value={weightKg > 0 ? `${profile.weight} kg` : "—"} />
+              <DetailRow label={t("profile_height")} value={Number(profile.height) > 0 ? `${profile.height} cm` : "—"} />
+              <DetailRow label={t("profile_bmi")} value={<span className={bmiColor}>{bmiValid ? `${bmi} (${bmiLabel})` : bmiLabel}</span>} />
               <DetailRow label={t("profile_activity")} value={<span>{profile.activityLevel === "sedentary" ? t("activity_sedentary") : profile.activityLevel === "lightly_active" ? t("activity_light") : profile.activityLevel === "moderately_active" ? t("activity_moderate") : profile.activityLevel === "very_active" ? t("activity_very_active") : t("activity_active")}</span>} />
               <DetailRow label={t("profile_goal")} value={<span className="text-primary">{profile.goal === "lose_weight" ? t("goal_lose") : profile.goal === "maintain_weight" ? t("goal_maintain") : profile.goal === "build_muscle" ? t("goal_muscle") : t("goal_fitness")}</span>} />
               <DetailRow label={t("profile_calorie_goal")} value={`${profile.dailyCalorieGoal.toLocaleString()} ${t("unit_kcal")}`} />

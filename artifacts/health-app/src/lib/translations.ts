@@ -384,6 +384,7 @@ const translations = {
     bmi_healthy: "Healthy",
     bmi_overweight: "Overweight",
     bmi_obese: "Obese",
+    bmi_unknown: "Add height & weight",
 
     // Home extras
     home_unread: "unread",
@@ -987,6 +988,7 @@ const translations = {
     bmi_healthy: "صحي",
     bmi_overweight: "زيادة وزن",
     bmi_obese: "سمنة",
+    bmi_unknown: "أدخل الطول والوزن",
 
     // Home extras
     home_unread: "غير مقروء",
