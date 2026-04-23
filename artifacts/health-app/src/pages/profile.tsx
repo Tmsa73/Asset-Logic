@@ -335,9 +335,6 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
                 <Camera className="w-6 h-6 text-white" />
               </div>
             </button>
-            <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-xl flex items-center justify-center border-2 border-yellow-400/60 shadow-lg shadow-yellow-400/30 bg-gradient-to-br from-primary via-yellow-400/30 to-secondary">
-              <span className="text-xs font-black text-background leading-none drop-shadow">{progress.level}</span>
-            </div>
           </div>
           <div className="flex-1 min-w-0">
             {editingName ? (
@@ -407,13 +404,15 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
             <span className="text-[10px] font-bold text-white/80">BMI {bmi}</span>
             <span className={cn("text-[10px] font-black", bmiColor)}>{bmiLabel}</span>
           </div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/10 backdrop-blur-sm">
-            <Calendar className="w-3 h-3 text-white/70" />
-            <span className="text-[10px] font-bold text-white/80">
-              {profile.age > 0 ? `${profile.age}y` : ""}
-              {profile.gender && profile.gender !== "unspecified" && profile.gender !== "" ? (profile.age > 0 ? ` • ${profile.gender}` : profile.gender) : ""}
-            </span>
-          </div>
+          {(profile.age > 0 || (profile.gender && profile.gender !== "unspecified" && profile.gender !== "")) && (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/10 backdrop-blur-sm">
+              <Calendar className="w-3 h-3 text-white/70" />
+              <span className="text-[10px] font-bold text-white/80">
+                {profile.age > 0 ? `${profile.age}y` : ""}
+                {profile.gender && profile.gender !== "unspecified" && profile.gender !== "" ? (profile.age > 0 ? ` • ${profile.gender}` : profile.gender) : ""}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

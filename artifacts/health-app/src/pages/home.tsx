@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useGetDashboard, useGetAiInsights, useGetWaterIntake, useGetSteps, useGetProgress, useGetLifeBalance, useGetNotifications, useMarkNotificationRead, useLogWater, useLogMeal, getGetWaterIntakeQueryKey, getGetDashboardQueryKey, getGetNotificationsQueryKey, getGetNutritionSummaryQueryKey, getGetMealsQueryKey } from "@workspace/api-client-react";
+import { useGetDashboard, useGetAiInsights, useGetWaterIntake, useGetSteps, useUpdateSteps, useGetProgress, useGetLifeBalance, useGetNotifications, useMarkNotificationRead, useLogWater, useLogMeal, getGetWaterIntakeQueryKey, getGetDashboardQueryKey, getGetNotificationsQueryKey, getGetNutritionSummaryQueryKey, getGetMealsQueryKey, getGetStepsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Bell, Droplets, Footprints, Moon, Flame, Zap, Dumbbell, Utensils, Sparkles, Brain, X, Trophy, Crown, ChevronRight, Coins, Sword, CheckCheck, Star, BedDouble, Activity, Clock } from "lucide-react";
 import { Link } from "wouter";
@@ -25,6 +25,7 @@ export default function Home() {
   const { data: notifications } = useGetNotifications();
   const markRead = useMarkNotificationRead();
   const logWater = useLogWater();
+  const updateSteps = useUpdateSteps();
   const qc = useQueryClient();
   const { toast } = useToast();
   const { t, lang } = useLang();
@@ -412,7 +413,32 @@ export default function Home() {
               <div className="h-full bg-orange-500 rounded-full transition-all" style={{ width: `${calPct}%` }} />
             </div>
           </div>
-          <div className="col-span-1 bg-card rounded-2xl p-3 border border-border/50 hover-elevate">
+          <button
+            type="button"
+            onClick={() => {
+              const current = steps?.todaySteps ?? dashboard.todaySteps ?? 0;
+              const input = window.prompt(t("home_steps_prompt"), String(current));
+              if (input === null) return;
+              const val = Number(input.replace(/[^\d]/g, ""));
+              if (!Number.isFinite(val) || val < 0 || val > 200000) {
+                toast({ title: t("home_steps_invalid"), variant: "destructive" });
+                return;
+              }
+              updateSteps.mutate(
+                { data: { steps: val } },
+                {
+                  onSuccess: () => {
+                    qc.invalidateQueries({ queryKey: getGetStepsQueryKey() });
+                    qc.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
+                    toast({ title: t("home_steps_saved") });
+                  },
+                  onError: () => toast({ title: t("home_steps_failed"), variant: "destructive" }),
+                }
+              );
+            }}
+            className="col-span-1 bg-card rounded-2xl p-3 border border-border/50 hover-elevate text-left press-scale relative"
+            aria-label={t("home_steps_prompt")}
+          >
             <div className="w-7 h-7 rounded-lg bg-secondary/15 flex items-center justify-center mb-2">
               <Footprints className="w-4 h-4 text-secondary" />
             </div>
@@ -421,7 +447,8 @@ export default function Home() {
             <div className="mt-2 h-1 bg-muted rounded-full overflow-hidden">
               <div className="h-full bg-secondary rounded-full transition-all" style={{ width: `${stepsPct}%` }} />
             </div>
-          </div>
+            <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-secondary/15 text-secondary text-[11px] font-black flex items-center justify-center leading-none">+</span>
+          </button>
           <div className="col-span-1 bg-card rounded-2xl p-3 border border-border/50 hover-elevate">
             <div className="w-7 h-7 rounded-lg bg-blue-500/15 flex items-center justify-center mb-2">
               <Droplets className="w-4 h-4 text-blue-400" />

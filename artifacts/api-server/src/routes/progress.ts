@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { desc, count } from "drizzle-orm";
-import { db, xpLogsTable, mealsTable, workoutsTable } from "@workspace/db";
+import { desc, count, gte, and, lt, eq } from "drizzle-orm";
+import { db, xpLogsTable, mealsTable, workoutsTable, sleepTable, waterLogsTable, stepsTable, profileTable } from "@workspace/db";
 import { GetProgressResponse, GetMissionsResponse } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -30,6 +30,35 @@ const ALL_BADGES = [
   { id: "meal_iq_pro", name: "Meal IQ Pro", description: "Score 20+ Meal IQ", icon: "brain" },
 ];
 
+async function computeActivityStreak(): Promise<{ current: number; longest: number }> {
+  const meals = await db.select({ d: mealsTable.loggedAt }).from(mealsTable);
+  const workouts = await db.select({ d: workoutsTable.loggedAt }).from(workoutsTable);
+  const sleeps = await db.select({ d: sleepTable.bedtime }).from(sleepTable);
+  const days = new Set<string>();
+  for (const r of [...meals, ...workouts, ...sleeps]) {
+    if (r.d) days.add(new Date(r.d).toISOString().split("T")[0]!);
+  }
+  if (days.size === 0) return { current: 0, longest: 0 };
+  const today = new Date().toISOString().split("T")[0]!;
+  let current = 0;
+  let cursor = new Date(today);
+  while (days.has(cursor.toISOString().split("T")[0]!)) {
+    current++;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  const sorted = [...days].sort();
+  let longest = 1;
+  let run = 1;
+  for (let i = 1; i < sorted.length; i++) {
+    const prev = new Date(sorted[i - 1]!);
+    const cur = new Date(sorted[i]!);
+    const diff = (cur.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24);
+    if (diff === 1) { run++; longest = Math.max(longest, run); }
+    else run = 1;
+  }
+  return { current, longest };
+}
+
 router.get("/progress", async (req, res): Promise<void> => {
   const xpLogs = await db.select().from(xpLogsTable).orderBy(desc(xpLogsTable.earnedAt));
   const totalXP = xpLogs.reduce((s, l) => s + l.amount, 0);
@@ -42,6 +71,7 @@ router.get("/progress", async (req, res): Promise<void> => {
   const [totalMealsR] = await db.select({ count: count() }).from(mealsTable);
   const totalWorkouts = Number(totalWorkoutsR?.count ?? 0);
   const totalMeals = Number(totalMealsR?.count ?? 0);
+  const { current: currentStreak, longest: longestStreak } = await computeActivityStreak();
 
   const badges = ALL_BADGES.map(b => {
     let earned = false;
@@ -69,8 +99,8 @@ router.get("/progress", async (req, res): Promise<void> => {
     stats: {
       totalWorkouts,
       totalMealsLogged: totalMeals,
-      longestStreak: 7,
-      currentStreak: 5,
+      longestStreak: 0,
+      currentStreak: 0,
     },
   };
 
@@ -90,10 +120,26 @@ router.post("/progress/award-game", async (req, res): Promise<void> => {
 });
 
 router.get("/progress/missions", async (req, res): Promise<void> => {
-  const [todayMealsR] = await db.select({ count: count() }).from(mealsTable);
-  const [todayWorkoutsR] = await db.select({ count: count() }).from(workoutsTable);
-  const mealsToday = Number(todayMealsR?.count ?? 0);
-  const workoutsWeek = Number(todayWorkoutsR?.count ?? 0);
+  const today = new Date();
+  const dayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const dayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+  const [mealsTodayRows, workoutsTodayRows, workoutsWeekR, waterTodayRows, sleepTodayRows] = await Promise.all([
+    db.select().from(mealsTable).where(and(gte(mealsTable.loggedAt, dayStart), lt(mealsTable.loggedAt, dayEnd))),
+    db.select().from(workoutsTable).where(and(gte(workoutsTable.loggedAt, dayStart), lt(workoutsTable.loggedAt, dayEnd))),
+    db.select({ c: count() }).from(workoutsTable).where(gte(workoutsTable.loggedAt, weekAgo)),
+    db.select().from(waterLogsTable).where(and(gte(waterLogsTable.loggedAt, dayStart), lt(waterLogsTable.loggedAt, dayEnd))),
+    db.select().from(sleepTable).where(gte(sleepTable.bedtime, weekAgo)),
+  ]);
+
+  const mealsToday = mealsTodayRows.length;
+  const workoutsToday = workoutsTodayRows.length;
+  const workoutsWeek = Number(workoutsWeekR[0]?.c ?? 0);
+  const waterMlToday = waterTodayRows.reduce((s, w) => s + w.amountMl, 0);
+  const lastSleep = sleepTodayRows.sort((a, b) => new Date(b.bedtime).getTime() - new Date(a.bedtime).getTime())[0];
+  const lastSleepHours = lastSleep?.durationHours ?? 0;
+  const waterGlasses = Math.floor(waterMlToday / 250);
 
   const missions = [
     {
@@ -115,11 +161,11 @@ router.get("/progress/missions", async (req, res): Promise<void> => {
       description: "Drink 8 glasses of water",
       type: "daily" as const,
       category: "water" as const,
-      progress: 5,
+      progress: Math.min(8, waterGlasses),
       target: 8,
       xpReward: 30,
       coinReward: 3,
-      completed: false,
+      completed: waterGlasses >= 8,
       icon: "droplets",
     },
     {
@@ -128,11 +174,11 @@ router.get("/progress/missions", async (req, res): Promise<void> => {
       description: "Complete a workout today",
       type: "daily" as const,
       category: "fitness" as const,
-      progress: Math.min(1, workoutsWeek),
+      progress: Math.min(1, workoutsToday),
       target: 1,
       xpReward: 75,
       coinReward: 8,
-      completed: workoutsWeek >= 1,
+      completed: workoutsToday >= 1,
       icon: "dumbbell",
     },
     {
@@ -154,11 +200,11 @@ router.get("/progress/missions", async (req, res): Promise<void> => {
       description: "Get 7+ hours of sleep",
       type: "daily" as const,
       category: "sleep" as const,
-      progress: 1,
+      progress: lastSleepHours >= 7 ? 1 : 0,
       target: 1,
       xpReward: 40,
       coinReward: 4,
-      completed: true,
+      completed: lastSleepHours >= 7,
       icon: "moon",
     },
     {
