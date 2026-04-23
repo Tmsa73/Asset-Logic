@@ -34,6 +34,7 @@ import {
 import { UpdateProfileBodyGoal, UpdateProfileBodyActivityLevel } from "@workspace/api-client-react/src/generated/api.schemas";
 import { cn } from "@/lib/utils";
 import { exportAllDataCsv } from "@/lib/export-data";
+import { BrandTag } from "@/components/brand-tag";
 import { useAuth } from "@/hooks/use-auth";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLang } from "@/contexts/language-context";
