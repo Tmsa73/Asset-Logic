@@ -33,6 +33,7 @@ import {
 } from "@/lib/gamification";
 import { UpdateProfileBodyGoal, UpdateProfileBodyActivityLevel } from "@workspace/api-client-react/src/generated/api.schemas";
 import { cn } from "@/lib/utils";
+import { exportAllDataCsv } from "@/lib/export-data";
 import { useAuth } from "@/hooks/use-auth";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLang } from "@/contexts/language-context";
@@ -181,7 +182,10 @@ export default function Profile() {
       <div className="sticky top-0 z-20 bg-background/90 backdrop-blur-md border-b border-border/40">
         <div className="px-5 pt-4 pb-0">
           <div className="flex items-center justify-between mb-3">
-            <h1 className="text-xl font-black gradient-text">{t("profile_title")}</h1>
+            <div>
+              <BrandTag className="mb-0.5" />
+              <h1 className="text-xl font-black gradient-text">{t("profile_title")}</h1>
+            </div>
             {tab === "me" && (
               <div className="flex items-center gap-1.5 bg-gradient-to-r from-primary/20 via-yellow-400/15 to-secondary/20 border border-yellow-400/40 px-3 py-1.5 rounded-full shadow-sm shadow-yellow-400/20">
                 <Crown className="w-3.5 h-3.5 text-yellow-400" />
@@ -331,7 +335,7 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
               </div>
             </button>
             <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-xl flex items-center justify-center border-2 border-yellow-400/60 shadow-lg shadow-yellow-400/30 bg-gradient-to-br from-primary via-yellow-400/30 to-secondary">
-              <span className="text-xs font-black text-background leading-none drop-shadow">L{progress.level}</span>
+              <span className="text-xs font-black text-background leading-none drop-shadow">{progress.level}</span>
             </div>
           </div>
           <div className="flex-1 min-w-0">
@@ -687,7 +691,7 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
               <Crown className="w-8 h-8 text-background" />
             </div>
             <div className="absolute -bottom-1.5 -right-1.5 bg-gradient-to-br from-yellow-400 to-orange-500 border-2 border-background rounded-full px-2 py-0.5 shadow-md">
-              <span className="text-[10px] font-black text-background">L{progress.level}</span>
+              <span className="text-[10px] font-black text-background">{progress.level}</span>
             </div>
           </div>
           <div className="flex-1 min-w-0">
@@ -1483,8 +1487,8 @@ function SettingsTab() {
       {/* Data & Privacy */}
       <SettingsSection icon={<Shield className="w-4 h-4 text-destructive" />} title={t("settings_privacy")}>
         <div className="divide-y divide-border/50">
-          <ActionRow label={t("settings_export")} desc={t("settings_export_desc")} icon={<Download className="w-4 h-4 text-muted-foreground" />} onClick={() => toast({ title: t("settings_export_started") })} />
-          <ActionRow label={t("settings_cache")} desc={t("settings_cache_desc")} icon={<Trash2 className="w-4 h-4 text-muted-foreground" />} onClick={() => toast({ title: t("settings_cache_cleared") })} />
+          <ActionRow label={t("settings_export")} desc={t("settings_export_desc")} icon={<Download className="w-4 h-4 text-muted-foreground" />} onClick={() => exportAllDataCsv(toast)} />
+          <ActionRow label={t("settings_cache")} desc={t("settings_cache_desc")} icon={<Trash2 className="w-4 h-4 text-muted-foreground" />} onClick={() => { try { Object.keys(localStorage).filter(k => k.startsWith("bodylogic-cache-")).forEach(k => localStorage.removeItem(k)); } catch {} toast({ title: t("settings_cache_cleared") }); }} />
           <ActionRow label={t("settings_delete")} desc={t("settings_delete_desc")} icon={<Trash2 className="w-4 h-4 text-destructive" />} onClick={() => toast({ title: t("settings_delete_confirm"), variant: "destructive" })} danger />
         </div>
       </SettingsSection>

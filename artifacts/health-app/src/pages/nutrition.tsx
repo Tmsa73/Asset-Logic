@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { BrandTag } from "@/components/brand-tag";
 import { motion } from "framer-motion";
 import { MealIqQuiz } from "@/components/meal-iq-quiz";
 import { playGamificationSound } from "@/lib/sounds";
@@ -340,6 +341,7 @@ export default function Nutrition() {
         {/* Header */}
         <div className="flex items-center justify-between pt-2">
           <div>
+            <BrandTag className="mb-1" />
             <h1 className="text-2xl font-black tracking-tight gradient-text">{t("nav_nutrition")}</h1>
             <p className="text-xs text-muted-foreground mt-0.5">{new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</p>
           </div>

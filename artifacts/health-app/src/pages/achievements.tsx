@@ -4,6 +4,7 @@ import { useGetProgress, useGetProfileStats, useGetMissions } from "@workspace/a
 import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy, Zap, Lock, CheckCircle2, Flame, Crown, Target, Shield, Brain, Sword, TrendingUp, Coins, Utensils, Dumbbell, Moon, Heart, Bot, Droplets, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { BrandTag } from "@/components/brand-tag";
 import { motion } from "framer-motion";
 import {
   ALL_ACHIEVEMENTS,
@@ -90,6 +91,7 @@ export default function Achievements() {
       <div className="p-5 space-y-5">
         {/* Header */}
         <header className="pt-2">
+          <BrandTag className="mb-1" />
           <h1 className="text-2xl font-black tracking-tight gradient-text">{t("profile_tab_rewards")}</h1>
           <p className="text-xs text-muted-foreground mt-0.5">{t("rewards_progress")} • {completionPct}%</p>
         </header>

@@ -16,11 +16,11 @@ async function ensureProfile() {
     const [profile] = await db
       .insert(profileTable)
       .values({
-        name: "Alex",
-        age: 28,
+        name: "",
+        age: 0,
         gender: "unspecified",
-        weight: 72,
-        height: 175,
+        weight: 0,
+        height: 0,
         goal: "improve_fitness",
         activityLevel: "moderate",
         dailyCalorieGoal: 2000,
@@ -80,11 +80,11 @@ router.get("/profile/stats", async (req, res): Promise<void> => {
   const stats = {
     totalWorkouts: Number(totalWorkoutsResult?.count ?? 0),
     totalMealsLogged: Number(totalMealsResult?.count ?? 0),
-    currentStreak: 5,
+    currentStreak: 0,
     avgCaloriesPerDay: Number(avgCaloriesResult?.avg ?? 0),
     avgSleepHours: Number(avgSleepResult?.avg ?? 0),
     weeklyWorkouts: Number(weeklyWorkoutsResult?.count ?? 0),
-    weightProgress: -1.5,
+    weightProgress: 0,
     totalXP,
     level,
     coins,

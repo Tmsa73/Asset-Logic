@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Dumbbell, Plus, Timer, Flame, Moon, Zap, Activity, Trash2, Footprints, CheckCircle2, AlertTriangle, Ban, Info, Clock } from "lucide-react";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 import { cn } from "@/lib/utils";
+import { BrandTag } from "@/components/brand-tag";
 import { checkSleepHours, checkWorkoutCalories, checkWorkoutDuration } from "@/lib/logic-validator";
 import { LogicBadge, ValidatedValue, FieldError } from "@/components/logic-badge";
 
@@ -82,6 +83,7 @@ export default function Fitness() {
         {/* Header */}
         <div className="flex justify-between items-end pt-2">
           <div>
+            <BrandTag className="mb-1" />
             <h1 className="text-2xl font-black tracking-tight gradient-text">{t("nav_fitness")}</h1>
             <p className="text-xs text-muted-foreground mt-0.5">{new Date().toLocaleDateString(locale, { weekday: "long", month: "long", day: "numeric" })}</p>
           </div>

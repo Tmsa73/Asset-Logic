@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Utensils, Dumbbell, Moon, Footprints, Droplets, TrendingUp, Calendar, ChevronDown, ChevronUp, BedDouble } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, ReferenceLine, CartesianGrid } from "recharts";
 import { cn } from "@/lib/utils";
+import { BrandTag } from "@/components/brand-tag";
 import { motion } from "framer-motion";
 
 type DayRange = 7 | 30 | 90;
@@ -100,6 +101,7 @@ export default function History() {
       <div className="p-5 space-y-5">
         <header className="pt-2 flex items-end justify-between">
           <div>
+            <BrandTag className="mb-1" />
             <h1 className="text-2xl font-black tracking-tight gradient-text">{t("nav_history")}</h1>
             <p className="text-xs text-muted-foreground mt-0.5">{t("history_journey")}</p>
           </div>
