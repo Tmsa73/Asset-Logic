@@ -48,7 +48,7 @@ function AppLoader() {
 function Router() {
   const { user, loading } = useAuth();
 
-  if (loading) {
+  if (loading && !user) {
     return <AppLoader />;
   }
 

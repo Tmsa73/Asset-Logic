@@ -28,10 +28,30 @@ const AuthContext = createContext<AuthContextType>({
 
 const BASE_URL = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
 const apiPath = (path: string) => `${BASE_URL}${path}`;
+const USER_CACHE_KEY = "bodylogic-user";
+
+function readCachedUser(): AuthUser | null {
+  try {
+    const raw = localStorage.getItem(USER_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" && typeof parsed.id === "number" ? parsed as AuthUser : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedUser(user: AuthUser | null) {
+  try {
+    if (user) localStorage.setItem(USER_CACHE_KEY, JSON.stringify(user));
+    else localStorage.removeItem(USER_CACHE_KEY);
+  } catch {}
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const cached = typeof window !== "undefined" ? readCachedUser() : null;
+  const [user, setUser] = useState<AuthUser | null>(cached);
+  const [loading, setLoading] = useState(!cached);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -42,10 +62,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signal: controller.signal,
     })
       .then(res => res.ok ? res.json() : null)
-      .then(data => { if (active && data) setUser(data); })
+      .then(data => {
+        if (!active) return;
+        if (data) {
+          setUser(data);
+          writeCachedUser(data);
+        } else {
+          setUser(null);
+          writeCachedUser(null);
+        }
+      })
       .catch(error => {
         if (active && error?.name !== "AbortError") {
-          setUser(null);
+          // keep cached user on network error so the app stays usable offline
         }
       })
       .finally(() => {
@@ -60,11 +89,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback((userData: AuthUser) => {
     setUser(userData);
+    writeCachedUser(userData);
   }, []);
 
   const logout = useCallback(async () => {
-    await fetch(apiPath("/api/auth/logout"), { method: "POST", credentials: "include" });
+    try {
+      await fetch(apiPath("/api/auth/logout"), { method: "POST", credentials: "include" });
+    } catch {}
     setUser(null);
+    writeCachedUser(null);
   }, []);
 
   const value = useMemo(() => ({ user, loading, login, logout }), [user, loading, login, logout]);
