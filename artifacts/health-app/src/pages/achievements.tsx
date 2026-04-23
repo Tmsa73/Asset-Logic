@@ -104,7 +104,7 @@ export default function Achievements() {
                 <Crown className="w-8 h-8 text-background" />
               </div>
               <div className="absolute -bottom-1.5 -right-1.5 bg-background border-2 border-primary rounded-full px-1.5 py-0.5">
-                <span className="text-[10px] font-black text-primary">L{progress.level}</span>
+                <span className="text-[11px] font-black text-primary leading-none">{progress.level}</span>
               </div>
             </div>
             <div className="flex-1 min-w-0">
@@ -120,7 +120,7 @@ export default function Achievements() {
               </div>
               <div className="flex justify-between mt-1">
                 <span className="text-[10px] font-bold text-primary">{progress.xp.toLocaleString()} {t("unit_xp")}</span>
-                <span className="text-[10px] text-muted-foreground">{levelInfo.xpToNext.toLocaleString()} to L{progress.level + 1}</span>
+                <span className="text-[10px] text-muted-foreground">{levelInfo.xpToNext.toLocaleString()} to Lv {progress.level + 1}</span>
               </div>
             </div>
           </div>
