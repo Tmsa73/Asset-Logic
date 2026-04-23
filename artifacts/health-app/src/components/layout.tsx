@@ -26,32 +26,21 @@ export function Layout({ children }: { children: ReactNode }) {
 const AppFooter = memo(function AppFooter() {
   const year = new Date().getFullYear();
   return (
-    <div className="px-5 pt-5 pb-2">
-      <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-gradient-to-r from-primary/5 via-yellow-400/5 to-secondary/5 px-4 py-3">
-        <div
-          aria-hidden
-          className="absolute inset-0 opacity-[0.06] pointer-events-none"
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(45deg, hsl(var(--primary)) 0 1px, transparent 1px 12px), repeating-linear-gradient(-45deg, hsl(var(--secondary)) 0 1px, transparent 1px 12px)",
-          }}
-        />
-        <div className="relative flex items-center justify-center gap-2.5">
-          <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-md">
-            <Heart className="w-3.5 h-3.5 text-background" fill="currentColor" />
+    <div className="px-5 pt-3 pb-1">
+      <div className="relative flex items-center justify-center gap-2 py-1.5">
+        <span aria-hidden className="h-px w-8 bg-gradient-to-r from-transparent to-primary/40" />
+        <div className="flex items-center gap-1.5">
+          <div className="w-4 h-4 rounded-md bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-sm">
+            <Heart className="w-2 h-2 text-background" fill="currentColor" />
           </div>
-          <div className="flex flex-col items-start leading-tight">
-            <span className="text-[11px] font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent tracking-wide">
-              BodyLogic
-            </span>
-            <span className="text-[9px] text-muted-foreground font-semibold">
-              © {year} · All rights reserved
-            </span>
-          </div>
+          <span className="text-[10px] font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent tracking-wide">
+            BodyLogic
+          </span>
+          <span className="text-[9px] text-muted-foreground/70 font-medium">
+            © {year}
+          </span>
         </div>
-        <p className="relative text-center text-[9px] text-muted-foreground/70 mt-2 font-medium tracking-wider uppercase">
-          ✦ Built with care for your health ✦
-        </p>
+        <span aria-hidden className="h-px w-8 bg-gradient-to-l from-transparent to-secondary/40" />
       </div>
     </div>
   );
