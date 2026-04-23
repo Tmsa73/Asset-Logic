@@ -22,8 +22,8 @@ export function Layout({ children }: { children: ReactNode }) {
 const AppFooter = memo(function AppFooter() {
   const year = new Date().getFullYear();
   return (
-    <div className="px-5 pt-8 pb-6">
-      <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-gradient-to-r from-primary/5 via-yellow-400/5 to-secondary/5 px-4 py-4">
+    <div className="px-5 pt-5 pb-2">
+      <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-gradient-to-r from-primary/5 via-yellow-400/5 to-secondary/5 px-4 py-3">
         <div
           aria-hidden
           className="absolute inset-0 opacity-[0.06] pointer-events-none"
