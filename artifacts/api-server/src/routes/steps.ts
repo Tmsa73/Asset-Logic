@@ -9,7 +9,7 @@ async function getTodaySteps() {
   const today = new Date().toISOString().split("T")[0]!;
   const existing = await db.select().from(stepsTable).where(eq(stepsTable.date, today)).limit(1);
   if (existing.length === 0) {
-    const [entry] = await db.insert(stepsTable).values({ date: today, steps: 6420 }).returning();
+    const [entry] = await db.insert(stepsTable).values({ date: today, steps: 0 }).returning();
     return entry!;
   }
   return existing[0]!;
@@ -22,7 +22,7 @@ router.get("/steps", async (req, res): Promise<void> => {
 
   const weeklySteps = [];
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  const sampleSteps = [7200, 8400, 5600, 9100, 6800, todayEntry.steps, 0];
+  const sampleSteps = [0, 0, 0, 0, 0, todayEntry.steps, 0];
   for (let i = 0; i < 7; i++) {
     weeklySteps.push({ day: days[i]!, steps: sampleSteps[i] ?? 0 });
   }
@@ -68,7 +68,7 @@ router.post("/steps", async (req, res): Promise<void> => {
 
   const weeklySteps = [];
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  const sampleSteps = [7200, 8400, 5600, 9100, 6800, steps, 0];
+  const sampleSteps = [0, 0, 0, 0, 0, steps, 0];
   for (let i = 0; i < 7; i++) {
     weeklySteps.push({ day: days[i]!, steps: sampleSteps[i] ?? 0 });
   }

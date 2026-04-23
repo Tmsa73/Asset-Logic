@@ -56,7 +56,7 @@ router.get("/dashboard", async (req, res): Promise<void> => {
   const caloriesBurned = todayWorkouts.reduce((s, w) => s + w.caloriesBurned, 0);
   const todayWorkoutMinutes = todayWorkouts.reduce((s, w) => s + w.durationMinutes, 0);
   const waterMl = waterLogs.reduce((s, l) => s + l.amountMl, 0);
-  const todaySteps = stepsEntry[0]?.steps ?? 6420;
+  const todaySteps = stepsEntry[0]?.steps ?? 0;
   const totalXP = xpLogs.reduce((s, l) => s + l.amount, 0);
   const { level, xpToNext } = calcLevel(totalXP);
   const coins = Math.floor(totalXP / 10);
@@ -79,9 +79,9 @@ router.get("/dashboard", async (req, res): Promise<void> => {
   const [mealCount7] = await db.select({ count: count() }).from(mealsTable).where(gte(mealsTable.loggedAt, weekAgo));
   const [workoutCount7] = await db.select({ count: count() }).from(workoutsTable).where(gte(workoutsTable.loggedAt, weekAgo));
   const [sleepCount7] = await db.select({ count: count() }).from(sleepTable).where(gte(sleepTable.createdAt, weekAgo));
-  const nutrition = Math.max(30, Math.min(100, Math.round((Number(mealCount7?.count ?? 0) / 21) * 100)));
-  const fitnessScore = Math.max(20, Math.min(100, Math.round((Number(workoutCount7?.count ?? 0) / 5) * 100)));
-  const sleepScore2 = Math.max(25, Math.min(100, Math.round((Number(sleepCount7?.count ?? 0) / 7) * 100)));
+  const nutrition = Math.min(100, Math.round((Number(mealCount7?.count ?? 0) / 21) * 100));
+  const fitnessScore = Math.min(100, Math.round((Number(workoutCount7?.count ?? 0) / 5) * 100));
+  const sleepScore2 = Math.min(100, Math.round((Number(sleepCount7?.count ?? 0) / 7) * 100));
   const lifeBalanceScore = Math.round((nutrition + fitnessScore + sleepScore2) / 3);
 
   const recentActivity: Array<{
