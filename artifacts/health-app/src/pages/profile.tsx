@@ -683,48 +683,73 @@ function RewardsTab({ progress, missions, levelInfo, activeTitle: _activeTitle, 
   return (
     <div className="px-4 pt-4 space-y-4 pb-24">
       {/* Hero Progress Card */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-background to-secondary/20 border border-primary/30 p-5">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full -translate-y-8 translate-x-8 blur-3xl" />
-        <div className="flex items-center gap-4 relative">
-          <div className="relative shrink-0">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg glow-primary">
-              <Crown className="w-8 h-8 text-background" />
-            </div>
-            <div className="absolute -bottom-1.5 -right-1.5 bg-gradient-to-br from-yellow-400 to-orange-500 border-2 border-background rounded-full px-2 py-0.5 shadow-md">
-              <span className="text-[10px] font-black text-background">{progress.level}</span>
-            </div>
+      <div className="relative overflow-hidden rounded-3xl border border-white/[0.06] bg-gradient-to-br from-[#0f1a17] via-[#0a0f14] to-[#0a141a] p-5 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.6)]">
+        {/* ambient glow */}
+        <div className="pointer-events-none absolute -top-20 -right-16 w-56 h-56 bg-primary/20 rounded-full blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -left-16 w-56 h-56 bg-secondary/15 rounded-full blur-3xl" />
+
+        {/* Header row */}
+        <div className="relative flex items-center gap-4">
+          <div className="shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-[0_8px_24px_-6px_rgba(34,197,94,0.55)]">
+            <Crown className="w-7 h-7 text-background" strokeWidth={2.5} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className={cn("text-base font-black", activeTitle.color)}>{lang === "ar" ? (activeTitle.nameAr ?? activeTitle.name) : activeTitle.name}</p>
-            <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden mt-2">
-              <motion.div className="h-full bg-gradient-to-r from-primary to-secondary rounded-full" initial={{ width: 0 }} animate={{ width: `${levelInfo.progressPct}%` }} transition={{ duration: 1.2 }} />
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className={cn("text-base font-black truncate", activeTitle.color)}>
+                {lang === "ar" ? (activeTitle.nameAr ?? activeTitle.name) : activeTitle.name}
+              </p>
+              <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-primary/15 text-primary border border-primary/25">
+                LV {progress.level}
+              </span>
             </div>
-            <div className="flex justify-between mt-1">
-              <span className="text-[10px] font-bold text-primary">{progress.xp.toLocaleString()} {t("unit_xp")}</span>
-              <span className="text-[10px] text-muted-foreground">{levelInfo.xpToNext.toLocaleString()} {t("home_to_level")} {progress.level + 1}</span>
+            <div className="flex items-baseline justify-between gap-2 mt-1">
+              <span className="text-[11px] font-bold text-primary tabular-nums">
+                {progress.xp.toLocaleString()} <span className="text-muted-foreground font-medium">{t("unit_xp")}</span>
+              </span>
+              <span className="text-[10px] text-muted-foreground tabular-nums">
+                {levelInfo.xpToNext.toLocaleString()} {t("home_to_level")} {progress.level + 1}
+              </span>
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-2 mt-4">
+
+        {/* XP bar */}
+        <div className="relative mt-3">
+          <div className="w-full h-2 bg-white/[0.05] rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_100%] rounded-full"
+              initial={{ width: 0, backgroundPosition: "0% 50%" }}
+              animate={{ width: `${levelInfo.progressPct}%`, backgroundPosition: "100% 50%" }}
+              transition={{ width: { duration: 1.2 }, backgroundPosition: { duration: 3, repeat: Infinity, repeatType: "reverse" } }}
+            />
+          </div>
+        </div>
+
+        {/* Stat tiles */}
+        <div className="grid grid-cols-3 gap-2 mt-5">
           {[
-            { label: t("rewards_unlocked"), value: unlockedCount, icon: CheckCircle2, color: "text-primary" },
-            { label: t("home_coins"), value: progress.coins, icon: Coins, color: "text-yellow-400" },
-            { label: t("rewards_progress"), value: `${completionPct}%`, icon: TrendingUp, color: "text-orange-400" },
+            { label: t("rewards_unlocked"), value: unlockedCount, icon: CheckCircle2, tint: "from-primary/20 to-primary/5", iconColor: "text-primary" },
+            { label: t("home_coins"), value: progress.coins, icon: Coins, tint: "from-yellow-400/20 to-yellow-400/5", iconColor: "text-yellow-400" },
+            { label: t("rewards_progress"), value: `${completionPct}%`, icon: TrendingUp, tint: "from-orange-400/20 to-orange-400/5", iconColor: "text-orange-400" },
           ].map(s => (
-            <div key={s.label} className="bg-background/50 rounded-xl p-2 text-center border border-border/30">
-              <s.icon className={cn("w-3.5 h-3.5 mx-auto mb-1", s.color)} />
-              <div className="text-sm font-black">{s.value}</div>
-              <div className="text-[8px] text-muted-foreground uppercase tracking-wider font-bold">{s.label}</div>
+            <div key={s.label} className="relative rounded-2xl bg-white/[0.03] border border-white/[0.06] p-3 overflow-hidden">
+              <div className={cn("absolute inset-0 bg-gradient-to-br opacity-60 pointer-events-none", s.tint)} />
+              <div className="relative flex items-center gap-1.5 mb-1.5">
+                <s.icon className={cn("w-3.5 h-3.5", s.iconColor)} />
+                <span className="text-[8px] text-muted-foreground uppercase tracking-wider font-bold truncate">{s.label}</span>
+              </div>
+              <div className="relative text-lg font-black tabular-nums leading-none">{s.value}</div>
             </div>
           ))}
         </div>
+
         {/* Completion bar */}
-        <div className="mt-3">
-          <div className="flex justify-between text-[10px] mb-1 text-muted-foreground">
-            <span>{t("rewards_overall")}</span>
-            <span className="font-bold text-primary">{completionPct}%</span>
+        <div className="relative mt-4">
+          <div className="flex justify-between text-[10px] mb-1.5">
+            <span className="text-muted-foreground font-semibold">{t("rewards_overall")}</span>
+            <span className="font-black text-primary tabular-nums">{completionPct}%</span>
           </div>
-          <div className="w-full h-1.5 bg-muted/50 rounded-full overflow-hidden">
+          <div className="w-full h-1.5 bg-white/[0.05] rounded-full overflow-hidden">
             <motion.div className="h-full bg-gradient-to-r from-primary via-secondary to-yellow-400 rounded-full" initial={{ width: 0 }} animate={{ width: `${completionPct}%` }} transition={{ duration: 1.5 }} />
           </div>
         </div>
