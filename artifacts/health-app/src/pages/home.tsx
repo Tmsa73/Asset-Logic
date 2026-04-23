@@ -33,6 +33,30 @@ export default function Home() {
   const logMeal = useLogMeal();
   const [recentFoods] = useState<FoodHistoryItem[]>(() => getFoodHistory().slice(0, 4));
   const [quickLoggedIds, setQuickLoggedIds] = useState<Set<number>>(new Set());
+  const [editingSteps, setEditingSteps] = useState(false);
+  const [stepsDraft, setStepsDraft] = useState("");
+
+  const commitSteps = () => {
+    const raw = stepsDraft.trim();
+    if (raw === "") { setEditingSteps(false); return; }
+    const val = Number(raw.replace(/[^\d]/g, ""));
+    if (!Number.isFinite(val) || val < 0 || val > 200000) {
+      toast({ title: t("home_steps_invalid"), variant: "destructive" });
+      return;
+    }
+    updateSteps.mutate(
+      { data: { steps: val } },
+      {
+        onSuccess: () => {
+          qc.invalidateQueries({ queryKey: getGetStepsQueryKey() });
+          qc.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
+          toast({ title: t("home_steps_saved") });
+          setEditingSteps(false);
+        },
+        onError: () => toast({ title: t("home_steps_failed"), variant: "destructive" }),
+      }
+    );
+  };
 
   const quickLogFood = (food: FoodHistoryItem, idx: number) => {
     if (quickLoggedIds.has(idx)) return;
@@ -413,42 +437,53 @@ export default function Home() {
               <div className="h-full bg-orange-500 rounded-full transition-all" style={{ width: `${calPct}%` }} />
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              const current = steps?.todaySteps ?? dashboard.todaySteps ?? 0;
-              const input = window.prompt(t("home_steps_prompt"), String(current));
-              if (input === null) return;
-              const val = Number(input.replace(/[^\d]/g, ""));
-              if (!Number.isFinite(val) || val < 0 || val > 200000) {
-                toast({ title: t("home_steps_invalid"), variant: "destructive" });
-                return;
-              }
-              updateSteps.mutate(
-                { data: { steps: val } },
-                {
-                  onSuccess: () => {
-                    qc.invalidateQueries({ queryKey: getGetStepsQueryKey() });
-                    qc.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
-                    toast({ title: t("home_steps_saved") });
-                  },
-                  onError: () => toast({ title: t("home_steps_failed"), variant: "destructive" }),
-                }
-              );
-            }}
-            className="col-span-1 bg-card rounded-2xl p-3 border border-border/50 hover-elevate text-left press-scale relative"
-            aria-label={t("home_steps_prompt")}
-          >
+          <div className="col-span-1 bg-card rounded-2xl p-3 border border-border/50 relative">
             <div className="w-7 h-7 rounded-lg bg-secondary/15 flex items-center justify-center mb-2">
               <Footprints className="w-4 h-4 text-secondary" />
             </div>
-            <p className="text-lg font-black leading-none">{(steps?.todaySteps ?? dashboard.todaySteps).toLocaleString()}</p>
+            {editingSteps ? (
+              <div className="flex items-center gap-1">
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  max={200000}
+                  autoFocus
+                  value={stepsDraft}
+                  onChange={(e) => setStepsDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") { e.preventDefault(); commitSteps(); }
+                    else if (e.key === "Escape") { setEditingSteps(false); }
+                  }}
+                  onBlur={() => { if (!updateSteps.isPending) commitSteps(); }}
+                  className="w-full bg-transparent text-lg font-black leading-none outline-none border-b border-secondary text-foreground p-0"
+                  aria-label={t("home_steps_edit")}
+                  data-testid="input-steps"
+                />
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  const cur = steps?.todaySteps ?? dashboard.todaySteps ?? 0;
+                  setStepsDraft(String(cur || ""));
+                  setEditingSteps(true);
+                }}
+                className="text-left w-full press-scale"
+                aria-label={t("home_steps_edit")}
+                data-testid="button-edit-steps"
+              >
+                <p className="text-lg font-black leading-none">{(steps?.todaySteps ?? dashboard.todaySteps).toLocaleString()}</p>
+              </button>
+            )}
             <p className="text-[10px] text-muted-foreground mt-0.5">{t("home_steps")}</p>
             <div className="mt-2 h-1 bg-muted rounded-full overflow-hidden">
               <div className="h-full bg-secondary rounded-full transition-all" style={{ width: `${stepsPct}%` }} />
             </div>
-            <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-secondary/15 text-secondary text-[11px] font-black flex items-center justify-center leading-none">+</span>
-          </button>
+            {!editingSteps && (
+              <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-secondary/15 text-secondary text-[11px] font-black flex items-center justify-center leading-none pointer-events-none">+</span>
+            )}
+          </div>
           <div className="col-span-1 bg-card rounded-2xl p-3 border border-border/50 hover-elevate">
             <div className="w-7 h-7 rounded-lg bg-blue-500/15 flex items-center justify-center mb-2">
               <Droplets className="w-4 h-4 text-blue-400" />
