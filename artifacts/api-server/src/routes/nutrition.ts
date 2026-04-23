@@ -15,17 +15,45 @@ const openai = new OpenAI({
   baseURL: process.env["AI_INTEGRATIONS_OPENAI_BASE_URL"],
 });
 
-// Curated food reference list — used to ground AI image recognition to known items
+// Curated food reference list — used to ground AI image recognition to known items.
+// Names here mirror the client-side food-database.ts so the UI can match exact entries.
 const FOOD_REFERENCE_NAMES = [
+  // Arabian / Gulf / Levantine
   "Kabsa with Chicken","Kabsa with Lamb","Mandi Chicken","Mandi Lamb","Machboos","Harees","Jareesh","Saleeg","Margoog","Maqluba","Mansaf","Biryani",
-  "Shawarma Wrap Chicken","Shawarma Wrap Meat","Falafel Wrap","Hummus","Baba Ganoush","Labneh","Fattoush","Tabbouleh","Kibbeh","Warak Dawali","Fatteh",
-  "Mutton Saloona","Mufattah","Chicken Saloona","Samboosa","Luqaimat","Dates","Knafeh","Baklava","Umm Ali","Muhallabia","Shakshuka","Ful Medames",
-  "Arabic Bread Khubz","Za'atar Manakeesh","Halloumi","Dolma","Molokhia","Koshari","Mahyawa","Grilled Chicken","Grilled Salmon","Tuna Salad","Caesar Salad",
-  "Oatmeal","Scrambled Eggs","Boiled Eggs","Avocado Toast","Greek Yogurt","Banana","Apple","Mixed Fruits","Protein Shake","Smoothie Bowl","Overnight Oats",
-  "Pasta Bolognese","Pasta Carbonara","Pizza Margherita","Cheeseburger","Chicken Sandwich","Grilled Steak","Salmon Fillet","Chicken Breast","Rice with Vegetables",
-  "Lentil Soup","Vegetable Soup","Chicken Soup","Sushi Roll","Pad Thai","Fried Rice","Stir Fry","Noodles","Dumplings","Spring Rolls",
-  "Caesar Salad","Garden Salad","Greek Salad","Quinoa Bowl","Acai Bowl","Granola","Pancakes","Waffles","French Toast","Croissant","Muffin",
-  "Chocolate Cake","Cheesecake","Ice Cream","Fruit Salad","Watermelon","Orange","Grapes","Mixed Nuts","Almonds","Peanut Butter",
+  "Shawarma Wrap (Chicken)","Shawarma Wrap (Meat)","Falafel Wrap","Falafel Plate","Hummus with Bread","Hummus with Olive Oil","Baba Ganoush",
+  "Labneh with Za'atar","Fattoush Salad","Tabbouleh","Kibbeh (3 pieces)","Warak Dawali (Stuffed Vine Leaves)","Fatteh (Chickpea)",
+  "Saloona (Chicken Stew)","Mutabbaq (Meat)","Samboosa (3 pieces)","Luqaimat","Dates","Knafeh","Baklava","Umm Ali","Muhallabia","Shakshuka","Ful Medames",
+  "Arabic Bread (Khubz)","Whole Wheat Khubz","Za'atar Manakeesh","Halloumi","Dolma (Rice-stuffed)","Molokhia with Chicken","Koshari","Musakhan","Shish Tawook",
+  "Mlukhiya","Sayadieh","Sahlab (Hot Milk Drink)","Jallab Drink","Tamarind Juice","Date Smoothie with Milk","Madhbi","Aseeda","Balaleet","Chebab","Khanfaroosh",
+  "Qatayef","Basbousa","Ouzi","Freekeh","Mujadara","Foul","Manakish Cheese","Manakish Za'atar","Sambousek with Spinach",
+  // Burgers / fast food / sandwiches
+  "Hamburger","Cheeseburger","Double Cheeseburger","Chicken Burger","French Fries (Medium)","Sweet Potato Fries","Onion Rings","Hot Dog",
+  "Chicken Nuggets (6 pcs)","Fried Chicken (2 pieces)","Buffalo Wings (6)","BBQ Ribs","Pulled Pork Sandwich","Club Sandwich","Tuna Sandwich",
+  "Egg Salad Sandwich","BLT Sandwich",
+  // Breakfast / pastries / sweets
+  "Avocado Toast","Bagel with Cream Cheese","English Muffin","Pancakes (Stack of 3)","Waffles with Syrup","French Toast","Crepes (Sweet)",
+  "Croissant Plain","Chocolate Croissant","Donut Glazed","Donut Chocolate","Cinnamon Roll","Blueberry Muffin","Chocolate Chip Cookie",
+  "Brownie","Chocolate Cake Slice","Cheesecake Slice","Tiramisu","Ice Cream (2 scoops)","Frozen Yogurt","Apple Pie Slice",
+  // Pizza / Italian
+  "Pizza Margherita Slice","Pizza Pepperoni Slice","Pizza Hawaiian Slice","Calzone","Garlic Bread","Bruschetta (3 pieces)",
+  "Pasta Carbonara","Pasta Bolognese","Pasta Alfredo","Spaghetti Marinara","Lasagna","Mac and Cheese","Risotto Mushroom",
+  // Asian
+  "Sushi Roll California (8 pcs)","Sushi Roll Salmon (8 pcs)","Sushi Roll Tuna (8 pcs)","Sashimi (Mixed)","Ramen Bowl","Udon Noodles",
+  "Pho Bowl","Pad Thai","Pad See Ew","Green Curry Chicken","Red Curry","Tom Yum Soup",
+  // Indian
+  "Chicken Tikka Masala","Butter Chicken","Chicken Biryani","Lamb Vindaloo","Naan Bread","Garlic Naan","Samosa (2 pieces)",
+  // Mexican
+  "Tacos (2 pieces)","Burrito","Quesadilla","Nachos with Cheese","Guacamole with Chips",
+  // Proteins / mains
+  "Salmon Fillet Grilled","Tuna Steak","Shrimp Grilled","Lobster Tail","Calamari Fried","Steak Ribeye","Steak Sirloin","Filet Mignon",
+  "Lamb Chops","Pork Chop","Roast Chicken (Quarter)","Turkey Slice (4 oz)",
+  // Salads / bowls / healthy
+  "Caesar Salad with Chicken","Greek Salad","Cobb Salad","Quinoa Bowl","Buddha Bowl","Acai Bowl","Smoothie Bowl",
+  "Greek Yogurt with Honey","Granola with Milk","Oatmeal with Fruit","Overnight Oats","Protein Pancakes",
+  "Egg White Omelet","Scrambled Eggs (3)","Boiled Eggs (2)","Eggs Benedict","Bacon (3 strips)","Sausage Links (2)","Hash Browns",
+  // Fruits / snacks / nuts
+  "Banana","Apple","Orange","Strawberries (1 cup)","Blueberries (1 cup)","Watermelon Slice","Grapes (1 cup)","Mango","Pineapple Slice",
+  "Avocado (Half)","Almonds (1 oz)","Walnuts (1 oz)","Mixed Nuts","Peanut Butter (2 tbsp)","Protein Bar","Protein Shake","Energy Bar",
 ];
 
 
@@ -187,8 +215,9 @@ router.post("/nutrition/analyze-food-image", async (req, res): Promise<void> => 
 
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      max_completion_tokens: 512,
+      model: "gpt-5.4",
+      max_completion_tokens: 8192,
+      response_format: { type: "json_object" },
       messages: [
         {
           role: "user",
