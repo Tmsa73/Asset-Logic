@@ -240,6 +240,21 @@ main,
   scroll-behavior: auto;
   touch-action: pan-y;
   scrollbar-gutter: stable;
+  /* GPU-promote the scroller so the browser uses its compositor */
+  transform: translateZ(0);
+  will-change: scroll-position;
+  /* Isolate paint/layout so child changes don't invalidate the rest of the page */
+  contain: layout paint style;
+  /* Hide scroll-anchoring jumps when content above resizes */
+  overflow-anchor: none;
+}
+
+/* Allow horizontal carousels (chip rows, etc.) to keep panning sideways */
+.no-vert-snap { touch-action: pan-x; }
+
+/* Reduce reflow cost for pages with lots of motion children */
+main > * {
+  contain: layout paint;
 }
 
 /* Glassmorphism utility */
