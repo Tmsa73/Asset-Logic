@@ -484,6 +484,8 @@ const translations = {
     home_water_saved: "Water updated",
     home_water_invalid: "Enter a valid amount in ml",
     home_water_failed: "Could not save water",
+    home_level_short: "LV",
+    fitness_steps_edit: "Edit",
     home_tip_fallback: "Stay consistent!",
     home_tip_desc_fallback: "Every healthy choice adds up.",
 
@@ -1103,6 +1105,8 @@ const translations = {
     home_water_saved: "تم تحديث المياه",
     home_water_invalid: "أدخل كمية صحيحة بالمل",
     home_water_failed: "تعذّر حفظ المياه",
+    home_level_short: "مستوى",
+    fitness_steps_edit: "تعديل",
     home_tip_fallback: "حافظ على الانتظام!",
     home_tip_desc_fallback: "كل خيار صحي يُحدث فرقًا.",
 

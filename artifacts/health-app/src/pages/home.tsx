@@ -670,7 +670,44 @@ export default function Home() {
               <Droplets className="w-4 h-4 text-blue-400" />
               <span className="text-sm font-bold">{t("home_quick_water")}</span>
             </div>
-            <span className="text-xs text-muted-foreground">{(water?.totalMl ?? dashboard.waterMl).toLocaleString()}ml · {water?.glasses ?? Math.floor(dashboard.waterMl / 250)} {t("home_glasses")} · {waterPct}%</span>
+            {editingWater ? (
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  max={20000}
+                  step={50}
+                  autoFocus
+                  value={waterDraft}
+                  onChange={(e) => setWaterDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") { e.preventDefault(); commitWater(); }
+                    else if (e.key === "Escape") { setEditingWater(false); }
+                  }}
+                  onBlur={() => { if (!logWater.isPending) commitWater(); }}
+                  className="w-20 bg-transparent text-xs font-bold leading-none outline-none border-b border-blue-400 text-blue-400 p-0 text-right"
+                  aria-label={t("home_water_edit")}
+                  data-testid="input-water-total"
+                />
+                <span className="text-xs text-muted-foreground">ml</span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  const cur = water?.totalMl ?? dashboard.waterMl ?? 0;
+                  setWaterDraft(String(cur || ""));
+                  setEditingWater(true);
+                }}
+                className="flex items-center gap-1 text-xs text-muted-foreground press-scale hover:text-blue-400 transition-colors group"
+                aria-label={t("home_water_edit")}
+                data-testid="button-edit-water"
+              >
+                <span>{(water?.totalMl ?? dashboard.waterMl).toLocaleString()}ml · {water?.glasses ?? Math.floor(dashboard.waterMl / 250)} {t("home_glasses")} · {waterPct}%</span>
+                <Pencil className="w-3 h-3 opacity-50 group-hover:opacity-100" />
+              </button>
+            )}
           </div>
           <div className="grid grid-cols-4 gap-2">
             {[150, 250, 330, 500].map(ml => (
