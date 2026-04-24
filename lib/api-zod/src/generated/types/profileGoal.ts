@@ -13,4 +13,10 @@ export const ProfileGoal = {
   maintain: "maintain",
   build_muscle: "build_muscle",
   improve_fitness: "improve_fitness",
+  gain_weight: "gain_weight",
+  endurance: "endurance",
+  sleep_quality: "sleep_quality",
+  reduce_stress: "reduce_stress",
+  eat_healthy: "eat_healthy",
+  custom: "custom",
 } as const;

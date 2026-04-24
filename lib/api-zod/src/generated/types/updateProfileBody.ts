@@ -15,6 +15,7 @@ export interface UpdateProfileBody {
   weight?: number;
   height?: number;
   goal?: UpdateProfileBodyGoal;
+  customGoal?: string | null;
   activityLevel?: UpdateProfileBodyActivityLevel;
   dailyCalorieGoal?: number;
   dailyWaterGoalMl?: number;

@@ -16,6 +16,7 @@ export interface Profile {
   weight: number;
   height: number;
   goal: ProfileGoal;
+  customGoal?: string | null;
   activityLevel: ProfileActivityLevel;
   dailyCalorieGoal: number;
   dailyWaterGoalMl: number;

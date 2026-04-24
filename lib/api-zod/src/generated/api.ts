@@ -29,7 +29,14 @@ export const GetProfileResponse = zod.object({
     "maintain",
     "build_muscle",
     "improve_fitness",
+    "gain_weight",
+    "endurance",
+    "sleep_quality",
+    "reduce_stress",
+    "eat_healthy",
+    "custom",
   ]),
+  customGoal: zod.string().nullish(),
   activityLevel: zod.enum([
     "sedentary",
     "light",
@@ -54,8 +61,20 @@ export const UpdateProfileBody = zod.object({
   weight: zod.number().optional(),
   height: zod.number().optional(),
   goal: zod
-    .enum(["lose_weight", "maintain", "build_muscle", "improve_fitness"])
+    .enum([
+      "lose_weight",
+      "maintain",
+      "build_muscle",
+      "improve_fitness",
+      "gain_weight",
+      "endurance",
+      "sleep_quality",
+      "reduce_stress",
+      "eat_healthy",
+      "custom",
+    ])
     .optional(),
+  customGoal: zod.string().nullish(),
   activityLevel: zod
     .enum(["sedentary", "light", "moderate", "active", "very_active"])
     .optional(),
@@ -77,7 +96,14 @@ export const UpdateProfileResponse = zod.object({
     "maintain",
     "build_muscle",
     "improve_fitness",
+    "gain_weight",
+    "endurance",
+    "sleep_quality",
+    "reduce_stress",
+    "eat_healthy",
+    "custom",
   ]),
+  customGoal: zod.string().nullish(),
   activityLevel: zod.enum([
     "sedentary",
     "light",

@@ -427,12 +427,31 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
             )}
           </div>
           {(profile.age > 0 || (profile.gender && profile.gender !== "unspecified" && profile.gender !== "")) && (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/10 backdrop-blur-sm">
-              <Calendar className="w-3 h-3 text-white/70" />
-              <span className="text-[10px] font-bold text-white/80">
-                {profile.age > 0 ? `${profile.age}y` : ""}
-                {profile.gender && profile.gender !== "unspecified" && profile.gender !== "" ? (profile.age > 0 ? ` • ${profile.gender}` : profile.gender) : ""}
-              </span>
+            <div className="inline-flex items-center gap-1.5">
+              {profile.age > 0 && (
+                <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-sm border border-white/20" data-testid="badge-age">
+                  <span className="text-[11px]" aria-hidden>🎂</span>
+                  <span className="text-[10px] font-bold text-white">{profile.age}<span className="opacity-70 ml-0.5">{t("unit_years_short") || "y"}</span></span>
+                </div>
+              )}
+              {profile.gender && profile.gender !== "unspecified" && profile.gender !== "" && (
+                <div
+                  className={cn(
+                    "inline-flex items-center gap-1 px-2.5 py-1 rounded-full backdrop-blur-sm border",
+                    profile.gender === "male" && "bg-blue-500/25 border-blue-300/40",
+                    profile.gender === "female" && "bg-pink-500/25 border-pink-300/40",
+                    profile.gender !== "male" && profile.gender !== "female" && "bg-white/15 border-white/20",
+                  )}
+                  data-testid="badge-gender"
+                >
+                  <span className="text-[11px]" aria-hidden>
+                    {profile.gender === "male" ? "♂" : profile.gender === "female" ? "♀" : "⚧"}
+                  </span>
+                  <span className="text-[10px] font-bold text-white capitalize">
+                    {profile.gender === "male" ? t("profile_male") : profile.gender === "female" ? t("profile_female") : t("profile_other")}
+                  </span>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -1651,6 +1670,7 @@ function EditProfileForm({ profile, onCancel }: { profile: any; onCancel: () => 
   const [weight, setWeight] = useState(profile.weight.toString());
   const [gender, setGender] = useState(profile.gender ?? "unspecified");
   const [goal, setGoal] = useState<UpdateProfileBodyGoal>(profile.goal);
+  const [customGoal, setCustomGoal] = useState<string>(profile.customGoal ?? "");
   const [activity, setActivity] = useState<UpdateProfileBodyActivityLevel>(profile.activityLevel);
   const [calories, setCalories] = useState(profile.dailyCalorieGoal.toString());
   const qc = useQueryClient();
@@ -1669,6 +1689,7 @@ function EditProfileForm({ profile, onCancel }: { profile: any; onCancel: () => 
       weight: Number(weight),
       gender: gender || undefined,
       goal,
+      customGoal: goal === "custom" ? (customGoal.trim() || null) : null,
       activityLevel: activity,
       dailyCalorieGoal: Number(calories),
     } });
@@ -1704,8 +1725,24 @@ function EditProfileForm({ profile, onCancel }: { profile: any; onCancel: () => 
             <SelectItem value="maintain">{t("profile_goal_maintain")}</SelectItem>
             <SelectItem value="build_muscle">{t("profile_goal_build_muscle")}</SelectItem>
             <SelectItem value="improve_fitness">{t("profile_goal_improve_fitness")}</SelectItem>
+            <SelectItem value="gain_weight">{t("profile_goal_gain_weight")}</SelectItem>
+            <SelectItem value="endurance">{t("profile_goal_endurance")}</SelectItem>
+            <SelectItem value="sleep_quality">{t("profile_goal_sleep_quality")}</SelectItem>
+            <SelectItem value="reduce_stress">{t("profile_goal_reduce_stress")}</SelectItem>
+            <SelectItem value="eat_healthy">{t("profile_goal_eat_healthy")}</SelectItem>
+            <SelectItem value="custom">{t("profile_goal_custom")}</SelectItem>
           </SelectContent>
         </Select>
+        {goal === "custom" && (
+          <Input
+            value={customGoal}
+            onChange={e => setCustomGoal(e.target.value)}
+            maxLength={80}
+            placeholder={t("profile_goal_custom_placeholder")}
+            className="h-9 mt-2"
+            data-testid="input-custom-goal"
+          />
+        )}
       </div>
       <div className="space-y-1.5">
         <Label className="text-xs">{t("profile_activity_level")}</Label>

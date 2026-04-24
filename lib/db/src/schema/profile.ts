@@ -10,6 +10,7 @@ export const profileTable = pgTable("profile", {
   weight: real("weight").notNull().default(70),
   height: real("height").notNull().default(170),
   goal: text("goal").notNull().default("maintain"),
+  customGoal: text("custom_goal"),
   activityLevel: text("activity_level").notNull().default("moderate"),
   dailyCalorieGoal: integer("daily_calorie_goal").notNull().default(2000),
   dailyWaterGoalMl: integer("daily_water_goal_ml").notNull().default(3000),

@@ -34,9 +34,14 @@ async function computeActivityStreak(): Promise<{ current: number; longest: numb
   const meals = await db.select({ d: mealsTable.loggedAt }).from(mealsTable);
   const workouts = await db.select({ d: workoutsTable.loggedAt }).from(workoutsTable);
   const sleeps = await db.select({ d: sleepTable.bedtime }).from(sleepTable);
+  const waters = await db.select({ d: waterLogsTable.loggedAt }).from(waterLogsTable);
+  const stepsRows = await db.select({ d: stepsTable.date, c: stepsTable.steps }).from(stepsTable);
   const days = new Set<string>();
-  for (const r of [...meals, ...workouts, ...sleeps]) {
+  for (const r of [...meals, ...workouts, ...sleeps, ...waters]) {
     if (r.d) days.add(new Date(r.d).toISOString().split("T")[0]!);
+  }
+  for (const r of stepsRows) {
+    if (r.d && Number(r.c ?? 0) > 0) days.add(String(r.d));
   }
   if (days.size === 0) return { current: 0, longest: 0 };
   const today = new Date().toISOString().split("T")[0]!;

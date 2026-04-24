@@ -577,7 +577,10 @@ components:
           type: number
         goal:
           type: string
-          enum: [lose_weight, maintain, build_muscle, improve_fitness]
+          enum: [lose_weight, maintain, build_muscle, improve_fitness, gain_weight, endurance, sleep_quality, reduce_stress, eat_healthy, custom]
+        customGoal:
+          type: string
+          nullable: true
         activityLevel:
           type: string
           enum: [sedentary, light, moderate, active, very_active]
@@ -610,7 +613,10 @@ components:
           type: number
         goal:
           type: string
-          enum: [lose_weight, maintain, build_muscle, improve_fitness]
+          enum: [lose_weight, maintain, build_muscle, improve_fitness, gain_weight, endurance, sleep_quality, reduce_stress, eat_healthy, custom]
+        customGoal:
+          type: string
+          nullable: true
         activityLevel:
           type: string
           enum: [sedentary, light, moderate, active, very_active]
