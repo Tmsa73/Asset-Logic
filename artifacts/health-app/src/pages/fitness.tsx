@@ -431,6 +431,7 @@ export default function Fitness() {
               )}
             </div>
           </div>
+          <BrandTag className="mt-3" />
         </div>
       </div>
     </div>

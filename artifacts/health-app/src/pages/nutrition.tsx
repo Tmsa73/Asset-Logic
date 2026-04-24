@@ -707,6 +707,7 @@ export default function Nutrition() {
               })}
             </div>
           )}
+          <BrandTag className="mt-3" />
         </div>
       </div>
     </div>

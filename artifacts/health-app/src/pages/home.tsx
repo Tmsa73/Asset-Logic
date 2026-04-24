@@ -884,6 +884,7 @@ export default function Home() {
                   </div>
                 ))}
             </div>
+            <BrandTag className="mt-3" />
           </div>
         )}
 

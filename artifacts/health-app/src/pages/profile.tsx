@@ -1594,6 +1594,7 @@ function SettingsTab() {
       <button onClick={logout} className="w-full py-3 rounded-2xl border border-destructive/40 text-destructive text-sm font-bold hover:bg-destructive/10 transition-colors press-scale">
         {t("settings_signout")}
       </button>
+      <BrandTag className="mt-2" />
     </div>
   );
 }
