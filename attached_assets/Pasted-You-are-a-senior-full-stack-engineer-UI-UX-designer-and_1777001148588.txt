@@ -1,0 +1,96 @@
+You are a senior full-stack engineer, UI/UX designer, and performance expert.
+
+I already have a working web app (HTML, CSS, JS presentation-style project).
+DO NOT rebuild the project from scratch.
+DO NOT remove my design style.
+Your job is to IMPROVE, FIX, and OPTIMIZE the existing code to a professional level.
+
+========================
+🎯 MAIN OBJECTIVE
+========================
+Transform this project into a polished, production-quality app with:
+- Smooth performance
+- Clean UX
+- Reliable navigation
+- Modern interactions
+
+========================
+🔧 FIX ALL ISSUES
+========================
+Carefully analyze and fix:
+- Navigation bugs (buttons, keyboard, swipe, scroll)
+- Any lag, delay, or double-trigger issues
+- Broken or inconsistent animations
+- Layout problems on different screen sizes
+- Touch/mobile responsiveness issues
+- Any visual glitches or misalignment
+- Code inefficiencies or bad practices
+
+========================
+🚀 IMPROVE UX & UI
+========================
+Upgrade the experience without changing the theme:
+- Make transitions smoother and more modern
+- Improve slide switching animations
+- Add subtle micro-interactions (hover, click feedback)
+- Improve readability and spacing
+- Enhance visual hierarchy
+- Make everything feel “premium”
+
+========================
+📱 RESPONSIVENESS
+========================
+Ensure perfect behavior on:
+- Desktop
+- Tablet
+- Mobile
+
+Fix:
+- Scaling issues
+- Overflow problems
+- Touch gestures
+
+========================
+⚡ PERFORMANCE OPTIMIZATION
+========================
+- Optimize JavaScript logic
+- Prevent unnecessary re-renders
+- Use debouncing/throttling where needed
+- Reduce heavy operations
+- Ensure smooth 60fps interactions
+
+========================
+🧠 CODE QUALITY
+========================
+- Clean and organize the code
+- Remove duplication
+- Use clear variable names
+- Keep it readable and maintainable
+- Comment only where useful
+
+========================
+✨ OPTIONAL PRO FEATURES
+========================
+(Only if they fit naturally)
+- Scroll snapping between slides
+- Better state management for slides
+- Progress indicator improvements
+- Smooth easing animations
+- Accessibility improvements (keyboard + focus)
+
+========================
+🚫 IMPORTANT RULES
+========================
+- DO NOT rewrite everything
+- DO NOT remove my slides/content
+- DO NOT change the main design concept
+- ONLY improve and enhance
+
+========================
+📤 OUTPUT FORMAT
+========================
+1. Provide the FULL improved code (HTML, CSS, JS)
+2. Highlight key improvements briefly
+3. Keep everything clean and production-ready
+
+Goal: Make this feel like a real startup-level product, not a school project.

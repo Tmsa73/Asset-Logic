@@ -480,6 +480,10 @@ const translations = {
     // Home toasts and fallbacks
     home_water_added: "ml added 💧",
     home_water_updated: "Water intake updated!",
+    home_water_edit: "Edit water (ml)",
+    home_water_saved: "Water updated",
+    home_water_invalid: "Enter a valid amount in ml",
+    home_water_failed: "Could not save water",
     home_tip_fallback: "Stay consistent!",
     home_tip_desc_fallback: "Every healthy choice adds up.",
 
@@ -1095,6 +1099,10 @@ const translations = {
     // Home toasts and fallbacks
     home_water_added: "مل مضاف 💧",
     home_water_updated: "تم تحديث كمية المياه!",
+    home_water_edit: "تعديل المياه (مل)",
+    home_water_saved: "تم تحديث المياه",
+    home_water_invalid: "أدخل كمية صحيحة بالمل",
+    home_water_failed: "تعذّر حفظ المياه",
     home_tip_fallback: "حافظ على الانتظام!",
     home_tip_desc_fallback: "كل خيار صحي يُحدث فرقًا.",
 

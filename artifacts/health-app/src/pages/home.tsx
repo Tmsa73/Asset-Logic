@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useGetDashboard, useGetAiInsights, useGetWaterIntake, useGetSteps, useUpdateSteps, useGetProgress, useGetLifeBalance, useGetNotifications, useMarkNotificationRead, useLogWater, useLogMeal, getGetWaterIntakeQueryKey, getGetDashboardQueryKey, getGetNotificationsQueryKey, getGetNutritionSummaryQueryKey, getGetMealsQueryKey, getGetStepsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Bell, Droplets, Footprints, Moon, Flame, Zap, Dumbbell, Utensils, Sparkles, Brain, X, Trophy, Crown, ChevronRight, Coins, Sword, CheckCheck, Star, BedDouble, Activity, Clock } from "lucide-react";
+import { Bell, Droplets, Footprints, Moon, Flame, Zap, Dumbbell, Utensils, Sparkles, Brain, X, Trophy, Crown, ChevronRight, Coins, Sword, CheckCheck, Star, BedDouble, Activity, Clock, Pencil, Check } from "lucide-react";
 import { Link } from "wouter";
 import { getActiveTitle, calcLevel, calcMomentumScore, getStoredTitleId } from "@/lib/gamification";
 import { motion, AnimatePresence } from "framer-motion";
@@ -36,6 +36,8 @@ export default function Home() {
   const [quickLoggedIds, setQuickLoggedIds] = useState<Set<number>>(new Set());
   const [editingSteps, setEditingSteps] = useState(false);
   const [stepsDraft, setStepsDraft] = useState("");
+  const [editingWater, setEditingWater] = useState(false);
+  const [waterDraft, setWaterDraft] = useState("");
 
   const commitSteps = () => {
     const raw = stepsDraft.trim();
@@ -102,6 +104,29 @@ export default function Home() {
         toast({ title: `+${ml}${t("home_water_added")}`, description: t("home_water_updated") });
         playGamificationSound("xp");
       }
+    });
+  };
+
+  const commitWater = () => {
+    const raw = waterDraft.trim();
+    if (raw === "") { setEditingWater(false); return; }
+    const target = Number(raw.replace(/[^\d]/g, ""));
+    if (!Number.isFinite(target) || target < 0 || target > 20000) {
+      toast({ title: t("home_water_invalid"), variant: "destructive" });
+      return;
+    }
+    const current = water?.totalMl ?? dashboard.waterMl ?? 0;
+    const delta = target - current;
+    if (delta === 0) { setEditingWater(false); return; }
+    logWater.mutate({ data: { amountMl: delta } }, {
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: getGetWaterIntakeQueryKey() });
+        qc.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
+        toast({ title: t("home_water_saved") });
+        setEditingWater(false);
+        playGamificationSound("xp");
+      },
+      onError: () => toast({ title: t("home_water_failed"), variant: "destructive" }),
     });
   };
 
