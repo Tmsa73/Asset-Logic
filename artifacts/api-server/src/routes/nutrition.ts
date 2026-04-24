@@ -213,22 +213,7 @@ router.post("/nutrition/analyze-food-image", async (req, res): Promise<void> => 
   const imgMime = (mimeType ?? "image/jpeg") as "image/jpeg" | "image/png" | "image/gif" | "image/webp";
   const dataUrl = `data:${imgMime};base64,${imageBase64}`;
 
-  try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-5.4",
-      max_completion_tokens: 1500,
-      response_format: { type: "json_object" },
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "image_url",
-              image_url: { url: dataUrl, detail: "low" },
-            },
-            {
-              type: "text",
-              text: `You are an expert nutritionist and food recognition AI with comprehensive knowledge of global cuisines including Middle Eastern, Arabian, Gulf, Levantine, North African, South Asian, East Asian, Mediterranean, Western, and all other world cuisines.
+  const promptText = `You are an expert nutritionist and food recognition AI with comprehensive knowledge of global cuisines including Middle Eastern, Arabian, Gulf, Levantine, North African, South Asian, East Asian, Mediterranean, Western, and all other world cuisines.
 
 FOOD DATABASE REFERENCE — Try to match the food in the image to one of these names exactly if possible:
 ${FOOD_REFERENCE_NAMES.join(", ")}
@@ -249,25 +234,58 @@ Analyze this food image and return ONLY a JSON object (no markdown, no explanati
   "description": "brief 1-sentence description of what you see"
 }
 
-Use realistic nutritional values for a standard serving size. Make your best identification attempt even if the image is not perfect — set confidence to "low" if uncertain but still provide your best estimate. Only use "Unknown food" if the image contains absolutely no food.`,
-            },
-          ],
-        },
-      ],
-    });
+Use realistic nutritional values for a standard serving size. Make your best identification attempt even if the image is not perfect — set confidence to "low" if uncertain but still provide your best estimate. Only use "Unknown food" if the image contains absolutely no food.`;
 
-    const raw = completion.choices[0]?.message?.content ?? "{}";
+  const buildMessages = () => [{
+    role: "user" as const,
+    content: [
+      { type: "image_url" as const, image_url: { url: dataUrl, detail: "low" as const } },
+      { type: "text" as const, text: promptText },
+    ],
+  }];
+
+  async function callModel(model: string): Promise<string> {
+    const isGpt5 = model.startsWith("gpt-5");
+    const params: any = {
+      model,
+      response_format: { type: "json_object" },
+      messages: buildMessages(),
+    };
+    if (isGpt5) params.max_completion_tokens = 4000;
+    else params.max_tokens = 1000;
+    const completion = await openai.chat.completions.create(params);
+    const choice = completion.choices[0];
+    const raw = choice?.message?.content ?? "";
+    console.log(`[food-image] model=${model} finish=${choice?.finish_reason} usage=${JSON.stringify(completion.usage)} contentLen=${raw.length}`);
+    return raw;
+  }
+
+  try {
+    let raw = "";
+    try {
+      raw = await callModel("gpt-5.4");
+    } catch (e: any) {
+      console.error("[food-image] gpt-5.4 failed:", e?.status, e?.message);
+    }
+    if (!raw.trim()) {
+      console.log("[food-image] gpt-5.4 empty/failed → falling back to gpt-4o");
+      raw = await callModel("gpt-4o");
+    }
+
     let parsed: Record<string, unknown>;
     try {
       const jsonMatch = raw.match(/\{[\s\S]*\}/);
       parsed = JSON.parse(jsonMatch?.[0] ?? "{}");
-    } catch {
-      parsed = { name: "Unknown food", calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0, sugar: 0, mealType: "snack", confidence: "low", description: "Could not identify food." };
+      if (!parsed.name) throw new Error("missing name");
+    } catch (e) {
+      console.error("[food-image] JSON parse failed. Raw:", raw.substring(0, 500));
+      res.status(500).json({ error: "AI response was unreadable. Try a clearer photo." });
+      return;
     }
 
     res.json(parsed);
   } catch (err: any) {
-    console.error("Food analysis error:", err?.message ?? err);
+    console.error("[food-image] fatal error:", err?.status, err?.message ?? err);
     res.status(500).json({ error: "Failed to analyze image. Please try again." });
   }
 });
