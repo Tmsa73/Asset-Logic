@@ -104,8 +104,8 @@ router.get("/progress", async (req, res): Promise<void> => {
     stats: {
       totalWorkouts,
       totalMealsLogged: totalMeals,
-      longestStreak: 0,
-      currentStreak: 0,
+      longestStreak,
+      currentStreak,
     },
   };
 
