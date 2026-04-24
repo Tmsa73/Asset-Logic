@@ -40,6 +40,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLang } from "@/hooks/use-lang";
 import { areSoundEffectsEnabled, playGamificationSound, setSoundEffectsEnabled } from "@/lib/sounds";
 
+// ── Helpers ────────────────────────────────────────────────────────
+function formatGoal(profile: any, t: (k: any) => string): string {
+  if (profile.goal === "custom") return profile.customGoal?.trim() || t("profile_goal_custom");
+  const key = `profile_goal_${profile.goal}`;
+  const translated = t(key as any);
+  return translated && translated !== key ? translated : t("profile_goal_improve_fitness");
+}
+
 // ── Types ──────────────────────────────────────────────────────────
 type ProfileTab = "me" | "rewards" | "history" | "settings";
 type RewardsTab = "achievements" | "titles" | "missions" | "bosses";
@@ -374,7 +382,7 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
             </div>
             <div className="flex flex-wrap gap-1.5">
               <span className="text-[10px] font-bold bg-primary/15 text-primary px-2 py-0.5 rounded-full border border-primary/20">
-                {profile.goal === "lose_weight" ? t("goal_lose") : profile.goal === "maintain_weight" ? t("goal_maintain") : profile.goal === "build_muscle" ? t("goal_muscle") : t("goal_fitness")}
+                {formatGoal(profile, t)}
               </span>
               <span className="text-[10px] font-bold bg-secondary/15 text-secondary px-2 py-0.5 rounded-full border border-secondary/20">
                 {profile.activityLevel === "sedentary" ? t("activity_sedentary") : profile.activityLevel === "lightly_active" ? t("activity_light") : profile.activityLevel === "moderately_active" ? t("activity_moderate") : profile.activityLevel === "very_active" ? t("activity_very_active") : t("activity_active")}
@@ -558,7 +566,7 @@ function MeTab({ profile, stats, progress, missions, balance, user, activeTitle,
               <DetailRow label={t("profile_height")} value={Number(profile.height) > 0 ? `${profile.height} cm` : "—"} />
               <DetailRow label={t("profile_bmi")} value={<span className={bmiColor}>{bmiValid ? `${bmi} (${bmiLabel})` : bmiLabel}</span>} />
               <DetailRow label={t("profile_activity")} value={<span>{profile.activityLevel === "sedentary" ? t("activity_sedentary") : profile.activityLevel === "lightly_active" ? t("activity_light") : profile.activityLevel === "moderately_active" ? t("activity_moderate") : profile.activityLevel === "very_active" ? t("activity_very_active") : t("activity_active")}</span>} />
-              <DetailRow label={t("profile_goal")} value={<span className="text-primary">{profile.goal === "lose_weight" ? t("goal_lose") : profile.goal === "maintain_weight" ? t("goal_maintain") : profile.goal === "build_muscle" ? t("goal_muscle") : t("goal_fitness")}</span>} />
+              <DetailRow label={t("profile_goal")} value={<span className="text-primary">{formatGoal(profile, t)}</span>} />
               <DetailRow label={t("profile_calorie_goal")} value={`${profile.dailyCalorieGoal.toLocaleString()} ${t("unit_kcal")}`} />
             </div>
           )}
